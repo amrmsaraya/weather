@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="4dp"
+    android:layout_marginBottom="4dp"
+    android:background="@drawable/gradient_square"
+    android:backgroundTint="@color/dark_gray"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/tvDailyWeekDay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:text="Tomorrow"
+        android:textColor="@color/white" />
+
+    <ImageView
+        android:id="@+id/ivDailyWeatherIcon"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_weight="1"
+        android:src="@drawable/cloudy_day_3" />
+
+    <TextView
+        android:id="@+id/tvDailyDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginEnd="8dp"
+        android:layout_weight="1"
+        android:text="Partly Cloudy"
+        android:textColor="@color/white" />
+
+    <TextView
+        android:id="@+id/tvDailyMaxMinTemp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:text="25 / 12 °"
+        android:textColor="@color/white" />
+</LinearLayout>
