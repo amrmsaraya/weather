@@ -9,4 +9,6 @@
     <string name="wind">Wind</string>
     <string name="cloud">Cloud</string>
     <string name="ultra_violet">Ultra Violet</string>
+    <string name="open">Open</string>
+    <string name="close">Close</string>
 </resources>
