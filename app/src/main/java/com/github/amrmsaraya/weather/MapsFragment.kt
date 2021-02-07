@@ -40,12 +40,11 @@ class MapsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        var x = requireActivity() as AppCompatActivity
+        val x = requireActivity() as AppCompatActivity
         x.supportActionBar?.hide()
         binding = DataBindingUtil.inflate(layoutInflater, R.layout.fragment_maps, container, false)
         binding.btnMapSave.setOnClickListener {
             it.findNavController().navigate(R.id.action_mapsFragment_to_favoritesFragment)
-            x.supportActionBar?.show()
         }
         return binding.root
     }
@@ -55,4 +54,6 @@ class MapsFragment : Fragment() {
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
     }
+
 }
+

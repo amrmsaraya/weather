@@ -1,5 +1,6 @@
 package com.github.amrmsaraya.weather
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
@@ -25,32 +26,32 @@ import androidx.navigation.ui.setupWithNavController
 import com.github.amrmsaraya.weather.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityMainBinding
     private lateinit var toggle: ActionBarDrawerToggle
     private lateinit var navController: NavController
-    private var previousFragment = 0
+
+    companion object {
+        lateinit var binding: ActivityMainBinding
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Set background colors
-        window.statusBarColor = Color.parseColor("#FF1F1F1F")
-        window.navigationBarColor = Color.parseColor("#FF1F1F1F")
+        // Set background colors for status bar and navigation bar
+        window.statusBarColor = Color.parseColor("#FF212121")
+        window.navigationBarColor = Color.parseColor("#FF212121")
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM
-        supportActionBar?.setBackgroundDrawable(ColorDrawable(Color.parseColor("#FF1F1F1F")))
+        supportActionBar?.setBackgroundDrawable(getDrawable(R.drawable.actionbar))
 
         navController = findNavController(R.id.fragment)
         toggle = ActionBarDrawerToggle(this, binding.drawerLayout, R.string.open, R.string.close)
         binding.drawerLayout.addDrawerListener(toggle)
-        binding.navView.setCheckedItem(R.id.navHome)
         toggle.syncState()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         binding.navView.setNavigationItemSelectedListener {
             binding.drawerLayout.closeDrawers()
-            previousFragment++
             when (it.itemId) {
                 R.id.navHome -> navController.navigate(R.id.homeFragment)
                 R.id.navFavorites -> navController.navigate(R.id.favoritesFragment)

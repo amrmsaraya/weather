@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="darker_gray">#FF1F1F1F</color>
-    <color name="dark_gray">#FF282828</color>
-    <color name="light_gray">#FF6B6B6B</color>
+    <color name="darker_gray">#FF212121</color>
+    <color name="dark_gray">#FF2B2B2B</color>
+    <color name="light_gray">#FF757575</color>
     <color name="pink">#FFFF00e4</color>
     <color name="blue">#FF6011F4</color>
     <color name="black">#FF000000</color>

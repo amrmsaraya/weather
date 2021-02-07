@@ -17,9 +17,8 @@ class HomeFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(layoutInflater, R.layout.fragment_home, container, false)
-
-
-
+        MainActivity.binding.navView.setCheckedItem(R.id.navHome)
+        MainActivity.binding.tvTitle.text = "Giza, Egypt"
         return binding.root
     }
 

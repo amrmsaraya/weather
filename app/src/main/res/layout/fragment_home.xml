@@ -32,23 +32,28 @@
                     android:id="@+id/linearLayout2"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:layout_margin="16dp"
+                    android:layout_marginTop="24dp"
                     android:orientation="horizontal"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:layout_editor_absoluteX="209dp">
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintHorizontal_bias="0.5"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <ImageView
                         android:id="@+id/ivDetailsIcon"
-                        android:layout_width="167dp"
-                        android:layout_height="141dp"
+                        android:layout_width="125dp"
+                        android:layout_height="125dp"
+                        android:layout_marginStart="8dp"
                         android:layout_marginEnd="8dp"
                         android:layout_weight="1"
-                        app:srcCompat="@drawable/cloudy_day_3" />
+                        app:srcCompat="@drawable/clear_day" />
 
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
                         android:layout_weight="1"
                         android:orientation="vertical">
 
@@ -57,7 +62,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
-                            android:text="Partly Cloudy"
+                            android:text="Clear"
                             android:textColor="@color/white" />
 
                         <LinearLayout
@@ -67,19 +72,21 @@
                             android:orientation="horizontal">
 
                             <TextView
-                                android:id="@+id/textView12"
+                                android:id="@+id/tvDetailsTemp"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="@font/spartan"
                                 android:text="29"
                                 android:textColor="@color/white"
-                                android:textSize="80sp" />
+                                android:textSize="75sp" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
+                                android:fontFamily="@font/spartan"
                                 android:text="@string/degree_symbol"
                                 android:textColor="@color/white"
-                                android:textSize="80sp" />
+                                android:textSize="75sp" />
                         </LinearLayout>
                     </LinearLayout>
                 </LinearLayout>
@@ -190,7 +197,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_marginTop="32dp"
-                    android:layout_marginBottom="16dp"
+                    android:layout_marginBottom="24dp"
                     android:orientation="horizontal"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -200,15 +207,15 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:orientation="vertical">
 
                         <ImageView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
                             android:layout_gravity="center"
-                            app:srcCompat="@drawable/cloud_computing" />
+                            app:srcCompat="@drawable/cloud" />
 
                         <TextView
                             android:id="@+id/tvClouds"
@@ -235,8 +242,8 @@
                         android:orientation="vertical">
 
                         <ImageView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
                             android:layout_gravity="center"
                             app:srcCompat="@drawable/uv" />
 
@@ -286,7 +293,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:gravity="center"
-                    android:text="Cloudy Day"
+                    android:text="Clear"
                     android:textColor="@color/white"
                     android:textSize="20sp"
                     app:layout_constraintBottom_toTopOf="@+id/tvTemp"
@@ -299,10 +306,13 @@
                     android:id="@+id/tvTemp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:fontFamily="@font/spartan"
                     android:gravity="center"
                     android:text="29"
                     android:textColor="@color/white"
-                    android:textSize="120sp"
+                    android:textSize="85sp"
+                    android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -311,9 +321,11 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:fontFamily="@font/spartan"
                     android:text="@string/degree_symbol"
                     android:textColor="@color/white"
-                    android:textSize="120sp"
+                    android:textSize="85sp"
+                    android:textStyle="bold"
                     app:layout_constraintStart_toEndOf="@+id/tvTemp"
                     app:layout_constraintTop_toTopOf="@+id/tvTemp" />
 
@@ -321,14 +333,14 @@
 
             <ImageView
                 android:id="@+id/ivIcon"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
-                android:layout_marginTop="145dp"
+                android:layout_width="125dp"
+                android:layout_height="125dp"
+                android:layout_marginTop="170dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/constraintLayout"
-                app:srcCompat="@drawable/cloudy_day_3" />
+                app:srcCompat="@drawable/clear_day" />
 
             <androidx.constraintlayout.widget.Group
                 android:id="@+id/group"
@@ -366,7 +378,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginStart="16dp"
-                android:layout_marginTop="32dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

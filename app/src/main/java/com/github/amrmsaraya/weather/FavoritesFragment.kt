@@ -27,11 +27,14 @@ class FavoritesFragment : Fragment() {
         // Inflate the layout for this fragment
         binding =
             DataBindingUtil.inflate(layoutInflater, R.layout.fragment_favorites, container, false)
-
+        MainActivity.binding.navView.setCheckedItem(R.id.navFavorites)
+        MainActivity.binding.tvTitle.text = getString(R.string.favorites)
+        val x = requireActivity() as AppCompatActivity
+        x.supportActionBar?.show()
         binding.fabAddFavorite.setOnClickListener {
             it.findNavController().navigate(R.id.action_favoritesFragment_to_mapsFragment)
-
         }
+
         return binding.root
     }
 
