@@ -13,5 +13,8 @@
     <string name="settings">Settings</string>
     <string name="alerts">Alerts</string>
     <string name="favorites">Favorites</string>
+    <string name="visibility">Visibility</string>
     <string name="google_maps_key">AIzaSyAQXDx6neXi3sIg1WucpTBvxgp2vWTRegE</string>
+    <string name="open_weather_map_app_id">22efb44963e22ae7005aac70558c7464</string>
+
 </resources>

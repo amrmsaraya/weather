@@ -6,8 +6,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/darker_gray"
-        tools:context=".FavoritesFragment">
+        tools:context=".view.FavoritesFragment">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rvFavorites"

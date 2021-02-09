@@ -7,33 +7,33 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.github.amrmsaraya.weather.HomeFragment"
+        android:name="com.github.amrmsaraya.weather.view.HomeFragment"
         android:label="fragment_home"
         tools:layout="@layout/fragment_home" />
     <fragment
         android:id="@+id/favoritesFragment"
-        android:name="com.github.amrmsaraya.weather.FavoritesFragment"
+        android:name="com.github.amrmsaraya.weather.view.FavoritesFragment"
         android:label="fragment_favorites"
-        tools:layout="@layout/fragment_favorites" >
+        tools:layout="@layout/fragment_favorites">
         <action
             android:id="@+id/action_favoritesFragment_to_mapsFragment"
             app:destination="@id/mapsFragment" />
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.github.amrmsaraya.weather.SettingsFragment"
+        android:name="com.github.amrmsaraya.weather.view.SettingsFragment"
         android:label="fragment_settings"
         tools:layout="@layout/fragment_settings" />
     <fragment
         android:id="@+id/alertsFragment"
-        android:name="com.github.amrmsaraya.weather.AlertsFragment"
+        android:name="com.github.amrmsaraya.weather.view.AlertsFragment"
         android:label="fragment_alerts"
         tools:layout="@layout/fragment_alerts" />
     <fragment
         android:id="@+id/mapsFragment"
-        android:name="com.github.amrmsaraya.weather.MapsFragment"
+        android:name="com.github.amrmsaraya.weather.view.MapsFragment"
         android:label="fragment_maps"
-        tools:layout="@layout/fragment_maps" >
+        tools:layout="@layout/fragment_maps">
         <action
             android:id="@+id/action_mapsFragment_to_favoritesFragment"
             app:destination="@id/favoritesFragment" />

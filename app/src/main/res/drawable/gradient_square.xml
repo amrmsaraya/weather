@@ -6,4 +6,5 @@
         android:endColor="@color/pink"
         android:startColor="@color/blue" />
     <corners android:radius="30dp" />
+
 </shape>
