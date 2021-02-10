@@ -42,7 +42,7 @@ class HourlyAdapter(private val context: Context) :
     }
 
     override fun onBindViewHolder(holder: HourlyViewHolder, position: Int) {
-        val formatter = SimpleDateFormat("HH:mm")
+        val formatter = SimpleDateFormat("h a")
         val time = formatter.format(Date(getItem(position).dt.toLong() * 1000))
         holder.binding.tvHourlyTemp.text = getItem(position).temp.roundToInt().toString()
         holder.binding.tvHourlyTime.text = time

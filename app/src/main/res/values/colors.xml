@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="darker_gray">#FF212121</color>
-    <color name="dark_gray">#FF2B2B2B</color>
+    <color name="dark_gray">#FF313131</color>
     <color name="light_gray">#FF757575</color>
     <color name="pink">#FFFF00e4</color>
     <color name="blue">#FF6011F4</color>
@@ -9,5 +9,5 @@
     <color name="white">#FFFFFFFF</color>
     <color name="transparent">#00FFFFFF</color>
     <color name="darker_gray_transparent">#99212121</color>
-    <color name="dark_gray_transparent">#992B2B2B</color>
+    <color name="dark_gray_transparent">#99323232</color>
 </resources>

@@ -102,7 +102,7 @@ class HomeFragment : Fragment() {
         when (current.weather[0].main) {
             "Clear" -> {
                 weather = PrecipType.CLEAR
-                if (Calendar.getInstance().timeInMillis in current.sunrise until current.sunset) {
+                if (Calendar.getInstance().timeInMillis / 1000 in current.sunrise until current.sunset) {
                     binding.ivIcon.setImageDrawable(context?.getDrawable(R.drawable.clear_day))
                 } else {
                     binding.ivIcon.setImageDrawable(context?.getDrawable(R.drawable.clear_night))
@@ -111,7 +111,7 @@ class HomeFragment : Fragment() {
 
             "Clouds" -> {
                 weather = PrecipType.CLEAR
-                if (Calendar.getInstance().timeInMillis in current.sunrise until current.sunset) {
+                if (Calendar.getInstance().timeInMillis / 1000 in current.sunrise until current.sunset) {
                     binding.ivIcon.setImageDrawable(context?.getDrawable(R.drawable.cloudy_day))
                 } else {
                     binding.ivIcon.setImageDrawable(context?.getDrawable(R.drawable.cloudy_night))
@@ -121,7 +121,7 @@ class HomeFragment : Fragment() {
             "Drizzle" -> {
                 weather = PrecipType.RAIN
                 rate = 25f
-                if (Calendar.getInstance().timeInMillis in current.sunrise until current.sunset) {
+                if (Calendar.getInstance().timeInMillis / 1000 in current.sunrise until current.sunset) {
                     binding.ivIcon.setImageDrawable(context?.getDrawable(R.drawable.rainy_day))
                 } else {
                     binding.ivIcon.setImageDrawable(context?.getDrawable(R.drawable.rainy_night))
@@ -131,7 +131,7 @@ class HomeFragment : Fragment() {
             "Rain" -> {
                 weather = PrecipType.RAIN
                 rate = 100f
-                if (Calendar.getInstance().timeInMillis in current.sunrise until current.sunset) {
+                if (Calendar.getInstance().timeInMillis / 1000 in current.sunrise until current.sunset) {
                     binding.ivIcon.setImageDrawable(context?.getDrawable(R.drawable.rainy_day))
                 } else {
                     binding.ivIcon.setImageDrawable(context?.getDrawable(R.drawable.rainy_night))
@@ -150,7 +150,7 @@ class HomeFragment : Fragment() {
 
             else -> {
                 weather = PrecipType.CLEAR
-                if (Calendar.getInstance().timeInMillis in current.sunrise until current.sunset) {
+                if (Calendar.getInstance().timeInMillis / 1000 in current.sunrise until current.sunset) {
                     binding.ivIcon.setImageDrawable(context?.getDrawable(R.drawable.foggy_day))
                 } else {
                     binding.ivIcon.setImageDrawable(context?.getDrawable(R.drawable.foggy_night))
