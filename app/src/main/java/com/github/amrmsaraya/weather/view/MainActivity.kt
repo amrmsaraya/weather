@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
         supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM
-        supportActionBar?.setBackgroundDrawable(getDrawable(R.drawable.actionbar))
+        supportActionBar?.setBackgroundDrawable(getDrawable(R.drawable.gray_square))
 
         navController = findNavController(R.id.fragment)
         toggle = ActionBarDrawerToggle(this, binding.drawerLayout, R.string.open, R.string.close)

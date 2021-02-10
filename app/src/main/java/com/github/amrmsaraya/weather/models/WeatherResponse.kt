@@ -1,8 +1,8 @@
-package com.github.amrmsaraya.weather.data
+package com.github.amrmsaraya.weather.models
 
 import com.google.gson.annotations.SerializedName
 
-data class WeatherBase(
+data class WeatherResponse(
 
 	@SerializedName("lat") val lat: Double,
 	@SerializedName("lon") val lon: Double,

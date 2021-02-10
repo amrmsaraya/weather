@@ -1,6 +1,6 @@
-package com.github.amrmsaraya.weather.retrofit
+package com.github.amrmsaraya.weather.api
 
-import com.github.amrmsaraya.weather.data.WeatherBase
+import com.github.amrmsaraya.weather.models.WeatherResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
@@ -15,5 +15,5 @@ interface WeatherService {
         @Query("units") units: String,
         @Query("lang") lang: String,
         @Query("APPID") appId: String,
-    ): Response<WeatherBase>
+    ): Response<WeatherResponse>
 }

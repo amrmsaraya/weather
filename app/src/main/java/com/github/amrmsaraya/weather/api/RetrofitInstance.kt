@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.retrofit
+package com.github.amrmsaraya.weather.api
 
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient

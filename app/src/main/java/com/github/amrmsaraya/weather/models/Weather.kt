@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.data
+package com.github.amrmsaraya.weather.models
 
 import com.google.gson.annotations.SerializedName
 

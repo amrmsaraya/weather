@@ -10,14 +10,18 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.liveData
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.amrmsaraya.weather.R
-import com.github.amrmsaraya.weather.data.Current
-import com.github.amrmsaraya.weather.data.WeatherBase
+import com.github.amrmsaraya.weather.adapters.DailyAdapter
+import com.github.amrmsaraya.weather.adapters.HourlyAdapter
+import com.github.amrmsaraya.weather.api.RetrofitInstance
+import com.github.amrmsaraya.weather.api.WeatherService
 import com.github.amrmsaraya.weather.databinding.FragmentHomeBinding
-import com.github.amrmsaraya.weather.retrofit.RetrofitInstance
-import com.github.amrmsaraya.weather.retrofit.WeatherService
+import com.github.amrmsaraya.weather.models.Current
+import com.github.amrmsaraya.weather.models.WeatherResponse
 import com.github.matteobattilana.weather.PrecipType
 import retrofit2.Response
+import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -33,10 +37,20 @@ class HomeFragment : Fragment() {
         binding = DataBindingUtil.inflate(layoutInflater, R.layout.fragment_home, container, false)
         MainActivity.binding.navView.setCheckedItem(R.id.navHome)
         MainActivity.binding.tvTitle.text = "Giza, Egypt"
-        binding.tvDate.text = getCurrentDate()
+
+        val formatter = SimpleDateFormat("E, dd MMM")
+        val date = formatter.format(Date(System.currentTimeMillis()))
+        binding.tvDate.text = date
 
         retrofitService = RetrofitInstance.getRetrofitInstance().create(WeatherService::class.java)
         getWeatherData()
+
+        val layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
+        binding.rvHourly.layoutManager = layoutManager
+        binding.rvHourly.adapter = context?.let { HourlyAdapter(it) }
+
+        binding.rvDaily.layoutManager = LinearLayoutManager(context)
+        binding.rvDaily.adapter = context?.let { DailyAdapter(it) }
 
         return binding.root
     }
@@ -44,10 +58,10 @@ class HomeFragment : Fragment() {
 
     // get weather data from API
     private fun getWeatherData() {
-        val responseLiveData: LiveData<Response<WeatherBase>> = liveData {
+        val responseLiveData: LiveData<Response<WeatherResponse>> = liveData {
             val response = retrofitService.getWeather(
-                33.441792,
-                -94.037689,
+                29.999307,
+                31.184922,
                 "minutely",
                 "metric",
                 "en",
@@ -60,6 +74,12 @@ class HomeFragment : Fragment() {
             val responseBody = it.body()
             if (responseBody != null) {
                 showCurrentData(responseBody.current)
+                val hourlyAdapter = binding.rvHourly.adapter as HourlyAdapter
+                hourlyAdapter.setSunriseAndSunset(responseBody.daily)
+                hourlyAdapter.submitList(responseBody.hourly.subList(0, 23))
+
+                val dailyAdapter = binding.rvDaily.adapter as DailyAdapter
+                dailyAdapter.submitList(responseBody.daily.subList(1, responseBody.daily.size - 1))
             }
         })
     }
@@ -71,7 +91,7 @@ class HomeFragment : Fragment() {
         var rate = 100f
         binding.tvTemp.text = current.temp.roundToInt().toString()
         binding.tvDescription.text =
-            current.weather[0].description.capitalize()
+            current.weather[0].description.capitalize(Locale.ROOT)
         binding.tvPressure.text = "${current.pressure} hpa"
         binding.tvHumidity.text = "${current.humidity} %"
         binding.tvWindSpeed.text = "${current.wind_speed} m/s"
@@ -147,35 +167,4 @@ class HomeFragment : Fragment() {
         }
     }
 
-    private fun getCurrentDate(): String {
-        var dayOfWeek = "Saturday"
-        var dayOfMonth = Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
-        var month = "Jan"
-
-        when (Calendar.getInstance().get(Calendar.DAY_OF_WEEK)) {
-            Calendar.SATURDAY -> dayOfWeek = "Saturday"
-            Calendar.SUNDAY -> dayOfWeek = "Sunday"
-            Calendar.MONDAY -> dayOfWeek = "Monday"
-            Calendar.TUESDAY -> dayOfWeek = "Tuesday"
-            Calendar.WEDNESDAY -> dayOfWeek = "Wednesday"
-            Calendar.THURSDAY -> dayOfWeek = "Thursday"
-            Calendar.FRIDAY -> dayOfWeek = "Friday"
-        }
-
-        when (Calendar.getInstance().get(Calendar.MONTH)) {
-            Calendar.JANUARY -> month = "Jan"
-            Calendar.FEBRUARY -> month = "Feb"
-            Calendar.MARCH -> month = "Mar"
-            Calendar.APRIL -> month = "Apr"
-            Calendar.MAY -> month = "May"
-            Calendar.JUNE -> month = "June"
-            Calendar.JULY -> month = "July"
-            Calendar.AUGUST -> month = "Aug"
-            Calendar.SEPTEMBER -> month = "Sept"
-            Calendar.OCTOBER -> month = "Oct"
-            Calendar.NOVEMBER -> month = "Nov"
-            Calendar.DECEMBER -> month = "Dec"
-        }
-        return "$dayOfWeek, $dayOfMonth $month"
-    }
 }
