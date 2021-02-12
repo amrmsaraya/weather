@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.adapters
+package com.github.amrmsaraya.weather.presenter.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.databinding.HourlyItemBinding
-import com.github.amrmsaraya.weather.models.Daily
-import com.github.amrmsaraya.weather.models.Hourly
+import com.github.amrmsaraya.weather.data.models.Daily
+import com.github.amrmsaraya.weather.data.models.Hourly
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
@@ -18,7 +18,7 @@ import kotlin.math.roundToInt
 
 class HourlyAdapter(private val context: Context) :
     ListAdapter<Hourly, HourlyAdapter.HourlyViewHolder>(HourlyDiffUtil()) {
-    private var tomorrow = 0
+    private var tomorrowTime = 0
     private var todaySunrise = 0
     private var todaySunset = 0
     private var tomorrowSunrise = 0
@@ -46,7 +46,7 @@ class HourlyAdapter(private val context: Context) :
         val time = formatter.format(Date(getItem(position).dt.toLong() * 1000))
         holder.binding.tvHourlyTemp.text = getItem(position).temp.roundToInt().toString()
         holder.binding.tvHourlyTime.text = time
-        if (getItem(position).dt < tomorrow - 72000) {
+        if (getItem(position).dt < tomorrowTime - 72000) {
             sunrise = todaySunrise
             sunset = todaySunset
         } else {
@@ -104,13 +104,13 @@ class HourlyAdapter(private val context: Context) :
         todaySunset = daily[0].sunset
         tomorrowSunrise = daily[1].sunrise
         tomorrowSunset = daily[1].sunset
-        tomorrow = daily[1].dt
+        tomorrowTime = daily[1].dt
     }
 }
 
 class HourlyDiffUtil : DiffUtil.ItemCallback<Hourly>() {
     override fun areItemsTheSame(oldItem: Hourly, newItem: Hourly): Boolean {
-        return oldItem == newItem
+        return oldItem.dt == newItem.dt
     }
 
     override fun areContentsTheSame(oldItem: Hourly, newItem: Hourly): Boolean {

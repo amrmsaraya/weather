@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.api
+package com.github.amrmsaraya.weather.data.remote
 
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient

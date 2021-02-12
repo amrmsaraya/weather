@@ -1,15 +1,16 @@
-package com.github.amrmsaraya.weather.view
+package com.github.amrmsaraya.weather.presenter.ui
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.databinding.FragmentMapsBinding
+import com.github.amrmsaraya.weather.presenter.viewModel.SharedViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
@@ -18,6 +19,8 @@ import com.google.android.gms.maps.model.MarkerOptions
 
 class MapsFragment : Fragment() {
     private lateinit var binding: FragmentMapsBinding
+    private lateinit var sharedViewModel: SharedViewModel
+
     private val callback = OnMapReadyCallback { googleMap ->
         /**
          * Manipulates the map once available.
@@ -38,11 +41,18 @@ class MapsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val x = requireActivity() as AppCompatActivity
-        x.supportActionBar?.hide()
+        sharedViewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
         binding = DataBindingUtil.inflate(layoutInflater, R.layout.fragment_maps, container, false)
+
+        // Hide Action Bar
+        sharedViewModel.actionBarVisibility.value = "Hide"
+
         binding.btnMapSave.setOnClickListener {
-            it.findNavController().navigate(R.id.action_mapsFragment_to_favoritesFragment)
+            if (sharedViewModel.mapStatus.value == "Default") {
+                it.findNavController().navigate(R.id.homeFragment)
+            } else if (sharedViewModel.mapStatus.value == "Favorites") {
+                it.findNavController().navigate(R.id.action_mapsFragment_to_favoritesFragment)
+            }
         }
         return binding.root
     }

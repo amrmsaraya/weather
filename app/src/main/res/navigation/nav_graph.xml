@@ -7,12 +7,12 @@
 
     <fragment
         android:id="@+id/homeFragment"
-        android:name="com.github.amrmsaraya.weather.view.HomeFragment"
+        android:name="com.github.amrmsaraya.weather.presenter.ui.HomeFragment"
         android:label="fragment_home"
         tools:layout="@layout/fragment_home" />
     <fragment
         android:id="@+id/favoritesFragment"
-        android:name="com.github.amrmsaraya.weather.view.FavoritesFragment"
+        android:name="com.github.amrmsaraya.weather.presenter.ui.FavoritesFragment"
         android:label="fragment_favorites"
         tools:layout="@layout/fragment_favorites">
         <action
@@ -21,17 +21,17 @@
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"
-        android:name="com.github.amrmsaraya.weather.view.SettingsFragment"
+        android:name="com.github.amrmsaraya.weather.presenter.ui.SettingsFragment"
         android:label="fragment_settings"
         tools:layout="@layout/fragment_settings" />
     <fragment
         android:id="@+id/alertsFragment"
-        android:name="com.github.amrmsaraya.weather.view.AlertsFragment"
+        android:name="com.github.amrmsaraya.weather.presenter.ui.AlertsFragment"
         android:label="fragment_alerts"
         tools:layout="@layout/fragment_alerts" />
     <fragment
         android:id="@+id/mapsFragment"
-        android:name="com.github.amrmsaraya.weather.view.MapsFragment"
+        android:name="com.github.amrmsaraya.weather.presenter.ui.MapsFragment"
         android:label="fragment_maps"
         tools:layout="@layout/fragment_maps">
         <action

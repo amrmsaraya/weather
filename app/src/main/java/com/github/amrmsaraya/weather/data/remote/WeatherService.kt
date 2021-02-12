@@ -1,6 +1,6 @@
-package com.github.amrmsaraya.weather.api
+package com.github.amrmsaraya.weather.data.remote
 
-import com.github.amrmsaraya.weather.models.WeatherResponse
+import com.github.amrmsaraya.weather.data.models.WeatherResponse
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query

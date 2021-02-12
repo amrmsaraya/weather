@@ -6,7 +6,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".view.MapsFragment">
+        tools:context=".presenter.ui.MapsFragment">
 
         <fragment
             android:id="@+id/map"
@@ -22,8 +22,8 @@
             android:id="@+id/btnMapSave"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginEnd="32dp"
+            android:layout_marginStart="64dp"
+            android:layout_marginEnd="64dp"
             android:layout_marginBottom="32dp"
             android:background="@drawable/gradient_square"
             android:backgroundTint="@color/darker_gray"

@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.adapters
+package com.github.amrmsaraya.weather.presenter.adapters
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.databinding.DailyItemBinding
-import com.github.amrmsaraya.weather.models.Daily
+import com.github.amrmsaraya.weather.data.models.Daily
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
@@ -33,13 +33,13 @@ class DailyAdapter(val context: Context) :
     }
 
     override fun onBindViewHolder(holder: DailyViewHolder, position: Int) {
-        val sunrise = getItem(position).sunrise
-        val sunset = getItem(position).sunset
-
         val formatter = SimpleDateFormat("E")
         val weekday = formatter.format(Date(getItem(position).dt.toLong() * 1000))
         when (position) {
-            0 -> holder.binding.tvDailyWeekDay.text = "Tomorrow"
+            0 -> {
+                holder.binding.tvDailyWeekDay.text = "Tomorrow"
+                holder.binding.tvDailyContainer.setBackgroundResource(R.drawable.gradient_square)
+            }
             else -> holder.binding.tvDailyWeekDay.text = weekday
         }
         holder.binding.tvDailyDescription.text =
@@ -75,7 +75,7 @@ class DailyAdapter(val context: Context) :
 
 class DailyDiffUtil : DiffUtil.ItemCallback<Daily>() {
     override fun areItemsTheSame(oldItem: Daily, newItem: Daily): Boolean {
-        return oldItem == newItem
+        return oldItem.dt == newItem.dt
     }
 
     override fun areContentsTheSame(oldItem: Daily, newItem: Daily): Boolean {

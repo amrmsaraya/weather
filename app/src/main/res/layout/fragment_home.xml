@@ -2,7 +2,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".view.HomeFragment">
+    tools:context=".presenter.ui.HomeFragment">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -11,15 +11,6 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
-            <!--            <com.github.matteobattilana.weather.WeatherView-->
-            <!--                android:id="@+id/wvWeatherView"-->
-            <!--                android:layout_width="0dp"-->
-            <!--                android:layout_height="0dp"-->
-            <!--                app:layout_constraintBottom_toBottomOf="parent"-->
-            <!--                app:layout_constraintEnd_toEndOf="parent"-->
-            <!--                app:layout_constraintStart_toStartOf="parent"-->
-            <!--                app:layout_constraintTop_toTopOf="parent" />-->
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/constraintLayout2"
@@ -66,7 +57,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:layout_marginTop="8dp"
-                            android:text="964 hpa"
+                            android:text=" "
                             android:textColor="@color/white" />
 
                         <TextView
@@ -96,7 +87,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:layout_marginTop="8dp"
-                            android:text="3.0 mm"
+                            android:text=" "
                             android:textColor="@color/white" />
 
                         <TextView
@@ -126,7 +117,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:layout_marginTop="8dp"
-                            android:text="9 km/h"
+                            android:text=" "
                             android:textColor="@color/white" />
 
                         <TextView
@@ -169,7 +160,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:layout_marginTop="8dp"
-                            android:text="1"
+                            android:text=" "
                             android:textColor="@color/white" />
 
                         <TextView
@@ -199,7 +190,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:layout_marginTop="8dp"
-                            android:text="2"
+                            android:text=" "
                             android:textColor="@color/white" />
 
                         <TextView
@@ -230,7 +221,7 @@
                             android:layout_height="wrap_content"
                             android:layout_gravity="center"
                             android:layout_marginTop="8dp"
-                            android:text="1000"
+                            android:text=" "
                             android:textColor="@color/white" />
 
                         <TextView
@@ -265,7 +256,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     android:gravity="center"
-                    android:text="Clear"
+                    android:text=" "
                     android:textColor="@color/white"
                     android:textSize="20sp"
                     app:layout_constraintBottom_toTopOf="@+id/tvTemp"
@@ -281,7 +272,7 @@
                     android:layout_marginBottom="24dp"
                     android:fontFamily="@font/spartan"
                     android:gravity="center"
-                    android:text="29"
+                    android:text=" "
                     android:textColor="@color/white"
                     android:textSize="85sp"
                     android:textStyle="bold"
@@ -294,7 +285,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/spartan"
-                    android:text="@string/degree_symbol"
+                    android:text=" "
                     android:textColor="@color/white"
                     android:textSize="85sp"
                     android:textStyle="bold"
@@ -311,8 +302,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/constraintLayout"
-                app:srcCompat="@drawable/clear_day" />
+                app:layout_constraintTop_toTopOf="@+id/constraintLayout" />
 
             <androidx.constraintlayout.widget.Group
                 android:id="@+id/group"
@@ -324,7 +314,7 @@
                 android:id="@+id/tvDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Wednesday, 10 Feb"
+                android:text=" "
                 android:textColor="@color/white"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"

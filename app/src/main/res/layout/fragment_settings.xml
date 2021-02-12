@@ -2,7 +2,7 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:context=".view.SettingsFragment">
+    tools:context=".presenter.ui.SettingsFragment">
 
     <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
@@ -44,7 +44,8 @@
                         android:text="Location"
                         android:textColor="@color/white" />
 
-                    <LinearLayout
+                    <RadioGroup
+                        android:id="@+id/rgLocation"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -75,10 +76,10 @@
                             android:checked="false"
                             android:paddingStart="4dp"
                             android:paddingEnd="4dp"
-                            android:text="From Map"
+                            android:text="Map"
                             android:textColor="@color/white" />
 
-                    </LinearLayout>
+                    </RadioGroup>
                 </LinearLayout>
 
                 <LinearLayout
@@ -99,7 +100,8 @@
                         android:text="Language"
                         android:textColor="@color/white" />
 
-                    <LinearLayout
+                    <RadioGroup
+                        android:id="@+id/rgLanguage"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -108,6 +110,7 @@
                         android:backgroundTint="@color/dark_gray_transparent"
                         android:orientation="vertical"
                         android:padding="16dp">
+
 
                         <RadioButton
                             android:id="@+id/rbEnglish"
@@ -133,7 +136,7 @@
                             android:text="Arabic"
                             android:textColor="@color/white" />
 
-                    </LinearLayout>
+                    </RadioGroup>
                 </LinearLayout>
             </LinearLayout>
 
@@ -167,11 +170,11 @@
                         android:background="@drawable/gradient_square"
                         android:gravity="center"
                         android:padding="8dp"
-                        android:text="Tempreture"
+                        android:text="Temperature"
                         android:textColor="@color/white" />
 
-                    <LinearLayout
-                        android:id="@+id/linearLayout4"
+                    <RadioGroup
+                        android:id="@+id/rgTemperature"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -215,7 +218,7 @@
                             android:paddingEnd="4dp"
                             android:text="Fahrenheit"
                             android:textColor="@color/white" />
-                    </LinearLayout>
+                    </RadioGroup>
                 </LinearLayout>
 
                 <LinearLayout
@@ -236,7 +239,8 @@
                         android:text="Wind Speed"
                         android:textColor="@color/white" />
 
-                    <LinearLayout
+                    <RadioGroup
+                        android:id="@+id/rgWindSpeed"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
@@ -270,7 +274,7 @@
                             android:text="Mile / Hour"
                             android:textColor="@color/white" />
 
-                    </LinearLayout>
+                    </RadioGroup>
                 </LinearLayout>
             </LinearLayout>
 
