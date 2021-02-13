@@ -87,7 +87,11 @@ dependencies {
 
     // Maps
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
+    implementation 'com.google.android.gms:play-services-location:17.1.0'
 
     // Weather Animation
     implementation 'com.github.MatteoBattilana:WeatherView:3.0.0'
+
+    // Swipe to refresh
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
 }

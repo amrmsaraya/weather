@@ -31,9 +31,9 @@
         tools:layout="@layout/fragment_alerts" />
     <fragment
         android:id="@+id/mapsFragment"
-        android:name="com.github.amrmsaraya.weather.presenter.ui.MapsFragment"
+        android:name="com.github.amrmsaraya.weather.presenter.ui.MapFragment"
         android:label="fragment_maps"
-        tools:layout="@layout/fragment_maps">
+        tools:layout="@layout/fragment_map">
         <action
             android:id="@+id/action_mapsFragment_to_favoritesFragment"
             app:destination="@id/favoritesFragment" />

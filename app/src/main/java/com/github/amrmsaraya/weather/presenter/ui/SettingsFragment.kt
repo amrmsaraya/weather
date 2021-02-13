@@ -33,10 +33,11 @@ class SettingsFragment : Fragment() {
             DataBindingUtil.inflate(layoutInflater, R.layout.fragment_settings, container, false)
         sharedViewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
         datastore = requireContext().applicationContext.createDataStore("settings")
-        sharedViewModel.actionBarTitle.value = "Settings"
-        sharedViewModel.currentFragment.value = "Settings"
 
-        lifecycleScope.launchWhenCreated {
+        sharedViewModel.setActionBarTitle("Settings")
+        sharedViewModel.setCurrentFragment("Settings")
+
+        lifecycleScope.launchWhenStarted {
             when (read("location")) {
                 "GPS" -> binding.rgLocation.check(R.id.rbGps)
                 "Map" -> binding.rgLocation.check(R.id.rbFromMap)
@@ -58,28 +59,28 @@ class SettingsFragment : Fragment() {
 
         binding.rgLocation.setOnCheckedChangeListener { _, checkedId ->
             val location = binding.root.findViewById<RadioButton>(checkedId)
-            lifecycleScope.launchWhenCreated {
+            lifecycleScope.launchWhenStarted {
                 save("location", location.text.toString())
             }
         }
 
         binding.rgLanguage.setOnCheckedChangeListener { _, checkedId ->
             val lang = binding.root.findViewById<RadioButton>(checkedId)
-            lifecycleScope.launchWhenCreated {
+            lifecycleScope.launchWhenStarted {
                 save("language", lang.text.toString())
             }
         }
 
         binding.rgTemperature.setOnCheckedChangeListener { _, checkedId ->
             val temp = binding.root.findViewById<RadioButton>(checkedId)
-            lifecycleScope.launchWhenCreated {
+            lifecycleScope.launchWhenStarted {
                 save("temperature", temp.text.toString())
             }
         }
 
         binding.rgWindSpeed.setOnCheckedChangeListener { _, checkedId ->
             val wind = binding.root.findViewById<RadioButton>(checkedId)
-            lifecycleScope.launchWhenCreated {
+            lifecycleScope.launchWhenStarted {
                 save("windSpeed", wind.text.toString())
             }
         }

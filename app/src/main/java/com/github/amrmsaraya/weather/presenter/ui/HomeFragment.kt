@@ -1,6 +1,7 @@
 package com.github.amrmsaraya.weather.presenter.ui
 
 import android.annotation.SuppressLint
+import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,8 +12,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.createDataStore
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.local.WeatherDatabase
@@ -20,13 +21,15 @@ import com.github.amrmsaraya.weather.data.models.Alerts
 import com.github.amrmsaraya.weather.data.models.Current
 import com.github.amrmsaraya.weather.data.models.WeatherAnimation
 import com.github.amrmsaraya.weather.databinding.FragmentHomeBinding
-import com.github.amrmsaraya.weather.repositories.WeatherRepo
 import com.github.amrmsaraya.weather.presenter.adapters.DailyAdapter
 import com.github.amrmsaraya.weather.presenter.adapters.HourlyAdapter
 import com.github.amrmsaraya.weather.presenter.viewModel.SharedViewModel
 import com.github.amrmsaraya.weather.presenter.viewModel.WeatherViewModel
+import com.github.amrmsaraya.weather.repositories.WeatherRepo
 import com.github.amrmsaraya.weather.utils.WeatherViewModelFactory
 import com.github.matteobattilana.weather.PrecipType
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import java.text.SimpleDateFormat
 import java.util.*
@@ -38,6 +41,7 @@ class HomeFragment : Fragment() {
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var dataStore: DataStore<Preferences>
 
+    @SuppressLint("ResourceType")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -48,44 +52,70 @@ class HomeFragment : Fragment() {
 
         val dao = WeatherDatabase.getInstance(requireActivity().application).weatherDao()
         val repo = WeatherRepo(dao)
-        val factory = WeatherViewModelFactory(requireContext(), repo)
+        val factory = WeatherViewModelFactory(repo)
         weatherViewModel =
             ViewModelProvider(requireActivity(), factory).get(WeatherViewModel::class.java)
 
         sharedViewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
 
-        sharedViewModel.actionBarTitle.value = "Giza, Egypt"
-        sharedViewModel.currentFragment.value = "Home"
-        sharedViewModel.actionBarVisibility.value = "Show"
+        sharedViewModel.setActionBarTitle("Giza, Egypt")
+        sharedViewModel.setCurrentFragment("Home")
+        sharedViewModel.setActionBarVisibility("Show")
+
+        binding.swipeRefresh.setProgressBackgroundColorSchemeColor(Color.parseColor("#FF313131"))
+        binding.swipeRefresh.setColorSchemeColors(
+            Color.parseColor("#FFFF00e4"),
+            Color.parseColor("#FF6011F4"),
+        )
+        binding.swipeRefresh.setOnRefreshListener {
+            weatherViewModel.getLiveWeather(29.999307, 31.184922)
+        }
 
         binding.tvDate.text =
             SimpleDateFormat("E, dd MMM", Locale.US).format(Date(System.currentTimeMillis()))
 
-        weatherViewModel.getApiWeather(29.999307, 31.184922).observe(requireActivity(), Observer {
-            if (it != null) {
-                weatherViewModel.deleteAll()
-                if (it.alerts == null) {
-                    it.alerts = listOf(Alerts())
-                }
-                weatherViewModel.insert(it)
-            }
-        })
+        weatherViewModel.getLiveWeather(29.999307, 31.184922)
 
-        weatherViewModel.getCachedWeather(roundDouble(29.999307), roundDouble(31.184922))
-            .observe(viewLifecycleOwner, Observer {
-                if (it != null) {
-                    val hourlyAdapter = binding.rvHourly.adapter as HourlyAdapter
-                    val dailyAdapter = binding.rvDaily.adapter as DailyAdapter
-                    // Show Current Data
-                    showCurrentData(it.current)
-                    // Send sunrise and sunset time to Adapter
-                    hourlyAdapter.setSunriseAndSunset(it.daily)
-                    // Add List to Hourly Adapter
-                    hourlyAdapter.submitList(it.hourly.subList(0, 23))
-                    // Add List to Daily Adapter
-                    dailyAdapter.submitList(it.daily.subList(1, it.daily.size - 1))
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            weatherViewModel.weatherResponse.collect {
+                when (it) {
+                    is WeatherRepo.ResponseState.Success -> {
+                        weatherViewModel.deleteAll()
+                        if (it.weatherResponse.alerts == null) {
+                            it.weatherResponse.alerts = listOf(Alerts())
+                        }
+                        weatherViewModel.insert(it.weatherResponse)
+                    }
+                    is WeatherRepo.ResponseState.Error ->
+                        Snackbar.make(
+                            binding.root,
+                            it.message,
+                            Snackbar.LENGTH_SHORT
+                        ).show()
+                    else -> Unit
                 }
-            })
+                binding.swipeRefresh.isRefreshing = false
+                weatherViewModel.weatherResponse.value = WeatherRepo.ResponseState.Empty
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+            weatherViewModel.getCachedWeather(roundDouble(29.999307), roundDouble(31.184922))
+                .collect {
+                    if (it != null) {
+                        val hourlyAdapter = binding.rvHourly.adapter as HourlyAdapter
+                        val dailyAdapter = binding.rvDaily.adapter as DailyAdapter
+                        // Show Current Data
+                        showCurrentData(it.current)
+                        // Send sunrise and sunset time to Adapter
+                        hourlyAdapter.setSunriseAndSunset(it.daily)
+                        // Add List to Hourly Adapter
+                        hourlyAdapter.submitList(it.hourly.subList(0, 23))
+                        // Add List to Daily Adapter
+                        dailyAdapter.submitList(it.daily.subList(1, it.daily.size - 1))
+                    }
+                }
+        }
 
         val layoutManager = LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false)
         binding.rvHourly.layoutManager = layoutManager
@@ -171,7 +201,7 @@ class HomeFragment : Fragment() {
                 }
             }
         }
-        sharedViewModel.weatherAnimation.value = WeatherAnimation(animationType, emissionRate)
+        sharedViewModel.setWeatherAnimation(WeatherAnimation(animationType, emissionRate))
 
     }
 

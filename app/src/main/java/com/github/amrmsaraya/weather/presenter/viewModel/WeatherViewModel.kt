@@ -1,17 +1,18 @@
 package com.github.amrmsaraya.weather.presenter.viewModel
 
-import android.content.Context
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.amrmsaraya.weather.data.models.WeatherResponse
-import com.github.amrmsaraya.weather.repositories.WeatherApiRepo
 import com.github.amrmsaraya.weather.repositories.WeatherRepo
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
-class WeatherViewModel(private val context: Context, private val repo: WeatherRepo) : ViewModel() {
+class WeatherViewModel(private val repo: WeatherRepo) : ViewModel() {
 
-    private val weatherApiRepo = WeatherApiRepo(context)
+    private val _weatherResponse =
+        MutableStateFlow<WeatherRepo.ResponseState>(WeatherRepo.ResponseState.Empty)
+    val weatherResponse = _weatherResponse
 
     fun insert(weatherResponse: WeatherResponse) = viewModelScope.launch {
         repo.insert(weatherResponse)
@@ -25,17 +26,19 @@ class WeatherViewModel(private val context: Context, private val repo: WeatherRe
         repo.deleteAll()
     }
 
-    fun getCachedWeather(lat: Double, lon: Double): LiveData<WeatherResponse> {
-        return repo.getWeather(lat, lon)
+    fun getCachedWeather(lat: Double, lon: Double): Flow<WeatherResponse> {
+        return repo.getCached(lat, lon)
     }
 
-    fun getApiWeather(
+    fun getLiveWeather(
         lat: Double,
         lon: Double,
         units: String = "metric",
         lang: String = "en"
-    ): LiveData<WeatherResponse> {
-        return weatherApiRepo.getWeatherData(lat, lon, units, lang)
+    ) {
+        viewModelScope.launch {
+            _weatherResponse.value = repo.getLive(lat, lon, units, lang)
+        }
     }
 
 }

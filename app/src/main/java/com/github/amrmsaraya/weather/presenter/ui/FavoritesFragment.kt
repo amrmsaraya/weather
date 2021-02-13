@@ -25,10 +25,11 @@ class FavoritesFragment : Fragment() {
         binding =
             DataBindingUtil.inflate(layoutInflater, R.layout.fragment_favorites, container, false)
         sharedViewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
-        sharedViewModel.actionBarTitle.value = "Favorites"
-        sharedViewModel.actionBarVisibility.value = "Show"
-        sharedViewModel.currentFragment.value = "Favorites"
-        sharedViewModel.mapStatus.value = "Favorites"
+
+        sharedViewModel.setActionBarTitle("Favorites")
+        sharedViewModel.setActionBarVisibility("Show")
+        sharedViewModel.setCurrentFragment("Favorites")
+        sharedViewModel.setMapStatus("Favorites")
 
         binding.fabAddFavorite.setOnClickListener {
             it.findNavController().navigate(R.id.action_favoritesFragment_to_mapsFragment)

@@ -6,6 +6,8 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 import com.github.amrmsaraya.weather.data.models.WeatherResponse
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
 
 @Dao
 interface WeatherDao {
@@ -20,5 +22,5 @@ interface WeatherDao {
     suspend fun deleteAll()
 
     @Query("SELECT * From weather WHERE lat = :lat AND lon = :lon ")
-    fun getWeather(lat: Double, lon: Double): LiveData<WeatherResponse>
+    fun getWeather(lat: Double, lon: Double): Flow<WeatherResponse>
 }

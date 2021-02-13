@@ -23,8 +23,8 @@ class AlertsFragment : Fragment() {
             DataBindingUtil.inflate(layoutInflater, R.layout.fragment_alerts, container, false)
 
         sharedViewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
-        sharedViewModel.actionBarTitle.value = "Alerts"
-        sharedViewModel.currentFragment.value = "Alerts"
+        sharedViewModel.setActionBarTitle("Alerts")
+        sharedViewModel.setCurrentFragment("Alerts")
 
         return binding.root
     }
