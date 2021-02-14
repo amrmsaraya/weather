@@ -68,7 +68,7 @@
                             android:textColor="@color/white" />
 
                         <RadioButton
-                            android:id="@+id/rbFromMap"
+                            android:id="@+id/rbMap"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"

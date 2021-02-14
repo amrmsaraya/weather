@@ -8,8 +8,8 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.github.amrmsaraya.weather.R
-import com.github.amrmsaraya.weather.databinding.DailyItemBinding
 import com.github.amrmsaraya.weather.data.models.Daily
+import com.github.amrmsaraya.weather.databinding.DailyItemBinding
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
@@ -17,9 +17,7 @@ import kotlin.math.roundToInt
 class DailyAdapter(val context: Context) :
     ListAdapter<Daily, DailyAdapter.DailyViewHolder>(DailyDiffUtil()) {
     inner class DailyViewHolder(val binding: DailyItemBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-
-    }
+        RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DailyViewHolder {
         return DailyViewHolder(

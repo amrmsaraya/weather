@@ -14,6 +14,7 @@ import androidx.datastore.preferences.createDataStore
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.databinding.FragmentSettingsBinding
 import com.github.amrmsaraya.weather.presenter.viewModel.SharedViewModel
@@ -40,7 +41,7 @@ class SettingsFragment : Fragment() {
         lifecycleScope.launchWhenStarted {
             when (read("location")) {
                 "GPS" -> binding.rgLocation.check(R.id.rbGps)
-                "Map" -> binding.rgLocation.check(R.id.rbFromMap)
+                "Map" -> binding.rgLocation.check(R.id.rbMap)
             }
             when (read("language")) {
                 "English" -> binding.rgLanguage.check(R.id.rbEnglish)
@@ -64,6 +65,7 @@ class SettingsFragment : Fragment() {
             }
         }
 
+
         binding.rgLanguage.setOnCheckedChangeListener { _, checkedId ->
             val lang = binding.root.findViewById<RadioButton>(checkedId)
             lifecycleScope.launchWhenStarted {
@@ -83,6 +85,11 @@ class SettingsFragment : Fragment() {
             lifecycleScope.launchWhenStarted {
                 save("windSpeed", wind.text.toString())
             }
+        }
+
+        binding.rbMap.setOnClickListener {
+            sharedViewModel.setMapStatus("Current")
+            findNavController().navigate(R.id.mapsFragment)
         }
 
         return binding.root

@@ -12,7 +12,9 @@ class WeatherViewModel(private val repo: WeatherRepo) : ViewModel() {
 
     private val _weatherResponse =
         MutableStateFlow<WeatherRepo.ResponseState>(WeatherRepo.ResponseState.Empty)
+
     val weatherResponse = _weatherResponse
+
 
     fun insert(weatherResponse: WeatherResponse) = viewModelScope.launch {
         repo.insert(weatherResponse)
@@ -26,8 +28,12 @@ class WeatherViewModel(private val repo: WeatherRepo) : ViewModel() {
         repo.deleteAll()
     }
 
-    fun getCachedWeather(lat: Double, lon: Double): Flow<WeatherResponse> {
-        return repo.getCached(lat, lon)
+    suspend fun getCachedLocationWeather(lat: Double, lon: Double): WeatherResponse {
+        return repo.getCachedLocationWeather(lat, lon)
+    }
+
+    fun getAllCachedWeather(): Flow<List<WeatherResponse>> {
+        return repo.getAllCachedWeather()
     }
 
     fun getLiveWeather(

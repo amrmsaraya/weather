@@ -1,18 +1,13 @@
 package com.github.amrmsaraya.weather.data.local
 
-import androidx.lifecycle.LiveData
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 import com.github.amrmsaraya.weather.data.models.WeatherResponse
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
 
 @Dao
 interface WeatherDao {
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWeather(weatherResponse: WeatherResponse)
 
     @Delete
@@ -22,5 +17,9 @@ interface WeatherDao {
     suspend fun deleteAll()
 
     @Query("SELECT * From weather WHERE lat = :lat AND lon = :lon ")
-    fun getWeather(lat: Double, lon: Double): Flow<WeatherResponse>
+    suspend fun getLocationWeather(lat: Double, lon: Double): WeatherResponse
+
+    @Query("SELECT * From weather")
+    fun getAllWeather(): Flow<List<WeatherResponse>>
+
 }

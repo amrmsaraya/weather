@@ -11,7 +11,7 @@ class SharedViewModel : ViewModel() {
     private val _actionBarTitle = MutableStateFlow("Weather Forecast")
     private val _actionBarVisibility = MutableStateFlow("Show")
     private val _currentFragment = MutableStateFlow("Home")
-    private val _mapStatus = MutableStateFlow("Default")
+    private val _mapStatus = MutableStateFlow("Current")
     private val _weatherAnimation = MutableStateFlow(
         WeatherAnimation(
             PrecipType.CLEAR,
@@ -19,6 +19,7 @@ class SharedViewModel : ViewModel() {
         )
     )
     private val _latLng = MutableStateFlow(LatLng(0.0, 0.0))
+    private val _isPermissionGranted = MutableStateFlow(true)
 
 
     val actionBarTitle: StateFlow<String> = _actionBarTitle
@@ -27,6 +28,7 @@ class SharedViewModel : ViewModel() {
     val mapStatus: StateFlow<String> = _mapStatus
     val weatherAnimation: StateFlow<WeatherAnimation> = _weatherAnimation
     val latLng: StateFlow<LatLng> = _latLng
+    val isPermissionGranted: StateFlow<Boolean> = _isPermissionGranted
 
     fun setActionBarTitle(title: String) {
         _actionBarTitle.value = title
@@ -50,6 +52,10 @@ class SharedViewModel : ViewModel() {
 
     fun setLatLng(latLng: LatLng) {
         _latLng.value = latLng
+    }
+
+    fun setPermissionGranted(status: Boolean) {
+        _isPermissionGranted.value = status
     }
 
 }

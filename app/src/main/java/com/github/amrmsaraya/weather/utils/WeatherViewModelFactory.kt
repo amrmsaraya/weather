@@ -1,16 +1,15 @@
 package com.github.amrmsaraya.weather.utils
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.github.amrmsaraya.weather.repositories.WeatherRepo
 import com.github.amrmsaraya.weather.presenter.viewModel.WeatherViewModel
+import com.github.amrmsaraya.weather.repositories.WeatherRepo
 
-class WeatherViewModelFactory(private val repo: WeatherRepo) :
+class WeatherViewModelFactory(private val weatherRepo: WeatherRepo) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(WeatherViewModel::class.java)) {
-            return WeatherViewModel(repo) as T
+            return WeatherViewModel(weatherRepo) as T
         }
         throw IllegalArgumentException("Unknown View Model Class")
     }

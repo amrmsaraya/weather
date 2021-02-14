@@ -5,13 +5,15 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.github.amrmsaraya.weather.data.models.Location
 import com.github.amrmsaraya.weather.data.models.WeatherResponse
 import com.github.amrmsaraya.weather.utils.Converters
 
-@Database(entities = [WeatherResponse::class], version = 1, exportSchema = false)
+@Database(entities = [WeatherResponse::class, Location::class], version = 1, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class WeatherDatabase : RoomDatabase() {
     abstract fun weatherDao(): WeatherDao
+    abstract fun locationDao(): LocationDao
 
     companion object {
         @Volatile

@@ -6,29 +6,32 @@ import com.github.amrmsaraya.weather.data.models.WeatherResponse
 import com.github.amrmsaraya.weather.data.remote.RetrofitInstance
 import com.github.amrmsaraya.weather.data.remote.WeatherService
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import retrofit2.HttpException
 import java.io.IOException
 
-class WeatherRepo(private val dao: WeatherDao) {
+class WeatherRepo(private val weatherDao: WeatherDao) {
 
     private val retrofitService =
         RetrofitInstance.getRetrofitInstance().create(WeatherService::class.java)
 
-    fun getCached(lat: Double, lon: Double): Flow<WeatherResponse> {
-        return dao.getWeather(lat, lon)
+    fun getAllCachedWeather(): Flow<List<WeatherResponse>> {
+        return weatherDao.getAllWeather()
+    }
+
+    suspend fun getCachedLocationWeather(lat: Double, lon: Double): WeatherResponse {
+        return weatherDao.getLocationWeather(lat, lon)
     }
 
     suspend fun insert(weatherResponse: WeatherResponse) {
-        dao.insertWeather(weatherResponse)
+        weatherDao.insertWeather(weatherResponse)
     }
 
     suspend fun delete(weatherResponse: WeatherResponse) {
-        dao.deleteWeather(weatherResponse)
+        weatherDao.deleteWeather(weatherResponse)
     }
 
     suspend fun deleteAll() {
-        dao.deleteAll()
+        weatherDao.deleteAll()
     }
 
     suspend fun getLive(

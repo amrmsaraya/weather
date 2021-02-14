@@ -1,5 +1,6 @@
 package com.github.amrmsaraya.weather.presenter.ui
 
+
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,7 +16,9 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
+import java.io.IOException
 
 class MapFragment : Fragment() {
     private lateinit var binding: FragmentMapBinding
@@ -24,18 +27,23 @@ class MapFragment : Fragment() {
 
     private val callback = OnMapReadyCallback { googleMap ->
         googleMap.setOnMapClickListener {
-            googleMap.clear()
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(it, 17f))
-            googleMap.addMarker(MarkerOptions().position(it).title("Marker in Sydney"))
-            viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                delay(1500)
-                if (sharedViewModel.mapStatus.value == "Default") {
-                    bottomSheetFragment.show(childFragmentManager, "BottomSheetFragment")
-                } else if (sharedViewModel.mapStatus.value == "Favorites") {
+            try {
+                googleMap.clear()
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(it, 17f))
+                googleMap.addMarker(
+                    MarkerOptions().position(it)
+                )
+
+                viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                    delay(1500)
                     sharedViewModel.setLatLng(it)
                     bottomSheetFragment.show(childFragmentManager, "BottomSheetFragment")
                 }
+            } catch (e: IOException) {
+                Snackbar.make(binding.root, "No internet connection", Snackbar.LENGTH_SHORT).show()
             }
+
+
         }
     }
 
@@ -59,7 +67,6 @@ class MapFragment : Fragment() {
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
     }
-
 
 }
 

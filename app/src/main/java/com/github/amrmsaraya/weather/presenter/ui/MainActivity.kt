@@ -1,16 +1,11 @@
 package com.github.amrmsaraya.weather.presenter.ui
 
-import android.Manifest
-import android.content.Context
-import android.content.pm.PackageManager
 import android.graphics.Color
-import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
@@ -70,6 +65,14 @@ class MainActivity : AppCompatActivity() {
         sharedViewModel = ViewModelProvider(this).get(SharedViewModel::class.java)
 
         lifecycleScope.launchWhenStarted {
+            sharedViewModel.isPermissionGranted.collect {
+                if (!it) {
+                    sharedViewModel.setPermissionGranted(true)
+//                    getLocationFromGPS()
+                }
+            }
+        }
+        lifecycleScope.launchWhenStarted {
             sharedViewModel.actionBarTitle.collect {
                 binding.tvTitle.text = it
             }
@@ -128,7 +131,7 @@ class MainActivity : AppCompatActivity() {
 
 
     private suspend fun getLocationProvider() {
-        binding.constrainLayout.visibility = View.GONE
+//        binding.constrainLayout.visibility = View.GONE
         if (readDataStore("location").isNullOrEmpty()) {
             var locationProvider = "GPS"
             val locationDialog =
@@ -144,16 +147,16 @@ class MainActivity : AppCompatActivity() {
                     .setPositiveButton("OK") { _, _ ->
                         if (locationProvider == "Map") {
                             navController.navigate(R.id.mapsFragment)
+                            binding.constrainLayout.visibility = View.VISIBLE
+                            lifecycleScope.launchWhenStarted {
+                                saveDataStore("location", locationProvider)
+                                saveDataStore("language", "English")
+                                saveDataStore("temperature", "Celsius")
+                                saveDataStore("windSpeed", "Meter / Sec")
+                                Log.i("myTag", "Default Settings have been created!")
+                            }
                         } else {
-                            getLocation()
-                        }
-                        binding.constrainLayout.visibility = View.VISIBLE
-                        lifecycleScope.launchWhenStarted {
-                            saveDataStore("location", locationProvider)
-                            saveDataStore("language", "English")
-                            saveDataStore("temperature", "Celsius")
-                            saveDataStore("windSpeed", "Meter / Sec")
-                            Log.i("myTag", "Default Settings have been created!")
+//                            getLocationFromGPS()
                         }
                     }
                     .setCancelable(false)
@@ -161,6 +164,18 @@ class MainActivity : AppCompatActivity() {
             locationDialog.show()
         } else {
             binding.constrainLayout.visibility = View.VISIBLE
+        }
+    }
+
+
+    private fun getLocationFromMap() {
+        navController.navigate(R.id.mapsFragment)
+        binding.constrainLayout.visibility = View.VISIBLE
+        lifecycleScope.launchWhenStarted {
+            saveDataStore("location", "Map")
+            saveDataStore("language", "English")
+            saveDataStore("temperature", "Celsius")
+            saveDataStore("windSpeed", "Meter / Sec")
         }
     }
 
@@ -178,6 +193,15 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        if (toggle.onOptionsItemSelected(item)) {
+            return true
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
+
     override fun onBackPressed() {
         if (binding.drawerLayout.isDrawerOpen(binding.navView)) {
             binding.drawerLayout.closeDrawers()
@@ -188,52 +212,6 @@ class MainActivity : AppCompatActivity() {
             }
         } else {
             super.onBackPressed()
-        }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (toggle.onOptionsItemSelected(item)) {
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-    private fun getLocation() {
-        locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            requestPermissions(
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                locationPermissionCode
-            )
-        } else {
-            locationManager.requestLocationUpdates(
-                LocationManager.GPS_PROVIDER,
-                5000,
-                5f,
-                LocationListener {
-                    Toast.makeText(
-                        this,
-                        "Latitude: " + it.latitude + " , Longitude: " + it.longitude,
-                        Toast.LENGTH_SHORT
-                    ).show()
-                })
-        }
-    }
-
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        if (requestCode == locationPermissionCode) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Permission Granted", Toast.LENGTH_SHORT).show()
-            } else {
-                Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show()
-            }
         }
     }
 }

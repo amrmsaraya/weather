@@ -8,9 +8,9 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.github.amrmsaraya.weather.R
-import com.github.amrmsaraya.weather.databinding.HourlyItemBinding
 import com.github.amrmsaraya.weather.data.models.Daily
 import com.github.amrmsaraya.weather.data.models.Hourly
+import com.github.amrmsaraya.weather.databinding.HourlyItemBinding
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
@@ -27,8 +27,7 @@ class HourlyAdapter(private val context: Context) :
     private var sunset = 0
 
     inner class HourlyViewHolder(val binding: HourlyItemBinding) :
-        RecyclerView.ViewHolder(binding.root) {
-    }
+        RecyclerView.ViewHolder(binding.root)
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): HourlyViewHolder {
         return HourlyViewHolder(
