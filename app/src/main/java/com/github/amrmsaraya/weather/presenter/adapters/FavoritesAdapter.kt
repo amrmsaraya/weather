@@ -40,17 +40,15 @@ class FavoritesAdapter(
     }
 
     override fun onBindViewHolder(holder: FavoritesViewHolder, position: Int) {
-
+        val item = getItem(position)
+        val popupMenu = PopupMenu(holder.binding.root.context, holder.binding.btnMenu)
+        popupMenu.inflate(R.menu.favorite_menu)
+        popupMenu.setOnMenuItemClickListener {
+            deleteClickListener(item)
+            true
+        }
         holder.binding.tvFavoritesName.text = getItem(position).name
         holder.binding.btnMenu.setOnClickListener {
-            val popupMenu = PopupMenu(holder.binding.root.context, it)
-            popupMenu.inflate(R.menu.favorite_menu)
-            popupMenu.setOnMenuItemClickListener { item ->
-                when (item.itemId) {
-                    R.id.favMenuDelete -> deleteClickListener(getItem(position))
-                }
-                true
-            }
             popupMenu.show()
         }
     }
