@@ -11,12 +11,13 @@ import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.models.Daily
 import com.github.amrmsaraya.weather.data.models.Hourly
 import com.github.amrmsaraya.weather.databinding.HourlyItemBinding
+import com.github.amrmsaraya.weather.presenter.viewModel.SharedViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
 
 
-class HourlyAdapter(private val context: Context) :
+class HourlyAdapter(private val context: Context, private val sharedViewModel: SharedViewModel) :
     ListAdapter<Hourly, HourlyAdapter.HourlyViewHolder>(HourlyDiffUtil()) {
     private var tomorrowTime = 0
     private var todaySunrise = 0
@@ -43,7 +44,22 @@ class HourlyAdapter(private val context: Context) :
     override fun onBindViewHolder(holder: HourlyViewHolder, position: Int) {
         val formatter = SimpleDateFormat("h a")
         val time = formatter.format(Date(getItem(position).dt.toLong() * 1000))
-        holder.binding.tvHourlyTemp.text = getItem(position).temp.roundToInt().toString()
+        var temp = getItem(position).temp
+
+        when (sharedViewModel.tempUnit.value) {
+            "Celsius" -> {
+                holder.binding.tvHourlyTempUnit.text = "°C"
+            }
+            "Kelvin" -> {
+                temp += 273.15
+                holder.binding.tvHourlyTempUnit.text = "°K"
+            }
+            "Fahrenheit" -> {
+                temp = (temp * 1.8) + 32
+                holder.binding.tvHourlyTempUnit.text = "°F"
+            }
+        }
+        holder.binding.tvHourlyTemp.text = temp.roundToInt().toString()
         holder.binding.tvHourlyTime.text = time
         if (getItem(position).dt < tomorrowTime - 72000) {
             sunrise = todaySunrise

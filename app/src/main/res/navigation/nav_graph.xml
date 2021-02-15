@@ -38,4 +38,9 @@
             android:id="@+id/action_mapsFragment_to_favoritesFragment"
             app:destination="@id/favoritesFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/favoritesWeatherFragment"
+        android:name="com.github.amrmsaraya.weather.presenter.ui.FavoritesWeatherFragment"
+        android:label="fragment_favorites_weather"
+        tools:layout="@layout/fragment_home" />
 </navigation>

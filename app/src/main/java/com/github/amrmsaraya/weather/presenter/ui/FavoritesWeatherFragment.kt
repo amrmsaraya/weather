@@ -1,21 +1,12 @@
 package com.github.amrmsaraya.weather.presenter.ui
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager
 import android.graphics.Color
-import android.location.Address
-import android.location.Geocoder
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.databinding.DataBindingUtil
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.createDataStore
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
@@ -24,89 +15,46 @@ import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.local.WeatherDatabase
 import com.github.amrmsaraya.weather.data.models.Alerts
 import com.github.amrmsaraya.weather.data.models.Current
-import com.github.amrmsaraya.weather.data.models.Location
 import com.github.amrmsaraya.weather.data.models.WeatherAnimation
 import com.github.amrmsaraya.weather.databinding.FragmentHomeBinding
 import com.github.amrmsaraya.weather.presenter.adapters.DailyAdapter
 import com.github.amrmsaraya.weather.presenter.adapters.HourlyAdapter
-import com.github.amrmsaraya.weather.presenter.viewModel.LocationViewModel
 import com.github.amrmsaraya.weather.presenter.viewModel.SharedViewModel
 import com.github.amrmsaraya.weather.presenter.viewModel.WeatherViewModel
-import com.github.amrmsaraya.weather.repositories.LocationRepo
 import com.github.amrmsaraya.weather.repositories.WeatherRepo
-import com.github.amrmsaraya.weather.utils.LocationViewModelFactory
 import com.github.amrmsaraya.weather.utils.SharedViewModelFactory
 import com.github.amrmsaraya.weather.utils.WeatherViewModelFactory
 import com.github.matteobattilana.weather.PrecipType
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collect
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
 
-class HomeFragment : Fragment() {
+
+class FavoritesWeatherFragment : Fragment() {
     private lateinit var binding: FragmentHomeBinding
     private lateinit var weatherViewModel: WeatherViewModel
-    private lateinit var locationViewModel: LocationViewModel
     private lateinit var sharedViewModel: SharedViewModel
-    private lateinit var dataStore: DataStore<Preferences>
-    private lateinit var geocoder: Geocoder
-    private var addresses = mutableListOf<Address>()
-    private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private val locationPermissionCode = 2
-    private var lon = 0.0
-    private var lat = 0.0
 
-    @SuppressLint("ResourceType")
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         binding = DataBindingUtil.inflate(layoutInflater, R.layout.fragment_home, container, false)
-        dataStore = requireContext().createDataStore("settings")
-        fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
-        geocoder = Geocoder(context, Locale.getDefault())
 
-        // Dao
         val weatherDao = WeatherDatabase.getInstance(requireActivity().application).weatherDao()
-        val locationDao = WeatherDatabase.getInstance(requireActivity().application).locationDao()
-
-        // Repo
         val weatherRepo = WeatherRepo(weatherDao)
-        val locationRepo = LocationRepo(locationDao)
-
-        // Factory
         val weatherFactory = WeatherViewModelFactory(weatherRepo)
-        val locationFactory = LocationViewModelFactory(locationRepo)
         val sharedFactory = SharedViewModelFactory(requireContext())
 
-        // ViewModels
         weatherViewModel =
             ViewModelProvider(requireActivity(), weatherFactory).get(WeatherViewModel::class.java)
-        locationViewModel =
-            ViewModelProvider(requireActivity(), locationFactory).get(LocationViewModel::class.java)
         sharedViewModel =
             ViewModelProvider(requireActivity(), sharedFactory).get(SharedViewModel::class.java)
 
-        sharedViewModel.setCurrentFragment("Home")
-        sharedViewModel.setActionBarVisibility(true)
-
-        lifecycleScope.launchWhenStarted {
-            getCachedSettings()
-        }
-
-        lifecycleScope.launchWhenStarted {
-            getCachedLocation()
-        }
-
-        binding.btnAllowPermission.setOnClickListener {
-            getLocationFromGPS()
-        }
+        sharedViewModel.setCurrentFragment("FavoriteWeather")
+        sharedViewModel.setActionBarTitle(sharedViewModel.clickedFavoriteLocation.value.name)
 
         // SwipeRefresh
         binding.swipeRefresh.setProgressBackgroundColorSchemeColor(Color.parseColor("#FF313131"))
@@ -116,22 +64,29 @@ class HomeFragment : Fragment() {
         )
         binding.swipeRefresh.setOnRefreshListener {
             lifecycleScope.launchWhenStarted {
-                if (sharedViewModel.readDataStore("location") == "GPS") {
-                    getLocationFromGPS()
-                }
-                weatherViewModel.getLiveWeather(lat, lon, lang = sharedViewModel.langUnit.value)
+                weatherViewModel.getLiveWeather(
+                    sharedViewModel.clickedFavoriteLocation.value.lat,
+                    sharedViewModel.clickedFavoriteLocation.value.lon,
+                    lang = sharedViewModel.langUnit.value
+                )
             }
         }
 
         binding.tvDate.text =
             SimpleDateFormat("E, dd MMM", Locale.US).format(Date(System.currentTimeMillis()))
 
-        lifecycleScope.launchWhenStarted {
-            if (sharedViewModel.readDataStore("location") == "GPS") {
-                getLocationFromGPS()
-            }
-            weatherViewModel.getLiveWeather(lat, lon, lang = sharedViewModel.langUnit.value)
-        }
+        weatherViewModel.getLiveWeather(
+            sharedViewModel.clickedFavoriteLocation.value.lat,
+            sharedViewModel.clickedFavoriteLocation.value.lon
+        )
+
+        val layoutManager =
+            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
+        binding.rvHourly.layoutManager = layoutManager
+        binding.rvHourly.adapter = HourlyAdapter(requireContext(), sharedViewModel)
+
+        binding.rvDaily.layoutManager = LinearLayoutManager(context)
+        binding.rvDaily.adapter = DailyAdapter(requireContext(), sharedViewModel)
 
         // Get Retrofit Response
         lifecycleScope.launchWhenStarted {
@@ -142,9 +97,7 @@ class HomeFragment : Fragment() {
                             it.weatherResponse.alerts = listOf(Alerts())
                         }
                         weatherViewModel.insert(it.weatherResponse)
-                        if (lat != 0.0 && lon != 0.0) {
-                            getCachedWeather()
-                        }
+                        getCachedWeather()
                     }
                     is WeatherRepo.ResponseState.Error ->
                         Snackbar.make(
@@ -162,29 +115,11 @@ class HomeFragment : Fragment() {
         // Get Cached Weather
         viewLifecycleOwner.lifecycleScope.launchWhenStarted {
             weatherViewModel.getAllCachedWeather().collect {
-                if (lat != 0.0 && lon != 0.0) {
-                    getCachedWeather()
-                }
+                getCachedWeather()
             }
         }
 
-        val layoutManager =
-            LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
-        binding.rvHourly.layoutManager = layoutManager
-        binding.rvHourly.adapter = HourlyAdapter(requireContext(), sharedViewModel)
-
-        binding.rvDaily.layoutManager = LinearLayoutManager(context)
-        binding.rvDaily.adapter = DailyAdapter(requireContext(), sharedViewModel)
-
-
         return binding.root
-    }
-
-    private suspend fun getCachedSettings() {
-        sharedViewModel.readDataStore("location")
-        sharedViewModel.readDataStore("language")
-        sharedViewModel.readDataStore("temperature")
-        sharedViewModel.readDataStore("windSpeed")
     }
 
     // show current weather data
@@ -280,7 +215,10 @@ class HomeFragment : Fragment() {
     }
 
     private suspend fun getCachedWeather() {
-        val weatherResponse = weatherViewModel.getCachedLocationWeather(lat, lon)
+        val weatherResponse = weatherViewModel.getCachedLocationWeather(
+            sharedViewModel.clickedFavoriteLocation.value.lat,
+            sharedViewModel.clickedFavoriteLocation.value.lon
+        )
         if (weatherResponse != null) {
             val hourlyAdapter = binding.rvHourly.adapter as HourlyAdapter
             val dailyAdapter = binding.rvDaily.adapter as DailyAdapter
@@ -298,128 +236,5 @@ class HomeFragment : Fragment() {
                 )
             )
         }
-    }
-
-    private suspend fun getCachedLocation() {
-        try {
-            locationViewModel.getLocation(1).collect {
-                weatherViewModel.getLiveWeather(
-                    it.lat,
-                    it.lon,
-                    lang = sharedViewModel.langUnit.value
-                )
-                lat = it.lat
-                lon = it.lon
-                sharedViewModel.setActionBarTitle(it.name)
-                sharedViewModel.setCurrentLatLng(LatLng(it.lat, it.lon))
-            }
-        } catch (e: Exception) {
-            locationViewModel.insert(
-                Location(
-                    roundDouble(lat),
-                    roundDouble(lon),
-                    "Weather Forecast",
-                    1
-                )
-            )
-            locationViewModel.getLocation(1).collect {
-                if (lat != 0.0 && lon != 0.0) {
-                    weatherViewModel.getLiveWeather(
-                        it.lat,
-                        it.lon,
-                        lang = sharedViewModel.langUnit.value
-                    )
-                }
-                lat = it.lat
-                lon = it.lon
-                sharedViewModel.setActionBarTitle(it.name)
-            }
-        }
-    }
-
-    private fun roundDouble(double: Double): Double {
-        return "%.4f".format(double).toDouble()
-    }
-
-    private fun getLocationFromGPS() {
-        if (checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            binding.scrollView.visibility = View.GONE
-            requestPermissions(
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                locationPermissionCode
-            )
-            return
-        }
-        fusedLocationClient.getCurrentLocation(
-            LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY,
-            null
-        ).addOnSuccessListener {
-            if (it != null) {
-                addresses = geocoder.getFromLocation(
-                    it.latitude,
-                    it.longitude,
-                    1
-                )
-                val city = if (addresses[0].locality.isNullOrEmpty()) {
-                    addresses[0].adminArea
-                } else {
-                    addresses[0].locality
-                }
-                locationViewModel.insert(
-                    Location(
-                        roundDouble(it.latitude),
-                        roundDouble(it.longitude),
-                        city,
-                        1
-                    )
-                )
-                weatherViewModel.getLiveWeather(
-                    roundDouble(it.latitude),
-                    roundDouble(it.longitude),
-                    lang = sharedViewModel.langUnit.value
-                )
-            } else {
-                Snackbar.make(binding.root, "Failed to get Location", Snackbar.LENGTH_SHORT).show()
-
-            }
-        }.addOnFailureListener {
-            Snackbar.make(binding.root, "Failed to get location", Snackbar.LENGTH_SHORT).show()
-        }
-    }
-
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
-        if (requestCode == locationPermissionCode) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                binding.currentTempLayout.visibility = View.VISIBLE
-                binding.detailsLayout.visibility = View.VISIBLE
-                binding.noPermissionLayout.visibility = View.GONE
-                getLocationFromGPS()
-                lifecycleScope.launchWhenStarted {
-                    if (sharedViewModel.readDataStore("location").isNullOrEmpty() ||
-                        sharedViewModel.readDataStore("language").isNullOrEmpty() ||
-                        sharedViewModel.readDataStore("temperature").isNullOrEmpty() ||
-                        sharedViewModel.readDataStore("windSpeed").isNullOrEmpty()
-                    ) {
-                        sharedViewModel.saveDataStore("location", "GPS")
-                        sharedViewModel.saveDataStore("language", "English")
-                        sharedViewModel.saveDataStore("temperature", "Celsius")
-                        sharedViewModel.saveDataStore("windSpeed", "Meter / Sec")
-                        Log.i("myTag", "Default Settings have been created!")
-                    }
-                }
-
-            } else {
-                binding.currentTempLayout.visibility = View.GONE
-                binding.detailsLayout.visibility = View.GONE
-                binding.noPermissionLayout.visibility = View.VISIBLE
-            }
-        }
-        binding.scrollView.visibility = View.VISIBLE
     }
 }

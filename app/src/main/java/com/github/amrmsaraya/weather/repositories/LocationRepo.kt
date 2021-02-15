@@ -16,4 +16,8 @@ class LocationRepo(private val locationDao: LocationDao) {
     fun getLocation(id: Int): Flow<Location> {
         return locationDao.getLocation(id)
     }
+
+    fun getAllLocations(): Flow<List<Location>> {
+        return locationDao.getAllLocations()
+    }
 }

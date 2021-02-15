@@ -1,9 +1,7 @@
 package com.github.amrmsaraya.weather.presenter.ui
 
 import android.graphics.Color
-import android.location.LocationManager
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.ActionBar
@@ -13,18 +11,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.edit
-import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.createDataStore
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import com.github.amrmsaraya.weather.R
+import com.github.amrmsaraya.weather.data.models.WeatherAnimation
 import com.github.amrmsaraya.weather.databinding.ActivityMainBinding
 import com.github.amrmsaraya.weather.presenter.viewModel.SharedViewModel
+import com.github.amrmsaraya.weather.utils.SharedViewModelFactory
+import com.github.matteobattilana.weather.PrecipType
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.first
 
 class MainActivity : AppCompatActivity() {
     private lateinit var toggle: ActionBarDrawerToggle
@@ -34,9 +32,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var dataStore: DataStore<Preferences>
     private var currentFragment = ""
     private var mapStatus = ""
-
-    private lateinit var locationManager: LocationManager
-    private val locationPermissionCode = 2
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,16 +57,18 @@ class MainActivity : AppCompatActivity() {
         toggle.syncState()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        sharedViewModel = ViewModelProvider(this).get(SharedViewModel::class.java)
+        val sharedFactory = SharedViewModelFactory(baseContext)
+
+        sharedViewModel = ViewModelProvider(this, sharedFactory).get(SharedViewModel::class.java)
 
         lifecycleScope.launchWhenStarted {
             sharedViewModel.isPermissionGranted.collect {
                 if (!it) {
                     sharedViewModel.setPermissionGranted(true)
-//                    getLocationFromGPS()
                 }
             }
         }
+
         lifecycleScope.launchWhenStarted {
             sharedViewModel.actionBarTitle.collect {
                 binding.tvTitle.text = it
@@ -81,8 +78,8 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launchWhenStarted {
             sharedViewModel.actionBarVisibility.collect {
                 when (it) {
-                    "Show" -> supportActionBar?.show()
-                    "Hide" -> supportActionBar?.hide()
+                    true -> supportActionBar?.show()
+                    false -> supportActionBar?.hide()
                 }
             }
         }
@@ -129,10 +126,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     private suspend fun getLocationProvider() {
-//        binding.constrainLayout.visibility = View.GONE
-        if (readDataStore("location").isNullOrEmpty()) {
+        binding.constrainLayout.visibility = View.GONE
+        if (sharedViewModel.readDataStore("location").isNullOrEmpty()) {
             var locationProvider = "GPS"
             val locationDialog =
                 AlertDialog.Builder(this@MainActivity)
@@ -148,15 +144,15 @@ class MainActivity : AppCompatActivity() {
                         if (locationProvider == "Map") {
                             navController.navigate(R.id.mapsFragment)
                             binding.constrainLayout.visibility = View.VISIBLE
-                            lifecycleScope.launchWhenStarted {
-                                saveDataStore("location", locationProvider)
-                                saveDataStore("language", "English")
-                                saveDataStore("temperature", "Celsius")
-                                saveDataStore("windSpeed", "Meter / Sec")
-                                Log.i("myTag", "Default Settings have been created!")
-                            }
                         } else {
-//                            getLocationFromGPS()
+                            lifecycleScope.launchWhenStarted {
+                                sharedViewModel.saveDataStore(
+                                    "location",
+                                    "GPS"
+                                )
+                                navController.navigate(R.id.homeFragment)
+                                binding.constrainLayout.visibility = View.VISIBLE
+                            }
                         }
                     }
                     .setCancelable(false)
@@ -167,33 +163,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
-    private fun getLocationFromMap() {
-        navController.navigate(R.id.mapsFragment)
-        binding.constrainLayout.visibility = View.VISIBLE
-        lifecycleScope.launchWhenStarted {
-            saveDataStore("location", "Map")
-            saveDataStore("language", "English")
-            saveDataStore("temperature", "Celsius")
-            saveDataStore("windSpeed", "Meter / Sec")
-        }
-    }
-
-    private suspend fun saveDataStore(key: String, value: String) {
-        val dataStoreKey = stringPreferencesKey(key)
-        dataStore.edit { settings ->
-            settings[dataStoreKey] = value
-        }
-    }
-
-    private suspend fun readDataStore(key: String): String? {
-        val dataStoreKey = stringPreferencesKey(key)
-        val preferences = dataStore.data.first()
-        return preferences[dataStoreKey]
-
-    }
-
-
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (toggle.onOptionsItemSelected(item)) {
             return true
@@ -201,17 +170,21 @@ class MainActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-
     override fun onBackPressed() {
-        if (binding.drawerLayout.isDrawerOpen(binding.navView)) {
-            binding.drawerLayout.closeDrawers()
-        } else if (currentFragment == "Map" && mapStatus == "Default") {
-            lifecycleScope.launchWhenStarted {
-                saveDataStore("location", "")
+        lifecycleScope.launchWhenStarted {
+            if (binding.drawerLayout.isDrawerOpen(binding.navView)) {
+                binding.drawerLayout.closeDrawers()
+            } else if (currentFragment == "Map" && mapStatus == "Current" && sharedViewModel.readDataStore(
+                    "location"
+                ).isNullOrEmpty()
+            ) {
                 getLocationProvider()
+            } else if (currentFragment == "FavoriteWeather") {
+                sharedViewModel.setWeatherAnimation(WeatherAnimation(PrecipType.CLEAR, 100f))
+                super.onBackPressed()
+            } else {
+                super.onBackPressed()
             }
-        } else {
-            super.onBackPressed()
         }
     }
 }

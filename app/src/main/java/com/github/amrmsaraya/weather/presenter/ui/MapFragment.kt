@@ -12,6 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.databinding.FragmentMapBinding
 import com.github.amrmsaraya.weather.presenter.viewModel.SharedViewModel
+import com.github.amrmsaraya.weather.utils.SharedViewModelFactory
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
@@ -26,6 +27,16 @@ class MapFragment : Fragment() {
     private val bottomSheetFragment = BottomSheetFragment()
 
     private val callback = OnMapReadyCallback { googleMap ->
+        if (sharedViewModel.currentLatLng.value.latitude != 0.0 &&
+            sharedViewModel.currentLatLng.value.longitude != 0.0
+        ) {
+            googleMap.animateCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    sharedViewModel.currentLatLng.value,
+                    7f
+                )
+            )
+        }
         googleMap.setOnMapClickListener {
             try {
                 googleMap.clear()
@@ -35,15 +46,13 @@ class MapFragment : Fragment() {
                 )
 
                 viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-                    delay(1500)
+                    delay(1000)
                     sharedViewModel.setLatLng(it)
                     bottomSheetFragment.show(childFragmentManager, "BottomSheetFragment")
                 }
             } catch (e: IOException) {
                 Snackbar.make(binding.root, "No internet connection", Snackbar.LENGTH_SHORT).show()
             }
-
-
         }
     }
 
@@ -52,11 +61,14 @@ class MapFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        sharedViewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
+        val sharedFactory = SharedViewModelFactory(requireContext())
+
+        sharedViewModel =
+            ViewModelProvider(requireActivity(), sharedFactory).get(SharedViewModel::class.java)
         binding = DataBindingUtil.inflate(layoutInflater, R.layout.fragment_map, container, false)
 
         // Hide Action Bar
-        sharedViewModel.setActionBarVisibility("Hide")
+        sharedViewModel.setActionBarVisibility(false)
         sharedViewModel.setCurrentFragment("Map")
 
         return binding.root
@@ -67,6 +79,5 @@ class MapFragment : Fragment() {
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
         mapFragment?.getMapAsync(callback)
     }
-
 }
 

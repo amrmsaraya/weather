@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import com.github.amrmsaraya.weather.data.models.Location
 import com.github.amrmsaraya.weather.repositories.LocationRepo
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 class LocationViewModel(private val locationRepo: LocationRepo) : ViewModel() {
@@ -21,6 +20,10 @@ class LocationViewModel(private val locationRepo: LocationRepo) : ViewModel() {
 
     fun getLocation(id: Int): Flow<Location> {
         return locationRepo.getLocation(id)
+    }
+
+    fun getAllLocations(): Flow<List<Location>> {
+        return locationRepo.getAllLocations()
     }
 
 }

@@ -10,14 +10,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.models.Daily
 import com.github.amrmsaraya.weather.databinding.DailyItemBinding
+import com.github.amrmsaraya.weather.presenter.viewModel.SharedViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
 
-class DailyAdapter(val context: Context) :
+class DailyAdapter(private val context: Context, private val sharedViewModel: SharedViewModel) :
     ListAdapter<Daily, DailyAdapter.DailyViewHolder>(DailyDiffUtil()) {
     inner class DailyViewHolder(val binding: DailyItemBinding) :
         RecyclerView.ViewHolder(binding.root)
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): DailyViewHolder {
         return DailyViewHolder(
@@ -33,6 +35,27 @@ class DailyAdapter(val context: Context) :
     override fun onBindViewHolder(holder: DailyViewHolder, position: Int) {
         val formatter = SimpleDateFormat("E")
         val weekday = formatter.format(Date(getItem(position).dt.toLong() * 1000))
+        var max = getItem(position).temp.max
+        var min = getItem(position).temp.min
+
+        when (sharedViewModel.tempUnit.value) {
+            "Celsius" -> {
+                holder.binding.tvDailyMaxMinTemp.text =
+                    "${max.roundToInt()} / ${min.roundToInt()}°C"
+            }
+            "Kelvin" -> {
+                max += 273.15
+                min += 273.15
+                holder.binding.tvDailyMaxMinTemp.text =
+                    "${max.roundToInt()} / ${min.roundToInt()}°K"
+            }
+            "Fahrenheit" -> {
+                max = (max * 1.8) + 32
+                min = (min * 1.8) + 32
+                holder.binding.tvDailyMaxMinTemp.text =
+                    "${max.roundToInt()} / ${min.roundToInt()}°F"
+            }
+        }
         when (position) {
             0 -> {
                 holder.binding.tvDailyWeekDay.text = "Tomorrow"
@@ -42,8 +65,6 @@ class DailyAdapter(val context: Context) :
         }
         holder.binding.tvDailyDescription.text =
             getItem(position).weather[0].description.capitalize()
-        holder.binding.tvDailyMaxMinTemp.text =
-            "${getItem(position).temp.max.roundToInt()} / ${getItem(position).temp.min.roundToInt()} °"
 
         when (getItem(position).weather[0].main) {
             "Clear" -> {
