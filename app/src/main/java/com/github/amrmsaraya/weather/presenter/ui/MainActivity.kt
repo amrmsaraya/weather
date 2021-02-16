@@ -92,6 +92,7 @@ class MainActivity : AppCompatActivity() {
                     "Favorites" -> binding.navView.setCheckedItem(R.id.navFavorites)
                     "Alerts" -> binding.navView.setCheckedItem(R.id.navAlerts)
                     "Settings" -> binding.navView.setCheckedItem(R.id.navSettings)
+                    "FavoriteWeather" -> binding.navView.setCheckedItem(R.id.navFavorites)
                 }
             }
         }
@@ -146,10 +147,7 @@ class MainActivity : AppCompatActivity() {
                             binding.constrainLayout.visibility = View.VISIBLE
                         } else {
                             lifecycleScope.launchWhenStarted {
-                                sharedViewModel.saveDataStore(
-                                    "location",
-                                    "GPS"
-                                )
+                                sharedViewModel.saveDataStore("location", "GPS")
                                 navController.navigate(R.id.homeFragment)
                                 binding.constrainLayout.visibility = View.VISIBLE
                             }

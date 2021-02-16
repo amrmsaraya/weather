@@ -50,8 +50,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:layout_weight="1"
-                        android:background="@drawable/gradient_square"
-                        android:backgroundTint="@color/dark_gray"
+                        android:background="@drawable/gray_small_rounded_corners"
                         android:orientation="vertical"
                         android:padding="16dp">
 
@@ -106,8 +105,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:layout_weight="1"
-                        android:background="@drawable/gradient_square"
-                        android:backgroundTint="@color/dark_gray"
+                        android:background="@drawable/gray_small_rounded_corners"
                         android:orientation="vertical"
                         android:padding="16dp">
 
@@ -179,8 +177,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:layout_weight="1"
-                        android:background="@drawable/gradient_square"
-                        android:backgroundTint="@color/dark_gray"
+                        android:background="@drawable/gray_small_rounded_corners"
                         android:orientation="vertical"
                         android:padding="16dp">
 
@@ -245,8 +242,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="8dp"
                         android:layout_weight="1"
-                        android:background="@drawable/gradient_square"
-                        android:backgroundTint="@color/dark_gray"
+                        android:background="@drawable/gray_small_rounded_corners"
                         android:orientation="vertical"
                         android:padding="16dp">
 

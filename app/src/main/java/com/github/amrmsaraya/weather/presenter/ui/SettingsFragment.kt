@@ -1,7 +1,6 @@
 package com.github.amrmsaraya.weather.presenter.ui
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -49,17 +48,7 @@ class SettingsFragment : Fragment() {
         sharedViewModel.setActionBarVisibility(true)
 
         lifecycleScope.launchWhenStarted {
-            if (sharedViewModel.readDataStore("location").isNullOrEmpty() ||
-                sharedViewModel.readDataStore("language").isNullOrEmpty() ||
-                sharedViewModel.readDataStore("temperature").isNullOrEmpty() ||
-                sharedViewModel.readDataStore("windSpeed").isNullOrEmpty()
-            ) {
-                sharedViewModel.saveDataStore("location", "Map")
-                sharedViewModel.saveDataStore("language", "English")
-                sharedViewModel.saveDataStore("temperature", "Celsius")
-                sharedViewModel.saveDataStore("windSpeed", "Meter / Sec")
-                Log.i("myTag", "Default Settings have been created!")
-            }
+            sharedViewModel.setDefaultSettings("GPS")
         }
 
         lifecycleScope.launchWhenStarted {

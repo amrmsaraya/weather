@@ -3,7 +3,6 @@ package com.github.amrmsaraya.weather.presenter.ui
 import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -84,19 +83,8 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
                 "Current" -> {
                     locationViewModel.insert(Location(lat, lon, city, 1))
                     lifecycleScope.launchWhenStarted {
-                        if (sharedViewModel.readDataStore("location").isNullOrEmpty() ||
-                            sharedViewModel.readDataStore("language").isNullOrEmpty() ||
-                            sharedViewModel.readDataStore("temperature").isNullOrEmpty() ||
-                            sharedViewModel.readDataStore("windSpeed").isNullOrEmpty()
-                        ) {
-                            sharedViewModel.saveDataStore("location", "Map")
-                            sharedViewModel.saveDataStore("language", "English")
-                            sharedViewModel.saveDataStore("temperature", "Celsius")
-                            sharedViewModel.saveDataStore("windSpeed", "Meter / Sec")
-                            Log.i("myTag", "Default Settings have been created!")
-                        }
+                        sharedViewModel.setDefaultSettings("Map")
                     }
-
                     findNavController().navigate(R.id.homeFragment)
                 }
                 "Favorites" -> {

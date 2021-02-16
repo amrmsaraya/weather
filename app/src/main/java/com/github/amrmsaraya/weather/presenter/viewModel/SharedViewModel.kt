@@ -31,7 +31,6 @@ class SharedViewModel(private val context: Context) : ViewModel() {
     private val _windUnit = MutableStateFlow("Meter / Sec")
     private val _clickedFavoriteLocation = MutableStateFlow(Location(0.0, 0.0, ""))
 
-
     val actionBarTitle: StateFlow<String> = _actionBarTitle
     val actionBarVisibility: StateFlow<Boolean> = _actionBarVisibility
     val currentFragment: StateFlow<String> = _currentFragment
@@ -80,6 +79,21 @@ class SharedViewModel(private val context: Context) : ViewModel() {
 
     fun setClickedFavoriteLocation(location: Location) {
         _clickedFavoriteLocation.value = location
+    }
+
+    suspend fun setDefaultSettings(location: String) {
+        if (readDataStore("location").isNullOrEmpty() ||
+            readDataStore("language").isNullOrEmpty() ||
+            readDataStore("temperature").isNullOrEmpty() ||
+            readDataStore("windSpeed").isNullOrEmpty() ||
+            readDataStore("notification").isNullOrEmpty()
+        ) {
+            saveDataStore("location", location)
+            saveDataStore("language", "English")
+            saveDataStore("temperature", "Celsius")
+            saveDataStore("windSpeed", "Meter / Sec")
+            saveDataStore("notification", "true")
+        }
     }
 
     suspend fun readDataStore(key: String): String? {

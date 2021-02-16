@@ -7,7 +7,6 @@ import android.graphics.Color
 import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -124,7 +123,7 @@ class HomeFragment : Fragment() {
         }
 
         binding.tvDate.text =
-            SimpleDateFormat("E, dd MMM", Locale.US).format(Date(System.currentTimeMillis()))
+            SimpleDateFormat("E, dd MMM", Locale.US).format(System.currentTimeMillis())
 
         lifecycleScope.launchWhenStarted {
             if (sharedViewModel.readDataStore("location") == "GPS") {
@@ -185,6 +184,7 @@ class HomeFragment : Fragment() {
         sharedViewModel.readDataStore("language")
         sharedViewModel.readDataStore("temperature")
         sharedViewModel.readDataStore("windSpeed")
+        sharedViewModel.readDataStore("notification")
     }
 
     // show current weather data
@@ -401,19 +401,8 @@ class HomeFragment : Fragment() {
                 binding.noPermissionLayout.visibility = View.GONE
                 getLocationFromGPS()
                 lifecycleScope.launchWhenStarted {
-                    if (sharedViewModel.readDataStore("location").isNullOrEmpty() ||
-                        sharedViewModel.readDataStore("language").isNullOrEmpty() ||
-                        sharedViewModel.readDataStore("temperature").isNullOrEmpty() ||
-                        sharedViewModel.readDataStore("windSpeed").isNullOrEmpty()
-                    ) {
-                        sharedViewModel.saveDataStore("location", "GPS")
-                        sharedViewModel.saveDataStore("language", "English")
-                        sharedViewModel.saveDataStore("temperature", "Celsius")
-                        sharedViewModel.saveDataStore("windSpeed", "Meter / Sec")
-                        Log.i("myTag", "Default Settings have been created!")
-                    }
+                    sharedViewModel.setDefaultSettings("GPS")
                 }
-
             } else {
                 binding.currentTempLayout.visibility = View.GONE
                 binding.detailsLayout.visibility = View.GONE

@@ -15,6 +15,7 @@
             android:layout_marginTop="16dp"
             android:layout_weight="1"
             android:background="@drawable/gradient_square"
+            android:checked="true"
             android:padding="16dp"
             android:switchPadding="32dp"
             android:text="Notifications"
