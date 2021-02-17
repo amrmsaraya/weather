@@ -1,6 +1,5 @@
 package com.github.amrmsaraya.weather.presenter.ui
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -26,7 +25,6 @@ import com.github.amrmsaraya.weather.repositories.WeatherRepo
 import com.github.amrmsaraya.weather.utils.LocationViewModelFactory
 import com.github.amrmsaraya.weather.utils.SharedViewModelFactory
 import com.github.amrmsaraya.weather.utils.WeatherViewModelFactory
-import com.github.amrmsaraya.weather.workers.AlarmService
 import com.github.matteobattilana.weather.PrecipType
 import kotlinx.coroutines.flow.collect
 
@@ -49,7 +47,7 @@ class FavoritesFragment : Fragment() {
         val weatherDao = WeatherDatabase.getInstance(requireActivity().application).weatherDao()
 
         val locationRepo = LocationRepo(locationDao)
-        val weatherRepo = WeatherRepo(weatherDao)
+        val weatherRepo = WeatherRepo(requireContext(), weatherDao)
 
         val sharedFactory = SharedViewModelFactory(requireContext())
         val locationFactory = LocationViewModelFactory(locationRepo)

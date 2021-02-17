@@ -1,6 +1,8 @@
 package com.github.amrmsaraya.weather.presenter.ui
 
 import android.annotation.SuppressLint
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -25,6 +27,7 @@ import com.github.matteobattilana.weather.PrecipType
 import kotlinx.coroutines.flow.collect
 import java.util.*
 
+
 class MainActivity : AppCompatActivity() {
     private lateinit var toggle: ActionBarDrawerToggle
     private lateinit var navController: NavController
@@ -41,7 +44,33 @@ class MainActivity : AppCompatActivity() {
         setTheme(R.style.Theme_Weather)
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+
         dataStore = applicationContext.createDataStore("settings")
+
+        val sharedFactory = SharedViewModelFactory(baseContext)
+        sharedViewModel = ViewModelProvider(this, sharedFactory).get(SharedViewModel::class.java)
+
+        lifecycleScope.launchWhenStarted {
+            binding.constrainLayout.visibility = View.GONE
+            sharedViewModel.getCachedSettings()
+            if (!sharedViewModel.isLangSynced.value) {
+                when (sharedViewModel.langUnit.value) {
+                    "ar" -> {
+                        setLocale("ar")
+                        sharedViewModel.isLangSynced.value = true
+                        recreate()
+                    }
+                    "en" -> {
+                        setLocale("en")
+                        sharedViewModel.isLangSynced.value = true
+                        recreate()
+                    }
+                }
+            }
+            binding.constrainLayout.visibility = View.VISIBLE
+        }
+
+        binding.tvTitle.text = sharedViewModel.actionBarTitle.value
 
         lifecycleScope.launchWhenStarted {
             getLocationProvider()
@@ -57,10 +86,6 @@ class MainActivity : AppCompatActivity() {
         binding.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-        val sharedFactory = SharedViewModelFactory(baseContext)
-
-        sharedViewModel = ViewModelProvider(this, sharedFactory).get(SharedViewModel::class.java)
 
         lifecycleScope.launchWhenStarted {
             sharedViewModel.isPermissionGranted.collect {
@@ -126,6 +151,15 @@ class MainActivity : AppCompatActivity() {
             }
             true
         }
+    }
+
+    private fun setLocale(lang: String) {
+        val locale = Locale(lang)
+        Locale.setDefault(locale)
+        val res: Resources = resources
+        val config: Configuration = res.configuration
+        config.setLocale(locale)
+        res.updateConfiguration(config, res.displayMetrics)
     }
 
     private suspend fun getLocationProvider() {

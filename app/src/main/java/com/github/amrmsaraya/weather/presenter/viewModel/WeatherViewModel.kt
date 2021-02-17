@@ -24,8 +24,8 @@ class WeatherViewModel(private val repo: WeatherRepo) : ViewModel() {
         repo.delete(weatherResponse)
     }
 
-    fun deleteAll() = viewModelScope.launch {
-        repo.deleteAll()
+    fun deleteCurrent() = viewModelScope.launch {
+        repo.deleteCurrent()
     }
 
     suspend fun getCachedLocationWeather(lat: Double, lon: Double): WeatherResponse {

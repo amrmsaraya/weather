@@ -86,7 +86,7 @@ class HomeFragment : Fragment() {
         val locationDao = WeatherDatabase.getInstance(requireActivity().application).locationDao()
 
         // Repo
-        val weatherRepo = WeatherRepo(weatherDao)
+        val weatherRepo = WeatherRepo(requireContext(), weatherDao)
         val locationRepo = LocationRepo(locationDao)
 
         // Factory
@@ -106,7 +106,7 @@ class HomeFragment : Fragment() {
         sharedViewModel.setActionBarVisibility(true)
 
         lifecycleScope.launchWhenStarted {
-            getCachedSettings()
+            sharedViewModel.getCachedSettings()
         }
 
         lifecycleScope.launchWhenStarted {
@@ -167,7 +167,12 @@ class HomeFragment : Fragment() {
             weatherViewModel.weatherResponse.collect {
                 when (it) {
                     is WeatherRepo.ResponseState.Success -> {
-                        weatherViewModel.insert(it.weatherResponse)
+                        // Delete old current weather data
+                        weatherViewModel.deleteCurrent()
+                        val response = it.weatherResponse
+                        response.isCurrent = true
+                        // Insert the new current weather data
+                        weatherViewModel.insert(response)
                         if (lat != 0.0 && lon != 0.0) {
                             getCachedWeather()
                         }
@@ -175,7 +180,7 @@ class HomeFragment : Fragment() {
                     is WeatherRepo.ResponseState.Error ->
                         Snackbar.make(
                             binding.root,
-                            it.message,
+                            getString(R.string.no_internet_connection),
                             Snackbar.LENGTH_SHORT
                         ).show()
                     else -> Unit
@@ -206,13 +211,6 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
-    private suspend fun getCachedSettings() {
-        sharedViewModel.readDataStore("location")
-        sharedViewModel.readDataStore("language")
-        sharedViewModel.readDataStore("temperature")
-        sharedViewModel.readDataStore("windSpeed")
-        sharedViewModel.readDataStore("notification")
-    }
 
     // show current weather data
     @SuppressLint("UseCompatLoadingForDrawables")
@@ -332,22 +330,24 @@ class HomeFragment : Fragment() {
     private suspend fun getCachedLocation() {
         try {
             locationViewModel.getLocation(1).collect {
-                weatherViewModel.getLiveWeather(
-                    it.lat,
-                    it.lon,
-                    lang = sharedViewModel.langUnit.value
-                )
-                lat = it.lat
-                lon = it.lon
-                sharedViewModel.setActionBarTitle(it.name)
-                sharedViewModel.setCurrentLatLng(LatLng(it.lat, it.lon))
+                if (it.lat != 0.0 && it.lon != 0.0) {
+                    weatherViewModel.getLiveWeather(
+                        it.lat,
+                        it.lon,
+                        lang = sharedViewModel.langUnit.value
+                    )
+                    lat = it.lat
+                    lon = it.lon
+                    sharedViewModel.setActionBarTitle(it.name)
+                    sharedViewModel.setCurrentLatLng(LatLng(it.lat, it.lon))
+                }
             }
         } catch (e: Exception) {
             locationViewModel.insert(
                 Location(
                     roundDouble(lat),
                     roundDouble(lon),
-                    "Weather Forecast",
+                    getString(R.string.weather_forecast),
                     1
                 )
             )

@@ -1,5 +1,7 @@
 package com.github.amrmsaraya.weather.presenter.ui
 
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -19,6 +21,7 @@ import com.github.amrmsaraya.weather.databinding.FragmentSettingsBinding
 import com.github.amrmsaraya.weather.presenter.viewModel.SharedViewModel
 import com.github.amrmsaraya.weather.utils.SharedViewModelFactory
 import com.github.matteobattilana.weather.PrecipType
+import java.util.*
 
 class SettingsFragment : Fragment() {
 
@@ -69,6 +72,24 @@ class SettingsFragment : Fragment() {
                 "Meter / Sec" -> binding.rgWindSpeed.check(R.id.rbMeter)
                 "Mile / Hour" -> binding.rgWindSpeed.check(R.id.rbMile)
             }
+            binding.rgLanguage.setOnCheckedChangeListener { _, checkedId ->
+                val lang = binding.root.findViewById<RadioButton>(checkedId)
+                var text = lang.text.toString()
+                when (lang.text.toString()) {
+                    "الإنجليزية", "English" -> {
+                        text = "English"
+                        setLocale("en")
+                    }
+                    "العربية", "Arabic" -> {
+                        text = "Arabic"
+                        setLocale("ar")
+                    }
+                }
+                requireActivity().recreate()
+                lifecycleScope.launchWhenStarted {
+                    sharedViewModel.saveDataStore("language", text)
+                }
+            }
         }
 
         binding.rgLocation.setOnCheckedChangeListener { _, checkedId ->
@@ -83,17 +104,7 @@ class SettingsFragment : Fragment() {
             }
         }
 
-        binding.rgLanguage.setOnCheckedChangeListener { _, checkedId ->
-            val lang = binding.root.findViewById<RadioButton>(checkedId)
-            var text = lang.text.toString()
-            when (lang.text.toString()) {
-                "الإنجليزية" -> text = "English"
-                "العربية" -> text = "Arabic"
-            }
-            lifecycleScope.launchWhenStarted {
-                sharedViewModel.saveDataStore("language", text)
-            }
-        }
+
 
         binding.rgTemperature.setOnCheckedChangeListener { _, checkedId ->
             val temp = binding.root.findViewById<RadioButton>(checkedId)
@@ -126,5 +137,14 @@ class SettingsFragment : Fragment() {
         }
 
         return binding.root
+    }
+
+    private fun setLocale(lang: String) {
+        val locale = Locale(lang)
+        Locale.setDefault(locale)
+        val res: Resources = resources
+        val config: Configuration = res.configuration
+        config.setLocale(locale)
+        res.updateConfiguration(config, res.displayMetrics)
     }
 }

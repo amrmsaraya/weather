@@ -13,8 +13,8 @@ interface WeatherDao {
     @Delete
     suspend fun deleteWeather(weatherResponse: WeatherResponse)
 
-    @Query("DELETE FROM weather")
-    suspend fun deleteAll()
+    @Query("DELETE FROM weather WHERE isCurrent = 1")
+    suspend fun deleteCurrent()
 
     @Query("SELECT * From weather WHERE lat = :lat AND lon = :lon ")
     suspend fun getLocationWeather(lat: Double, lon: Double): WeatherResponse

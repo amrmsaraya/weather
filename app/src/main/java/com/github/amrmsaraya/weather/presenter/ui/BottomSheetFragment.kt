@@ -39,7 +39,7 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        var city = ""
+        var city = getString(R.string.unknown)
         binding =
             DataBindingUtil.inflate(inflater, R.layout.bottom_sheet_fragment, container, false)
 
@@ -58,30 +58,34 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
         val lon = roundDouble(sharedViewModel.latLng.value.longitude)
         geocoder = Geocoder(context, Locale.getDefault())
 
-        addresses = geocoder.getFromLocation(lat, lon, 1)
-        if (!addresses.isNullOrEmpty()) {
-            city = if (!addresses[0].locality.isNullOrEmpty()) {
-                addresses[0].locality
-            } else if (!addresses[0].adminArea.isNullOrEmpty()) {
-                addresses[0].adminArea
-            } else if (!addresses[0].getAddressLine(0).isNullOrEmpty()) {
-                addresses[0].getAddressLine(0)
-            } else {
-                getString(R.string.unknown)
-            }.toString()
+        try {
+            addresses = geocoder.getFromLocation(lat, lon, 1)
+            if (!addresses.isNullOrEmpty()) {
+                city = if (!addresses[0].locality.isNullOrEmpty()) {
+                    addresses[0].locality
+                } else if (!addresses[0].adminArea.isNullOrEmpty()) {
+                    addresses[0].adminArea
+                } else if (!addresses[0].getAddressLine(0).isNullOrEmpty()) {
+                    addresses[0].getAddressLine(0)
+                } else {
+                    getString(R.string.unknown)
+                }.toString()
 
-            binding.tvCity.text = city
+                binding.tvCity.text = city
 
-            if (!addresses[0].getAddressLine(0).isNullOrEmpty()) {
-                binding.tvAddress.text = addresses[0].getAddressLine(0)
+                if (!addresses[0].getAddressLine(0).isNullOrEmpty()) {
+                    binding.tvAddress.text = addresses[0].getAddressLine(0)
+                } else {
+                    binding.tvAddress.text = getString(R.string.unknown)
+                }
             } else {
+                binding.tvCity.text = getString(R.string.unknown)
                 binding.tvAddress.text = getString(R.string.unknown)
+                city = getString(R.string.unknown)
             }
-        } else {
-            binding.tvCity.text = getString(R.string.unknown)
-            binding.tvAddress.text = getString(R.string.unknown)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-
 
         binding.btnSaveLocation.setOnClickListener {
             when (sharedViewModel.mapStatus.value) {
@@ -90,11 +94,12 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
                     lifecycleScope.launchWhenStarted {
                         sharedViewModel.setDefaultSettings("Map")
                     }
+                    findNavController().popBackStack()
                     findNavController().navigate(R.id.homeFragment)
                 }
                 "Favorites" -> {
                     locationViewModel.insert(Location(lat, lon, city))
-
+                    findNavController().popBackStack()
                     findNavController().navigate(R.id.favoritesFragment)
                 }
             }

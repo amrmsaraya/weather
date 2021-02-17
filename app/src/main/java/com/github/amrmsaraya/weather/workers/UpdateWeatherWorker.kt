@@ -29,16 +29,18 @@ class UpdateWeatherWorker(private val context: Context, private val params: Work
 
             // Get weather from API
             val response =
-                WeatherRepo(database.weatherDao()).getLive(location.lat, location.lon, lang)
+                WeatherRepo(context, database.weatherDao()).getLive(
+                    location.lat,
+                    location.lon,
+                    lang
+                )
 
             // Update Database
             if (response is WeatherRepo.ResponseState.Success) {
-                val oldCurrentWeather =
-                    database.weatherDao().getLocationWeather(location.lat, location.lon)
                 // Delete old current weather data
-                WeatherRepo(database.weatherDao()).delete(oldCurrentWeather)
+                WeatherRepo(context, database.weatherDao()).deleteCurrent()
                 // Insert the new current weather data
-                WeatherRepo(database.weatherDao()).insert(response.weatherResponse)
+                WeatherRepo(context, database.weatherDao()).insert(response.weatherResponse)
             }
 
             // Delete outdated alarms

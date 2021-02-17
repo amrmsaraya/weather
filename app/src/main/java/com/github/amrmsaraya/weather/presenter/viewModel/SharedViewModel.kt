@@ -2,6 +2,7 @@ package com.github.amrmsaraya.weather.presenter.viewModel
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
+import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.models.Location
 import com.github.amrmsaraya.weather.data.models.WeatherAnimation
 import com.github.amrmsaraya.weather.repositories.DataStoreRepo
@@ -14,7 +15,7 @@ import java.util.*
 class SharedViewModel(private val context: Context) : ViewModel() {
 
     private val dataStoreRepo = DataStoreRepo(context)
-    private val _actionBarTitle = MutableStateFlow("Weather Forecast")
+    private val _actionBarTitle = MutableStateFlow(context.getString(R.string.weather_forecast))
     private val _actionBarVisibility = MutableStateFlow(true)
     private val _currentFragment = MutableStateFlow("Home")
     private val _mapStatus = MutableStateFlow("Current")
@@ -27,10 +28,11 @@ class SharedViewModel(private val context: Context) : ViewModel() {
     private val _latLng = MutableStateFlow(LatLng(0.0, 0.0))
     private val _currentLatLng = MutableStateFlow(LatLng(0.0, 0.0))
     private val _isPermissionGranted = MutableStateFlow(true)
-    private val _langUnit = MutableStateFlow("English")
+    private val _langUnit = MutableStateFlow("")
     private val _tempUnit = MutableStateFlow("Celsius")
     private val _windUnit = MutableStateFlow("Meter / Sec")
     private val _clickedFavoriteLocation = MutableStateFlow(Location(0.0, 0.0, ""))
+    private val _isLangSynced = MutableStateFlow(false)
 
     val actionBarTitle: StateFlow<String> = _actionBarTitle
     val actionBarVisibility: StateFlow<Boolean> = _actionBarVisibility
@@ -44,6 +46,7 @@ class SharedViewModel(private val context: Context) : ViewModel() {
     val tempUnit = _tempUnit
     val windUnit = _windUnit
     val clickedFavoriteLocation = _clickedFavoriteLocation
+    val isLangSynced = _isLangSynced
 
 
     fun setActionBarTitle(title: String) {
@@ -100,6 +103,14 @@ class SharedViewModel(private val context: Context) : ViewModel() {
             saveDataStore("notification", "true")
             saveDataStore("isWorkerEnqueued", "false")
         }
+    }
+
+    suspend fun getCachedSettings() {
+        readDataStore("location")
+        readDataStore("language")
+        readDataStore("temperature")
+        readDataStore("windSpeed")
+        readDataStore("notification")
     }
 
     suspend fun readDataStore(key: String): String? {

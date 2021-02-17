@@ -1,6 +1,8 @@
 package com.github.amrmsaraya.weather.repositories
 
+import android.content.Context
 import android.util.Log
+import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.local.WeatherDao
 import com.github.amrmsaraya.weather.data.models.WeatherResponse
 import com.github.amrmsaraya.weather.data.remote.RetrofitInstance
@@ -9,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import retrofit2.HttpException
 import java.io.IOException
 
-class WeatherRepo(private val weatherDao: WeatherDao) {
+class WeatherRepo(private val context: Context, private val weatherDao: WeatherDao) {
 
     private val retrofitService =
         RetrofitInstance.getRetrofitInstance().create(WeatherService::class.java)
@@ -30,8 +32,8 @@ class WeatherRepo(private val weatherDao: WeatherDao) {
         weatherDao.deleteWeather(weatherResponse)
     }
 
-    suspend fun deleteAll() {
-        weatherDao.deleteAll()
+    suspend fun deleteCurrent() {
+        weatherDao.deleteCurrent()
     }
 
     suspend fun getLive(
@@ -47,7 +49,7 @@ class WeatherRepo(private val weatherDao: WeatherDao) {
                 "minutely",
                 units,
                 lang,
-                "22efb44963e22ae7005aac70558c7464"
+                context.getString(R.string.open_weather_map_app_id)
             ).body()
             response
                 ?.let { return ResponseState.Success(response) }

@@ -2,7 +2,6 @@
 <resources>
     <string name="app_name">Weather</string>
     <string name="weather_forecast">حالة الطقس</string>
-    <string name="degree_symbol">°</string>
     <string name="pressure">الضغط</string>
     <string name="humidity">الرطوبة</string>
     <string name="wind">الرياح</string>
@@ -26,7 +25,7 @@
     <string name="dismiss">إالغاء</string>
     <string name="notifications">إشعارات</string>
     <string name="we_can_t_fetch_your_location">لم نستطع الحصول علي موقعك.</string>
-    <string name="please_allow_weather_to_access_your_location">من فضلك قم بالسماح للحصول علي موقعك.</string>
+    <string name="please_allow_weather_to_access_your_location">من فضلك قم بالسماح للحصول علي الموقع.</string>
     <string name="allow">سماح</string>
     <string name="location">الموقع</string>
     <string name="gps">موقعي الحالي</string>
@@ -43,7 +42,7 @@
     <string name="mile_hour">ميل / ساعة</string>
     <string name="delete">حذف</string>
     <string name="m_s">م/ث</string>
-    <string name="mph">م/س</string>
+    <string name="mph">ميل/س</string>
     <string name="hpa">ه.ب.ا</string>
     <string name="meter">م</string>
     <string name="no_internet_connection">لا يوجد إتصال بالإنترنت</string>

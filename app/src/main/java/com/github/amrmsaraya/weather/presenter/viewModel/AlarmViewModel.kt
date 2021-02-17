@@ -19,6 +19,7 @@ class AlarmViewModel(private val alarmsRepo: AlarmsRepo) : ViewModel() {
     suspend fun update(alarm: Alarm) = viewModelScope.launch {
         alarmsRepo.update(alarm)
     }
+
     suspend fun getAlarmList(): List<Alarm> {
         return alarmsRepo.getAlarmList()
     }

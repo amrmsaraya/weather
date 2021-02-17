@@ -44,7 +44,7 @@ class FavoritesWeatherFragment : Fragment() {
         binding = DataBindingUtil.inflate(layoutInflater, R.layout.fragment_home, container, false)
 
         val weatherDao = WeatherDatabase.getInstance(requireActivity().application).weatherDao()
-        val weatherRepo = WeatherRepo(weatherDao)
+        val weatherRepo = WeatherRepo(requireContext(), weatherDao)
         val weatherFactory = WeatherViewModelFactory(weatherRepo)
         val sharedFactory = SharedViewModelFactory(requireContext())
 
@@ -93,9 +93,6 @@ class FavoritesWeatherFragment : Fragment() {
             weatherViewModel.weatherResponse.collect {
                 when (it) {
                     is WeatherRepo.ResponseState.Success -> {
-                        if (it.weatherResponse.alerts == null) {
-                            it.weatherResponse.alerts = listOf(Alerts())
-                        }
                         weatherViewModel.insert(it.weatherResponse)
                         getCachedWeather()
                     }

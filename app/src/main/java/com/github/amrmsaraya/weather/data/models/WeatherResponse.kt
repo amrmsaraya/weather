@@ -6,7 +6,6 @@ import com.google.gson.annotations.SerializedName
 
 @Entity(tableName = "weather")
 data class WeatherResponse(
-
     @PrimaryKey
     @SerializedName("lat") val lat: Double,
     @SerializedName("lon") val lon: Double,
@@ -15,5 +14,6 @@ data class WeatherResponse(
     @SerializedName("current") val current: Current,
     @SerializedName("hourly") val hourly: List<Hourly>,
     @SerializedName("daily") val daily: List<Daily>,
-    @SerializedName("alerts") var alerts: List<Alerts>?
+    @SerializedName("alerts") val alerts: List<Alerts>?,
+    var isCurrent: Boolean = false
 )
