@@ -15,7 +15,7 @@
             android:id="@+id/tvDailyWeekDay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Tomorrow"
+            android:text="@string/tomorrow"
             android:textColor="@color/white"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/ivDailyIcon" />

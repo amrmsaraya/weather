@@ -12,16 +12,16 @@
             android:id="@+id/btnSaveAlert"
             android:layout_width="0dp"
             android:layout_height="40dp"
-            android:layout_marginTop="8dp"
+            android:layout_marginTop="16dp"
             android:layout_marginBottom="24dp"
             android:background="@drawable/gradient_square"
-            android:text="Save"
+            android:text="@string/save"
             android:textColor="@color/white"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="@+id/linearLayout2"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="@+id/linearLayout2"
-            app:layout_constraintTop_toBottomOf="@+id/swSound" />
+            app:layout_constraintTop_toBottomOf="@+id/rgAlarmType" />
 
         <LinearLayout
             android:id="@+id/linearLayout2"
@@ -51,7 +51,7 @@
                     android:background="@drawable/gradient_square"
                     android:gravity="center"
                     android:padding="4dp"
-                    android:text="From"
+                    android:text="@string/from"
                     android:textColor="@color/white"
                     android:textSize="16sp" />
 
@@ -79,6 +79,7 @@
                         android:id="@+id/tvFromDate"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:layout_marginTop="4dp"
                         android:layout_weight="1"
                         android:gravity="center"
                         android:text="15 June, 2020"
@@ -105,7 +106,7 @@
                     android:background="@drawable/gradient_square"
                     android:gravity="center"
                     android:padding="4dp"
-                    android:text="To"
+                    android:text="@string/to"
                     android:textColor="@color/white"
                     android:textSize="16sp" />
 
@@ -133,6 +134,7 @@
                         android:id="@+id/tvToDate"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
+                        android:layout_marginTop="4dp"
                         android:layout_weight="1"
                         android:gravity="center"
                         android:text="15 June, 2020"
@@ -143,16 +145,38 @@
             </LinearLayout>
         </LinearLayout>
 
-        <Switch
-            android:id="@+id/swSound"
-            android:layout_width="0dp"
+        <RadioGroup
+            android:id="@+id/rgAlarmType"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:padding="10dp"
-            android:text="Sound"
-            android:textColor="@color/white"
-            app:layout_constraintEnd_toEndOf="@+id/linearLayout2"
-            app:layout_constraintStart_toStartOf="@+id/linearLayout2"
-            app:layout_constraintTop_toBottomOf="@+id/linearLayout2" />
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
+
+            <RadioButton
+                android:id="@+id/rbAlarm"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="16dp"
+                android:layout_weight="1"
+                android:buttonTint="@color/pink"
+                android:checked="true"
+                android:text="@string/alarm"
+                android:textColor="@color/white" />
+
+            <RadioButton
+                android:id="@+id/rbNotification"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:buttonTint="@color/pink"
+                android:text="@string/notification"
+                android:textColor="@color/white" />
+
+        </RadioGroup>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

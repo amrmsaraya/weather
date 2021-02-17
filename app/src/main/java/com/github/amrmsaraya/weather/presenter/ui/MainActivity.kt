@@ -1,9 +1,11 @@
 package com.github.amrmsaraya.weather.presenter.ui
 
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
@@ -22,7 +24,9 @@ import com.github.amrmsaraya.weather.databinding.ActivityMainBinding
 import com.github.amrmsaraya.weather.presenter.viewModel.SharedViewModel
 import com.github.amrmsaraya.weather.utils.SharedViewModelFactory
 import com.github.matteobattilana.weather.PrecipType
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collect
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     private lateinit var toggle: ActionBarDrawerToggle
@@ -33,6 +37,7 @@ class MainActivity : AppCompatActivity() {
     private var currentFragment = ""
     private var mapStatus = ""
 
+    @SuppressLint("UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Set background colors for status bar and navigation bar
@@ -130,18 +135,21 @@ class MainActivity : AppCompatActivity() {
     private suspend fun getLocationProvider() {
         binding.constrainLayout.visibility = View.GONE
         if (sharedViewModel.readDataStore("location").isNullOrEmpty()) {
-            var locationProvider = "GPS"
+            var locationProvider = getString(R.string.gps)
             val locationDialog =
                 AlertDialog.Builder(this@MainActivity)
-                    .setTitle("Location provider")
+                    .setTitle(getString(R.string.location_provider))
                     .setIcon(R.drawable.location)
-                    .setSingleChoiceItems(arrayOf("GPS", "Map"), 0) { _, which ->
+                    .setSingleChoiceItems(
+                        arrayOf(getString(R.string.gps), getString(R.string.map)),
+                        0
+                    ) { _, which ->
                         when (which) {
                             0 -> locationProvider = "GPS"
                             1 -> locationProvider = "Map"
                         }
                     }
-                    .setPositiveButton("OK") { _, _ ->
+                    .setPositiveButton(getString(R.string.ok)) { _, _ ->
                         if (locationProvider == "Map") {
                             navController.navigate(R.id.mapsFragment)
                             binding.constrainLayout.visibility = View.VISIBLE

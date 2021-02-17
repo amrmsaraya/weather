@@ -7,6 +7,7 @@ import com.github.amrmsaraya.weather.data.models.Daily
 import com.github.amrmsaraya.weather.data.models.Hourly
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
+import java.util.*
 
 class Converters {
     @TypeConverter
@@ -42,13 +43,23 @@ class Converters {
     }
 
     @TypeConverter
-    fun fromAlerts(alerts: List<Alerts>): String {
+    fun fromAlerts(alerts: List<Alerts>?): String? {
         return Gson().toJson(alerts)
     }
 
     @TypeConverter
-    fun toAlerts(string: String): List<Alerts> {
-        val type = object : TypeToken<List<Alerts>>() {}.type
+    fun toAlerts(string: String): List<Alerts>? {
+        val type = object : TypeToken<List<Alerts>?>() {}.type
         return Gson().fromJson(string, type)
+    }
+
+    @TypeConverter
+    fun fromUUID(uuid: UUID): String {
+        return Gson().toJson(uuid)
+    }
+
+    @TypeConverter
+    fun toUUID(string: String): UUID {
+        return Gson().fromJson(string, UUID::class.java)
     }
 }

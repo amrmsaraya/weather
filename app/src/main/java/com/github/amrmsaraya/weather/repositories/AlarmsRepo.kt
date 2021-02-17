@@ -17,6 +17,10 @@ class AlarmsRepo(private val alarmDao: AlarmDao) {
         alarmDao.update(alarm)
     }
 
+    suspend fun getAlarmList(): List<Alarm> {
+        return alarmDao.getAlarmList()
+    }
+
     fun queryAll(): Flow<List<Alarm>> {
         return alarmDao.queryAll()
     }

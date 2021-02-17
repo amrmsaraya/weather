@@ -12,6 +12,9 @@ interface LocationDao {
     @Delete
     suspend fun deleteLocation(location: Location)
 
+    @Query("SELECT * From location WHERE id = 1")
+    suspend fun getCurrentLocation(): Location
+
     @Query("SELECT * From location WHERE id = :id")
     fun getLocation(id: Int): Flow<Location>
 

@@ -9,6 +9,7 @@ import com.github.matteobattilana.weather.PrecipType
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import java.util.*
 
 class SharedViewModel(private val context: Context) : ViewModel() {
 
@@ -86,13 +87,18 @@ class SharedViewModel(private val context: Context) : ViewModel() {
             readDataStore("language").isNullOrEmpty() ||
             readDataStore("temperature").isNullOrEmpty() ||
             readDataStore("windSpeed").isNullOrEmpty() ||
-            readDataStore("notification").isNullOrEmpty()
+            readDataStore("notification").isNullOrEmpty() ||
+            readDataStore("isWorkerEnqueued").isNullOrEmpty()
         ) {
             saveDataStore("location", location)
-            saveDataStore("language", "English")
+            when (Locale.getDefault().displayLanguage) {
+                "English" -> saveDataStore("language", "English")
+                "العربية" -> saveDataStore("language", "Arabic")
+            }
             saveDataStore("temperature", "Celsius")
             saveDataStore("windSpeed", "Meter / Sec")
             saveDataStore("notification", "true")
+            saveDataStore("isWorkerEnqueued", "false")
         }
     }
 

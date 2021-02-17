@@ -144,19 +144,21 @@ class FavoritesWeatherFragment : Fragment() {
         }
 
         when (sharedViewModel.windUnit.value) {
-            "Meter / Sec" -> binding.tvWindSpeed.text = "${current.wind_speed} m/s"
-            "Mile / Hour" -> binding.tvWindSpeed.text =
-                "${"%.2f".format(current.wind_speed * 2.236936)} mph"
+            "Meter / Sec" -> binding.tvWindSpeed.text =
+                "${current.wind_speed} ${getString(R.string.m_s)}"
+            "Mile / Hour"
+            -> binding.tvWindSpeed.text =
+                "${"%.2f".format(current.wind_speed * 2.236936)} ${getString(R.string.mph)}"
         }
 
         binding.tvTemp.text = temp.roundToInt().toString()
         binding.tvDescription.text =
             current.weather[0].description.capitalize(Locale.ROOT)
-        binding.tvPressure.text = "${current.pressure} hpa"
+        binding.tvPressure.text = "${current.pressure} ${getString(R.string.hpa)}"
         binding.tvHumidity.text = "${current.humidity} %"
         binding.tvClouds.text = "${current.clouds} %"
         binding.tvUltraviolet.text = current.uvi.toString()
-        binding.tvVisibility.text = "${current.visibility} m"
+        binding.tvVisibility.text = "${current.visibility} ${getString(R.string.meter)}"
 
         when (current.weather[0].main) {
             "Clear" -> {

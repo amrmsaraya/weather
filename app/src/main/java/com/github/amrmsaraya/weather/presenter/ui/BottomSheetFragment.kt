@@ -1,5 +1,6 @@
 package com.github.amrmsaraya.weather.presenter.ui
 
+import android.annotation.SuppressLint
 import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
@@ -20,6 +21,9 @@ import com.github.amrmsaraya.weather.repositories.LocationRepo
 import com.github.amrmsaraya.weather.utils.LocationViewModelFactory
 import com.github.amrmsaraya.weather.utils.SharedViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import java.math.BigDecimal
+import java.math.RoundingMode
+import java.text.DecimalFormat
 import java.util.*
 
 class BottomSheetFragment : BottomSheetDialogFragment() {
@@ -29,6 +33,7 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
     private lateinit var geocoder: Geocoder
     private var addresses = mutableListOf<Address>()
 
+    @SuppressLint("SetTextI18n")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -62,7 +67,7 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
             } else if (!addresses[0].getAddressLine(0).isNullOrEmpty()) {
                 addresses[0].getAddressLine(0)
             } else {
-                "UnKnown"
+                getString(R.string.unknown)
             }.toString()
 
             binding.tvCity.text = city
@@ -70,11 +75,11 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
             if (!addresses[0].getAddressLine(0).isNullOrEmpty()) {
                 binding.tvAddress.text = addresses[0].getAddressLine(0)
             } else {
-                binding.tvAddress.text = "Unknown"
+                binding.tvAddress.text = getString(R.string.unknown)
             }
         } else {
-            binding.tvCity.text = "Unknown"
-            binding.tvAddress.text = "Unknown"
+            binding.tvCity.text = getString(R.string.unknown)
+            binding.tvAddress.text = getString(R.string.unknown)
         }
 
 
@@ -98,6 +103,8 @@ class BottomSheetFragment : BottomSheetDialogFragment() {
     }
 
     private fun roundDouble(double: Double): Double {
-        return "%.4f".format(double).toDouble()
+        val d = DecimalFormat("#.####")
+        return BigDecimal(double).setScale(4, RoundingMode.HALF_UP).toDouble()
+//        return "%.4f".format(double).toDouble()
     }
 }

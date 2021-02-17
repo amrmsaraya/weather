@@ -3,48 +3,45 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@color/darker_gray">
+        android:layout_margin="24dp"
+        android:background="@drawable/gray_small_rounded_corners"
+        android:padding="24dp">
 
         <TextView
-            android:id="@+id/tvCity"
+            android:id="@+id/tvAlarmTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            android:text="Giza"
+            android:text="TextView"
             android:textColor="@color/white"
+            android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/tvAddress"
-            android:layout_width="0dp"
+            android:id="@+id/tvAlarmDescription"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="16dp"
-            android:singleLine="true"
-            android:text="Al Omraneyah Al Gharbeyah, ElOmraniyah, Giza Government"
+            android:layout_marginTop="8dp"
+            android:text="Description"
             android:textColor="@color/light_gray"
-            android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="@+id/tvCity"
-            app:layout_constraintTop_toBottomOf="@+id/tvCity" />
+            app:layout_constraintStart_toStartOf="@+id/tvAlarmTitle"
+            app:layout_constraintTop_toBottomOf="@+id/tvAlarmTitle" />
 
         <Button
-            android:id="@+id/btnSaveLocation"
+            android:id="@+id/btnAlarmDismiss"
             android:layout_width="wrap_content"
             android:layout_height="35dp"
             android:layout_marginTop="16dp"
-            android:layout_marginBottom="16dp"
             android:background="@drawable/gradient_square"
-            android:text="@string/save"
+            android:text="@string/dismiss"
+            android:textAllCaps="false"
             android:textColor="@color/white"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvAddress" />
+            app:layout_constraintTop_toBottomOf="@+id/tvAlarmDescription" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

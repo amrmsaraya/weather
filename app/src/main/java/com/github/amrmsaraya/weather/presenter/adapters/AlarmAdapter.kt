@@ -58,13 +58,13 @@ class AlarmAdapter(
         }
 
         holder.binding.tvAlarmFromTime.text =
-            SimpleDateFormat("h:mm a", Locale.US).format(getItem(position).from)
+            SimpleDateFormat("h:mm a", Locale.US).format(getItem(position).start)
         holder.binding.tvAlarmFromDate.text =
-            SimpleDateFormat("dd MMM", Locale.US).format(getItem(position).from)
+            SimpleDateFormat("dd MMM", Locale.US).format(getItem(position).start)
         holder.binding.tvAlarmToTime.text =
-            SimpleDateFormat("h:mm a", Locale.US).format(getItem(position).to)
+            SimpleDateFormat("h:mm a", Locale.US).format(getItem(position).end)
         holder.binding.tvAlarmToDate.text =
-            SimpleDateFormat("dd MMM", Locale.US).format(getItem(position).to)
+            SimpleDateFormat("dd MMM", Locale.US).format(getItem(position).end)
     }
 }
 

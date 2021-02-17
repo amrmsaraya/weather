@@ -1,5 +1,6 @@
 package com.github.amrmsaraya.weather.presenter.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -25,6 +26,7 @@ import com.github.amrmsaraya.weather.repositories.WeatherRepo
 import com.github.amrmsaraya.weather.utils.LocationViewModelFactory
 import com.github.amrmsaraya.weather.utils.SharedViewModelFactory
 import com.github.amrmsaraya.weather.utils.WeatherViewModelFactory
+import com.github.amrmsaraya.weather.workers.AlarmService
 import com.github.matteobattilana.weather.PrecipType
 import kotlinx.coroutines.flow.collect
 
@@ -65,7 +67,7 @@ class FavoritesFragment : Fragment() {
             sharedViewModel.setWeatherAnimation(WeatherAnimation(PrecipType.CLEAR, 100f))
         }
 
-        sharedViewModel.setActionBarTitle("Favorites")
+        sharedViewModel.setActionBarTitle(getString(R.string.favorites))
         sharedViewModel.setActionBarVisibility(true)
         sharedViewModel.setCurrentFragment("Favorites")
         sharedViewModel.setMapStatus("Favorites")

@@ -24,7 +24,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toTopOf="parent"
+                android:baselineAligned="false">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -41,7 +42,7 @@
                         android:background="@drawable/gradient_square"
                         android:gravity="center"
                         android:padding="8dp"
-                        android:text="Location"
+                        android:text="@string/location"
                         android:textColor="@color/white" />
 
                     <RadioGroup
@@ -63,7 +64,7 @@
                             android:checked="true"
                             android:paddingStart="4dp"
                             android:paddingEnd="4dp"
-                            android:text="GPS"
+                            android:text="@string/gps"
                             android:textColor="@color/white" />
 
                         <RadioButton
@@ -75,7 +76,7 @@
                             android:checked="false"
                             android:paddingStart="4dp"
                             android:paddingEnd="4dp"
-                            android:text="Map"
+                            android:text="@string/map"
                             android:textColor="@color/white" />
 
                     </RadioGroup>
@@ -96,7 +97,7 @@
                         android:background="@drawable/gradient_square"
                         android:gravity="center"
                         android:padding="8dp"
-                        android:text="Language"
+                        android:text="@string/language"
                         android:textColor="@color/white" />
 
                     <RadioGroup
@@ -119,7 +120,7 @@
                             android:checked="true"
                             android:paddingStart="4dp"
                             android:paddingEnd="4dp"
-                            android:text="English"
+                            android:text="@string/english"
                             android:textColor="@color/white" />
 
                         <RadioButton
@@ -131,7 +132,7 @@
                             android:checked="false"
                             android:paddingStart="4dp"
                             android:paddingEnd="4dp"
-                            android:text="Arabic"
+                            android:text="@string/arabic"
                             android:textColor="@color/white" />
 
                     </RadioGroup>
@@ -150,7 +151,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.5"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout5">
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout5"
+                android:baselineAligned="false">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -168,7 +170,7 @@
                         android:background="@drawable/gradient_square"
                         android:gravity="center"
                         android:padding="8dp"
-                        android:text="Temperature"
+                        android:text="@string/temperature"
                         android:textColor="@color/white" />
 
                     <RadioGroup
@@ -190,7 +192,7 @@
                             android:checked="true"
                             android:paddingStart="4dp"
                             android:paddingEnd="4dp"
-                            android:text="Celsius"
+                            android:text="@string/celsius"
                             android:textColor="@color/white" />
 
                         <RadioButton
@@ -202,7 +204,7 @@
                             android:checked="false"
                             android:paddingStart="4dp"
                             android:paddingEnd="4dp"
-                            android:text="Kelvin"
+                            android:text="@string/kelvin"
                             android:textColor="@color/white" />
 
                         <RadioButton
@@ -213,7 +215,7 @@
                             android:buttonTint="@color/pink"
                             android:paddingStart="4dp"
                             android:paddingEnd="4dp"
-                            android:text="Fahrenheit"
+                            android:text="@string/fahrenheit"
                             android:textColor="@color/white" />
                     </RadioGroup>
                 </LinearLayout>
@@ -233,7 +235,7 @@
                         android:background="@drawable/gradient_square"
                         android:gravity="center"
                         android:padding="8dp"
-                        android:text="Wind Speed"
+                        android:text="@string/wind_speed"
                         android:textColor="@color/white" />
 
                     <RadioGroup
@@ -255,7 +257,7 @@
                             android:checked="true"
                             android:paddingStart="4dp"
                             android:paddingEnd="4dp"
-                            android:text="Meter / Sec"
+                            android:text="@string/meter_sec"
                             android:textColor="@color/white" />
 
                         <RadioButton
@@ -267,7 +269,7 @@
                             android:checked="false"
                             android:paddingStart="4dp"
                             android:paddingEnd="4dp"
-                            android:text="Mile / Hour"
+                            android:text="@string/mile_hour"
                             android:textColor="@color/white" />
 
                     </RadioGroup>

@@ -13,6 +13,10 @@ class LocationRepo(private val locationDao: LocationDao) {
         locationDao.deleteLocation(location)
     }
 
+    suspend fun getCurrentLocation(): Location {
+        return locationDao.getCurrentLocation()
+    }
+
     fun getLocation(id: Int): Flow<Location> {
         return locationDao.getLocation(id)
     }

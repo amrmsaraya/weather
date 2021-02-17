@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.location.Address
 import android.location.Geocoder
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,9 +20,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.work.Constraints
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequest
+import androidx.work.WorkManager
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.local.WeatherDatabase
-import com.github.amrmsaraya.weather.data.models.Alerts
 import com.github.amrmsaraya.weather.data.models.Current
 import com.github.amrmsaraya.weather.data.models.Location
 import com.github.amrmsaraya.weather.data.models.WeatherAnimation
@@ -36,15 +40,21 @@ import com.github.amrmsaraya.weather.repositories.WeatherRepo
 import com.github.amrmsaraya.weather.utils.LocationViewModelFactory
 import com.github.amrmsaraya.weather.utils.SharedViewModelFactory
 import com.github.amrmsaraya.weather.utils.WeatherViewModelFactory
+import com.github.amrmsaraya.weather.workers.UpdateWeatherWorker
 import com.github.matteobattilana.weather.PrecipType
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
+import java.math.BigDecimal
+import java.math.RoundingMode
+import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 
 class HomeFragment : Fragment() {
@@ -107,6 +117,22 @@ class HomeFragment : Fragment() {
             getLocationFromGPS()
         }
 
+        lifecycleScope.launchWhenStarted {
+            if (sharedViewModel.readDataStore("isWorkerEnqueued").isNullOrEmpty()) {
+                while (sharedViewModel.readDataStore("isWorkerEnqueued").isNullOrEmpty()) {
+                    delay(1000)
+                }
+                when (sharedViewModel.readDataStore("isWorkerEnqueued")) {
+                    "false" -> {
+                        setPeriodicWorkRequest()
+                        sharedViewModel.saveDataStore("isWorkerEnqueued", "true")
+                    }
+                    "true" -> Unit
+                    else -> Unit
+                }
+            }
+        }
+
         // SwipeRefresh
         binding.swipeRefresh.setProgressBackgroundColorSchemeColor(Color.parseColor("#FF313131"))
         binding.swipeRefresh.setColorSchemeColors(
@@ -118,18 +144,22 @@ class HomeFragment : Fragment() {
                 if (sharedViewModel.readDataStore("location") == "GPS") {
                     getLocationFromGPS()
                 }
-                weatherViewModel.getLiveWeather(lat, lon, lang = sharedViewModel.langUnit.value)
+                if (lat != 0.0 && lon != 0.0) {
+                    weatherViewModel.getLiveWeather(lat, lon, lang = sharedViewModel.langUnit.value)
+                }
             }
         }
 
         binding.tvDate.text =
-            SimpleDateFormat("E, dd MMM", Locale.US).format(System.currentTimeMillis())
+            SimpleDateFormat("E, dd MMM", Locale.getDefault()).format(System.currentTimeMillis())
 
         lifecycleScope.launchWhenStarted {
             if (sharedViewModel.readDataStore("location") == "GPS") {
                 getLocationFromGPS()
             }
-            weatherViewModel.getLiveWeather(lat, lon, lang = sharedViewModel.langUnit.value)
+            if (lat != 0.0 && lon != 0.0) {
+                weatherViewModel.getLiveWeather(lat, lon, lang = sharedViewModel.langUnit.value)
+            }
         }
 
         // Get Retrofit Response
@@ -137,9 +167,6 @@ class HomeFragment : Fragment() {
             weatherViewModel.weatherResponse.collect {
                 when (it) {
                     is WeatherRepo.ResponseState.Success -> {
-                        if (it.weatherResponse.alerts == null) {
-                            it.weatherResponse.alerts = listOf(Alerts())
-                        }
                         weatherViewModel.insert(it.weatherResponse)
                         if (lat != 0.0 && lon != 0.0) {
                             getCachedWeather()
@@ -209,19 +236,21 @@ class HomeFragment : Fragment() {
         }
 
         when (sharedViewModel.windUnit.value) {
-            "Meter / Sec" -> binding.tvWindSpeed.text = "${current.wind_speed} m/s"
-            "Mile / Hour" -> binding.tvWindSpeed.text =
-                "${"%.2f".format(current.wind_speed * 2.236936)} mph"
+            "Meter / Sec" -> binding.tvWindSpeed.text =
+                "${current.wind_speed} ${getString(R.string.m_s)}"
+            "Mile / Hour"
+            -> binding.tvWindSpeed.text =
+                "${"%.2f".format(current.wind_speed * 2.236936)} ${getString(R.string.mph)}"
         }
 
         binding.tvTemp.text = temp.roundToInt().toString()
         binding.tvDescription.text =
             current.weather[0].description.capitalize(Locale.ROOT)
-        binding.tvPressure.text = "${current.pressure} hpa"
+        binding.tvPressure.text = "${current.pressure} ${getString(R.string.hpa)}"
         binding.tvHumidity.text = "${current.humidity} %"
         binding.tvClouds.text = "${current.clouds} %"
         binding.tvUltraviolet.text = current.uvi.toString()
-        binding.tvVisibility.text = "${current.visibility} m"
+        binding.tvVisibility.text = "${current.visibility} ${getString(R.string.meter)}"
 
         when (current.weather[0].main) {
             "Clear" -> {
@@ -338,7 +367,22 @@ class HomeFragment : Fragment() {
     }
 
     private fun roundDouble(double: Double): Double {
-        return "%.4f".format(double).toDouble()
+        val d = DecimalFormat("#.####")
+        return BigDecimal(double).setScale(4, RoundingMode.HALF_UP).toDouble()
+//        return "%.4f".format(double).toDouble()
+    }
+
+    private fun setPeriodicWorkRequest() {
+        val workManager = WorkManager.getInstance(requireContext().applicationContext)
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+        val updateWeatherWorkRequest = PeriodicWorkRequest
+            .Builder(UpdateWeatherWorker::class.java, 16, TimeUnit.MINUTES, 15, TimeUnit.MINUTES)
+            .setConstraints(constraints)
+            .build()
+        workManager.enqueue(updateWeatherWorkRequest)
+        Log.i("myTag", "Enqueued Done")
     }
 
     private fun getLocationFromGPS() {

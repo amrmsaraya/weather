@@ -18,6 +18,10 @@ class LocationViewModel(private val locationRepo: LocationRepo) : ViewModel() {
         locationRepo.delete(location)
     }
 
+    suspend fun getCurrentLocation(): Location {
+        return locationRepo.getCurrentLocation()
+    }
+
     fun getLocation(id: Int): Flow<Location> {
         return locationRepo.getLocation(id)
     }

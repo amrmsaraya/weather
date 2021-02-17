@@ -42,8 +42,8 @@ class HourlyAdapter(private val context: Context, private val sharedViewModel: S
     }
 
     override fun onBindViewHolder(holder: HourlyViewHolder, position: Int) {
-        val formatter = SimpleDateFormat("h a")
-        val time = formatter.format(Date(getItem(position).dt.toLong() * 1000))
+        val formatter = SimpleDateFormat("h a", Locale.getDefault())
+        val time = formatter.format(getItem(position).dt.toLong() * 1000)
         var temp = getItem(position).temp
 
         when (sharedViewModel.tempUnit.value) {

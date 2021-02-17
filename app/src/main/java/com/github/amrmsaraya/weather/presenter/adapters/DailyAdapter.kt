@@ -1,5 +1,6 @@
 package com.github.amrmsaraya.weather.presenter.adapters
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -32,9 +33,10 @@ class DailyAdapter(private val context: Context, private val sharedViewModel: Sh
         )
     }
 
+    @SuppressLint("SetTextI18n", "UseCompatLoadingForDrawables")
     override fun onBindViewHolder(holder: DailyViewHolder, position: Int) {
-        val formatter = SimpleDateFormat("E")
-        val weekday = formatter.format(Date(getItem(position).dt.toLong() * 1000))
+        val formatter = SimpleDateFormat("E", Locale.getDefault())
+        val weekday = formatter.format(getItem(position).dt.toLong() * 1000)
         var max = getItem(position).temp.max
         var min = getItem(position).temp.min
 
@@ -58,13 +60,13 @@ class DailyAdapter(private val context: Context, private val sharedViewModel: Sh
         }
         when (position) {
             0 -> {
-                holder.binding.tvDailyWeekDay.text = "Tomorrow"
+                holder.binding.tvDailyWeekDay.text = context.getString(R.string.tomorrow)
                 holder.binding.tvDailyContainer.setBackgroundResource(R.drawable.gradient_square)
             }
             else -> holder.binding.tvDailyWeekDay.text = weekday
         }
         holder.binding.tvDailyDescription.text =
-            getItem(position).weather[0].description.capitalize()
+            getItem(position).weather[0].description.capitalize(Locale.ROOT)
 
         when (getItem(position).weather[0].main) {
             "Clear" -> {

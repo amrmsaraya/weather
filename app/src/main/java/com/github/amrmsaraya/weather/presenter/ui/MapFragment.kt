@@ -51,7 +51,11 @@ class MapFragment : Fragment() {
                     bottomSheetFragment.show(childFragmentManager, "BottomSheetFragment")
                 }
             } catch (e: IOException) {
-                Snackbar.make(binding.root, "No internet connection", Snackbar.LENGTH_SHORT).show()
+                Snackbar.make(
+                    binding.root,
+                    getString(R.string.no_internet_connection),
+                    Snackbar.LENGTH_SHORT
+                ).show()
             }
         }
     }

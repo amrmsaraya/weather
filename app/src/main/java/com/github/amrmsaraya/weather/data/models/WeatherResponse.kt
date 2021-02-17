@@ -15,5 +15,5 @@ data class WeatherResponse(
     @SerializedName("current") val current: Current,
     @SerializedName("hourly") val hourly: List<Hourly>,
     @SerializedName("daily") val daily: List<Daily>,
-    @SerializedName("alerts") var alerts: List<Alerts>
+    @SerializedName("alerts") var alerts: List<Alerts>?
 )

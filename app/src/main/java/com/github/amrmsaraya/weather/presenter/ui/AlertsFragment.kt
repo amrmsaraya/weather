@@ -1,20 +1,23 @@
 package com.github.amrmsaraya.weather.presenter.ui
 
-import android.app.*
-import android.content.Context
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
 import android.content.Intent
-import android.os.Build
+import android.net.Uri
 import android.os.Bundle
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.RadioButton
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.app.NotificationCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.work.WorkManager
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.local.WeatherDatabase
 import com.github.amrmsaraya.weather.data.models.Alarm
@@ -28,7 +31,6 @@ import com.github.amrmsaraya.weather.repositories.AlarmsRepo
 import com.github.amrmsaraya.weather.utils.AlarmViewModelFactory
 import com.github.amrmsaraya.weather.utils.SharedViewModelFactory
 import com.github.matteobattilana.weather.PrecipType
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collect
 import java.text.SimpleDateFormat
 import java.util.*
@@ -37,8 +39,6 @@ class AlertsFragment : Fragment() {
     private lateinit var binding: FragmentAlertsBinding
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var alarmViewModel: AlarmViewModel
-    private val channelId = "com.github.amrmsaraya.weather.channel1"
-    private var notificationManager: NotificationManager? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,11 +49,6 @@ class AlertsFragment : Fragment() {
 
         binding =
             DataBindingUtil.inflate(layoutInflater, R.layout.fragment_alerts, container, false)
-
-        // Notification
-        notificationManager =
-            requireActivity().getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        createNotificationChannel(channelId, "AlertChannel", "Weather Alerts")
 
         val alarmDao = WeatherDatabase.getInstance(requireActivity().application).alarmDao()
         val alarmRepo = AlarmsRepo(alarmDao)
@@ -78,7 +73,7 @@ class AlertsFragment : Fragment() {
             }
         }
 
-        sharedViewModel.setActionBarTitle("Alerts")
+        sharedViewModel.setActionBarTitle(getString(R.string.alerts))
         sharedViewModel.setCurrentFragment("Alerts")
 
         binding.switchNotifications.setOnCheckedChangeListener { _, isChecked ->
@@ -100,16 +95,19 @@ class AlertsFragment : Fragment() {
             to = System.currentTimeMillis()
             from = System.currentTimeMillis()
 
+
             val dialogBinding: DialogAddAlertBinding =
                 DataBindingUtil.inflate(layoutInflater, R.layout.dialog_add_alert, container, false)
+            var alarmType = dialogBinding.root.findViewById<RadioButton>(R.id.rbAlarm)
+
             dialogBinding.tvFromDate.text =
-                SimpleDateFormat("dd MMM, y", Locale.US).format(from)
+                SimpleDateFormat("dd MMM, y", Locale.getDefault()).format(from)
             dialogBinding.tvFromTime.text =
-                SimpleDateFormat("h:mm a", Locale.US).format(from)
+                SimpleDateFormat("h:mm a", Locale.getDefault()).format(from)
             dialogBinding.tvToDate.text =
-                SimpleDateFormat("dd MMM, y", Locale.US).format(to)
+                SimpleDateFormat("dd MMM, y", Locale.getDefault()).format(to)
             dialogBinding.tvToTime.text =
-                SimpleDateFormat("h:mm a", Locale.US).format(to)
+                SimpleDateFormat("h:mm a", Locale.getDefault()).format(to)
 
             val alertDialog = AlertDialog.Builder(requireContext())
                 .setView(dialogBinding.root)
@@ -128,9 +126,12 @@ class AlertsFragment : Fragment() {
                                     c.set(year, month, dayOfMonth, hourOfDay, minute)
                                     to = c.timeInMillis
                                     dialogBinding.tvToDate.text =
-                                        SimpleDateFormat("dd MMM, y", Locale.US).format(to)
+                                        SimpleDateFormat(
+                                            "dd MMM, y",
+                                            Locale.getDefault()
+                                        ).format(to)
                                     dialogBinding.tvToTime.text =
-                                        SimpleDateFormat("h:mm a", Locale.US).format(to)
+                                        SimpleDateFormat("h:mm a", Locale.getDefault()).format(to)
                                 },
                                 hour,
                                 minute,
@@ -158,9 +159,11 @@ class AlertsFragment : Fragment() {
                                     c.set(year, month, dayOfMonth, hourOfDay, minute)
                                     from = c.timeInMillis
                                     dialogBinding.tvFromDate.text =
-                                        SimpleDateFormat("dd MMM, y", Locale.US).format(from)
+                                        SimpleDateFormat("dd MMM, y", Locale.getDefault()).format(
+                                            from
+                                        )
                                     dialogBinding.tvFromTime.text =
-                                        SimpleDateFormat("h:mm a", Locale.US).format(from)
+                                        SimpleDateFormat("h:mm a", Locale.getDefault()).format(from)
                                 },
                                 hour,
                                 minute,
@@ -175,14 +178,31 @@ class AlertsFragment : Fragment() {
                 datePickerDialog.datePicker.minDate = calendar.timeInMillis
                 datePickerDialog.show()
             }
+            dialogBinding.rgAlarmType.setOnCheckedChangeListener { _, checkedId ->
+                alarmType = dialogBinding.root.findViewById<RadioButton>(checkedId)
+            }
             dialogBinding.btnSaveAlert.setOnClickListener {
+                if (alarmType.text == "Alarm") {
+                    if (!Settings.canDrawOverlays(context)) {
+                        val permissionIntent = Intent(
+                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                            Uri.parse("package:" + requireContext().packageName)
+                        )
+                        permissionIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        requireContext().startActivity(permissionIntent)
+                    }
+                }
                 if (to > System.currentTimeMillis()) {
                     lifecycleScope.launchWhenStarted {
-                        alarmViewModel.insert(Alarm(from, to, dialogBinding.swSound.isChecked))
+                        alarmViewModel.insert(Alarm(from, to, alarmType.text.toString()))
                     }
                     alertDialog.dismiss()
                 } else {
-                    Snackbar.make(binding.root, "Invalid time", Snackbar.LENGTH_SHORT).show()
+                    Toast.makeText(
+                        requireContext(),
+                        requireContext().getString(R.string.invalid_time),
+                        Toast.LENGTH_SHORT
+                    ).show()
                 }
             }
         }
@@ -210,44 +230,11 @@ class AlertsFragment : Fragment() {
 
     private fun onDelete(alarm: Alarm) {
         lifecycleScope.launchWhenStarted {
+            if (alarm.isNotified) {
+                WorkManager.getInstance(requireContext()).cancelWorkById(alarm.workId)
+            }
             alarmViewModel.delete(alarm)
         }
     }
 
-    private fun displayNotification() {
-        val notificationId = 120
-        val tapResultIntent = Intent(requireContext(), MainActivity::class.java)
-        val pendingIntent = PendingIntent.getActivity(
-            requireContext(),
-            0,
-            tapResultIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT
-        )
-
-
-        val notification = NotificationCompat.Builder(requireContext(), channelId)
-            .setContentTitle("Weather Alert")
-            .setContentText("There is a weather alert and this is its description")
-            .setSmallIcon(R.drawable.cloud)
-            .setAutoCancel(true)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setContentIntent(pendingIntent)
-            .setStyle(
-                NotificationCompat.BigTextStyle()
-                    .bigText("There is a weather alert and this is its description\nSecondLine\nThirdLine")
-            )
-            .build()
-        notificationManager?.notify(notificationId, notification)
-    }
-
-    private fun createNotificationChannel(id: String, name: String, channelDescription: String) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val importance = NotificationManager.IMPORTANCE_HIGH
-            val channel = NotificationChannel(id, name, importance).apply {
-                description = channelDescription
-            }
-            notificationManager?.createNotificationChannel(channel)
-        }
-    }
 }

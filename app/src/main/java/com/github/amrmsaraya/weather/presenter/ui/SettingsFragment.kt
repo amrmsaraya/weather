@@ -42,13 +42,13 @@ class SettingsFragment : Fragment() {
             sharedViewModel.setWeatherAnimation(WeatherAnimation(PrecipType.CLEAR, 100f))
         }
 
-        sharedViewModel.setActionBarTitle("Settings")
+        sharedViewModel.setActionBarTitle(getString(R.string.settings))
         sharedViewModel.setCurrentFragment("Settings")
         sharedViewModel.setMapStatus("Current")
         sharedViewModel.setActionBarVisibility(true)
 
         lifecycleScope.launchWhenStarted {
-            sharedViewModel.setDefaultSettings("GPS")
+            sharedViewModel.setDefaultSettings(getString(R.string.gps))
         }
 
         lifecycleScope.launchWhenStarted {
@@ -73,29 +73,50 @@ class SettingsFragment : Fragment() {
 
         binding.rgLocation.setOnCheckedChangeListener { _, checkedId ->
             val location = binding.root.findViewById<RadioButton>(checkedId)
+            var text = location.text.toString()
+            when (location.text.toString()) {
+                "موقعك الحالي" -> text = "GPS"
+                "الخريطة" -> text = "Map"
+            }
             lifecycleScope.launchWhenStarted {
-                sharedViewModel.saveDataStore("location", location.text.toString())
+                sharedViewModel.saveDataStore("location", text)
             }
         }
 
         binding.rgLanguage.setOnCheckedChangeListener { _, checkedId ->
             val lang = binding.root.findViewById<RadioButton>(checkedId)
+            var text = lang.text.toString()
+            when (lang.text.toString()) {
+                "الإنجليزية" -> text = "English"
+                "العربية" -> text = "Arabic"
+            }
             lifecycleScope.launchWhenStarted {
-                sharedViewModel.saveDataStore("language", lang.text.toString())
+                sharedViewModel.saveDataStore("language", text)
             }
         }
 
         binding.rgTemperature.setOnCheckedChangeListener { _, checkedId ->
             val temp = binding.root.findViewById<RadioButton>(checkedId)
+            var text = temp.text.toString()
+            when (temp.text.toString()) {
+                "سيليزيس" -> text = "Celsius"
+                "كيلفن" -> text = "Kelvin"
+                "فيهرنهايت" -> text = "Fahrenheit"
+            }
             lifecycleScope.launchWhenStarted {
-                sharedViewModel.saveDataStore("temperature", temp.text.toString())
+                sharedViewModel.saveDataStore("temperature", text)
             }
         }
 
         binding.rgWindSpeed.setOnCheckedChangeListener { _, checkedId ->
             val wind = binding.root.findViewById<RadioButton>(checkedId)
+            var text = wind.text.toString()
+            when (wind.text.toString()) {
+                "متر / ثانية" -> text = "Meter / Sec"
+                "ميل / ساعة" -> text = "Mile / Hour"
+            }
             lifecycleScope.launchWhenStarted {
-                sharedViewModel.saveDataStore("windSpeed", wind.text.toString())
+                sharedViewModel.saveDataStore("windSpeed", text)
             }
         }
 
