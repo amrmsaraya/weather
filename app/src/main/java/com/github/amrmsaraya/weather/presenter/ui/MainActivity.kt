@@ -5,7 +5,6 @@ import android.graphics.Color
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
@@ -24,7 +23,6 @@ import com.github.amrmsaraya.weather.databinding.ActivityMainBinding
 import com.github.amrmsaraya.weather.presenter.viewModel.SharedViewModel
 import com.github.amrmsaraya.weather.utils.SharedViewModelFactory
 import com.github.matteobattilana.weather.PrecipType
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collect
 import java.util.*
 
@@ -40,10 +38,9 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Set background colors for status bar and navigation bar
-        window.statusBarColor = Color.parseColor("#FF212121")
-        window.navigationBarColor = Color.parseColor("#FF212121")
-
+        // Restore Default Theme
+        setTheme(R.style.Theme_Weather)
+        
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         dataStore = applicationContext.createDataStore("settings")
 

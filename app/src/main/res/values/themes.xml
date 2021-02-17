@@ -11,5 +11,13 @@
         <item name="colorSecondaryVariant">@android:color/transparent</item>
         <item name="colorOnSecondary">@color/black</item>
         <!-- Customize your theme here. -->
+        <item name="android:statusBarColor">@color/darker_gray</item>
+        <item name="android:navigationBarColor">@color/darker_gray</item>
+    </style>
+
+    <style name="splashScreenTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_image</item>
+        <item name="android:statusBarColor">@color/darker_gray</item>
+        <item name="android:navigationBarColor">@color/darker_gray</item>
     </style>
 </resources>
