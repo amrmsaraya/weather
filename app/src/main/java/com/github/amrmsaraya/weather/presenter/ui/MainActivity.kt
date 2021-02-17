@@ -1,7 +1,6 @@
 package com.github.amrmsaraya.weather.presenter.ui
 
 import android.annotation.SuppressLint
-import android.graphics.Color
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -40,7 +39,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         // Restore Default Theme
         setTheme(R.style.Theme_Weather)
-        
+
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         dataStore = applicationContext.createDataStore("settings")
 

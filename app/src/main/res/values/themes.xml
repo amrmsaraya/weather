@@ -15,7 +15,7 @@
         <item name="android:navigationBarColor">@color/darker_gray</item>
     </style>
 
-    <style name="splashScreenTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <style name="splashScreenTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="android:windowBackground">@drawable/splash_image</item>
         <item name="android:statusBarColor">@color/darker_gray</item>
         <item name="android:navigationBarColor">@color/darker_gray</item>
