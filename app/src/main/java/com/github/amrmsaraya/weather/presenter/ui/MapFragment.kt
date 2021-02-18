@@ -45,7 +45,7 @@ class MapFragment : Fragment() {
                 googleMap.addMarker(
                     MarkerOptions().position(it)
                 )
-                viewLifecycleOwner.lifecycleScope.launchWhenStarted {
+                lifecycleScope.launchWhenStarted {
                     delay(1000)
                     sharedViewModel.setLatLng(it)
                     bottomSheetFragment.show(childFragmentManager, "BottomSheetFragment")
