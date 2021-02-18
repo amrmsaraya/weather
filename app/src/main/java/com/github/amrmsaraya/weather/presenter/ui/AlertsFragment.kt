@@ -41,7 +41,6 @@ import com.github.amrmsaraya.weather.utils.SharedViewModelFactory
 import com.github.amrmsaraya.weather.utils.WeatherViewModelFactory
 import com.github.amrmsaraya.weather.workers.AlarmWorker
 import com.github.matteobattilana.weather.PrecipType
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collect
 import java.text.SimpleDateFormat
 import java.util.*
@@ -210,7 +209,7 @@ class AlertsFragment : Fragment() {
                 alarmType = dialogBinding.root.findViewById<RadioButton>(checkedId)
             }
             dialogBinding.btnSaveAlert.setOnClickListener {
-                if (alarmType.text == "Alarm") {
+                if (alarmType.text == getString(R.string.alarm)) {
                     if (!Settings.canDrawOverlays(context)) {
                         val permissionIntent = Intent(
                             Settings.ACTION_MANAGE_OVERLAY_PERMISSION,

@@ -17,7 +17,6 @@ import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.local.WeatherDatabase
 import com.github.amrmsaraya.weather.presenter.ui.MainActivity
 import com.github.amrmsaraya.weather.repositories.DataStoreRepo
-import kotlinx.coroutines.flow.collect
 import java.util.*
 
 
@@ -55,7 +54,7 @@ class AlarmWorker(private val context: Context, private val params: WorkerParame
                                 .getLocationWeather(location.lat, location.lon).alerts
 
                         when (alarm.type) {
-                            "Notification" -> {
+                            "Notification", "إشعار" -> {
                                 if (alerts.isNullOrEmpty()) {
                                     displayNotification(
                                         context.getString(R.string.weather_alert),
@@ -69,7 +68,7 @@ class AlarmWorker(private val context: Context, private val params: WorkerParame
                                 }
                             }
 
-                            "Alarm" -> {
+                            "Alarm", "منبه" -> {
                                 if (!Settings.canDrawOverlays(context)) {
                                     val permissionIntent = Intent(
                                         Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
@@ -107,6 +106,7 @@ class AlarmWorker(private val context: Context, private val params: WorkerParame
                             }
                         }
                         database.alarmDao().delete(alarm)
+
                     }
                 }
                 else -> Unit
