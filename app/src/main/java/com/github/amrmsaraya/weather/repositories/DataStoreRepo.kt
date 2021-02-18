@@ -22,6 +22,5 @@ class DataStoreRepo(private val context: Context) {
         val dataStoreKey = stringPreferencesKey(key)
         val preferences = dataStore.data.first()
         return preferences[dataStoreKey]
-
     }
 }

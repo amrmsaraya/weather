@@ -12,7 +12,9 @@ import android.view.LayoutInflater
 import android.view.WindowManager
 import androidx.databinding.DataBindingUtil
 import com.github.amrmsaraya.weather.R
+import com.github.amrmsaraya.weather.data.local.WeatherDatabase
 import com.github.amrmsaraya.weather.databinding.DialogAlarmBinding
+import java.util.*
 
 
 class AlarmService : Service() {
@@ -36,16 +38,17 @@ class AlarmService : Service() {
         val event = intent?.getStringExtra("event") ?: "Unknown"
         val description = intent?.getStringExtra("description") ?: "Unknown"
 
+
+
         binding.tvAlarmTitle.text = event
         binding.tvAlarmDescription.text = description
         binding.btnAlarmDismiss.setOnClickListener {
             mediaPlayer.stop()
-            applicationContext.stopService(intent)
             windowManager.removeView(binding.root)
             stopSelf()
         }
 
-        mediaPlayer = MediaPlayer.create(this, R.raw.media)
+        mediaPlayer = MediaPlayer.create(this, R.raw.alarm)
         mediaPlayer.isLooping = true
         mediaPlayer.start()
 

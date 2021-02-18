@@ -378,7 +378,7 @@ class HomeFragment : Fragment() {
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
         val updateWeatherWorkRequest = PeriodicWorkRequest
-            .Builder(UpdateWeatherWorker::class.java, 16, TimeUnit.MINUTES, 15, TimeUnit.MINUTES)
+            .Builder(UpdateWeatherWorker::class.java, 2, TimeUnit.HOURS, 15, TimeUnit.MINUTES)
             .setConstraints(constraints)
             .build()
         workManager.enqueue(updateWeatherWorkRequest)

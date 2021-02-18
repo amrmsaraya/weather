@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +18,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.local.WeatherDatabase
@@ -26,19 +29,31 @@ import com.github.amrmsaraya.weather.databinding.DialogAddAlertBinding
 import com.github.amrmsaraya.weather.databinding.FragmentAlertsBinding
 import com.github.amrmsaraya.weather.presenter.adapters.AlarmAdapter
 import com.github.amrmsaraya.weather.presenter.viewModel.AlarmViewModel
+import com.github.amrmsaraya.weather.presenter.viewModel.LocationViewModel
 import com.github.amrmsaraya.weather.presenter.viewModel.SharedViewModel
+import com.github.amrmsaraya.weather.presenter.viewModel.WeatherViewModel
 import com.github.amrmsaraya.weather.repositories.AlarmsRepo
+import com.github.amrmsaraya.weather.repositories.LocationRepo
+import com.github.amrmsaraya.weather.repositories.WeatherRepo
 import com.github.amrmsaraya.weather.utils.AlarmViewModelFactory
+import com.github.amrmsaraya.weather.utils.LocationViewModelFactory
 import com.github.amrmsaraya.weather.utils.SharedViewModelFactory
+import com.github.amrmsaraya.weather.utils.WeatherViewModelFactory
+import com.github.amrmsaraya.weather.workers.AlarmWorker
 import com.github.matteobattilana.weather.PrecipType
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.flow.collect
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class AlertsFragment : Fragment() {
     private lateinit var binding: FragmentAlertsBinding
     private lateinit var sharedViewModel: SharedViewModel
     private lateinit var alarmViewModel: AlarmViewModel
+    private lateinit var locationViewModel: LocationViewModel
+    private lateinit var weatherViewModel: WeatherViewModel
+    private lateinit var workManager: WorkManager
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,19 +62,32 @@ class AlertsFragment : Fragment() {
         var to: Long
         var from: Long
 
+        workManager = WorkManager.getInstance(requireContext().applicationContext)
+
         binding =
             DataBindingUtil.inflate(layoutInflater, R.layout.fragment_alerts, container, false)
 
         val alarmDao = WeatherDatabase.getInstance(requireActivity().application).alarmDao()
+        val locationDao = WeatherDatabase.getInstance(requireActivity().application).locationDao()
+        val weatherDao = WeatherDatabase.getInstance(requireActivity().application).weatherDao()
+
         val alarmRepo = AlarmsRepo(alarmDao)
+        val locationRepo = LocationRepo(locationDao)
+        val weatherRepo = WeatherRepo(requireContext(), weatherDao)
 
         val sharedFactory = SharedViewModelFactory(requireContext())
         val alarmFactory = AlarmViewModelFactory(alarmRepo)
+        val locationFactory = LocationViewModelFactory(locationRepo)
+        val weatherFactory = WeatherViewModelFactory(weatherRepo)
 
         sharedViewModel =
             ViewModelProvider(requireActivity(), sharedFactory).get(SharedViewModel::class.java)
         alarmViewModel =
             ViewModelProvider(requireActivity(), alarmFactory).get(AlarmViewModel::class.java)
+        locationViewModel =
+            ViewModelProvider(requireActivity(), locationFactory).get(LocationViewModel::class.java)
+        weatherViewModel =
+            ViewModelProvider(requireActivity(), weatherFactory).get(WeatherViewModel::class.java)
 
         // Reset animation after leaving favorite weather
         if (sharedViewModel.currentFragment.value == "FavoriteWeather") {
@@ -90,7 +118,7 @@ class AlertsFragment : Fragment() {
             val day = calendar.get(Calendar.DAY_OF_MONTH)
             val month = calendar.get(Calendar.MONTH)
             val year = calendar.get(Calendar.YEAR)
-            val hour = calendar.get(Calendar.HOUR)
+            val hour = calendar.get(Calendar.HOUR_OF_DAY)
             val minute = calendar.get(Calendar.MINUTE)
             to = System.currentTimeMillis()
             from = System.currentTimeMillis()
@@ -192,9 +220,12 @@ class AlertsFragment : Fragment() {
                         requireContext().startActivity(permissionIntent)
                     }
                 }
-                if (to > System.currentTimeMillis()) {
+                if (to > System.currentTimeMillis() && from > System.currentTimeMillis()) {
                     lifecycleScope.launchWhenStarted {
-                        alarmViewModel.insert(Alarm(from, to, alarmType.text.toString()))
+                        val alarm = Alarm(UUID.randomUUID(), from, to, alarmType.text.toString())
+                        val workId = setOneTimeWorkRequest(alarm)
+                        alarm.workId = workId
+                        alarmViewModel.insert(alarm)
                     }
                     alertDialog.dismiss()
                 } else {
@@ -207,8 +238,7 @@ class AlertsFragment : Fragment() {
             }
         }
 
-        binding.rvAlerts.adapter = AlarmAdapter({ alarm: Alarm -> onSwitchStatusChanged(alarm) },
-            { alarm: Alarm -> onDelete(alarm) })
+        binding.rvAlerts.adapter = AlarmAdapter { alarm: Alarm -> onDelete(alarm) }
 
         binding.rvAlerts.layoutManager = LinearLayoutManager(requireContext())
         val alarmAdapter = binding.rvAlerts.adapter as AlarmAdapter
@@ -218,23 +248,38 @@ class AlertsFragment : Fragment() {
                 alarmAdapter.submitList(it)
             }
         }
-
         return binding.root
-    }
-
-    private fun onSwitchStatusChanged(alarm: Alarm) {
-        lifecycleScope.launchWhenStarted {
-            alarmViewModel.update(alarm)
-        }
     }
 
     private fun onDelete(alarm: Alarm) {
         lifecycleScope.launchWhenStarted {
-            if (alarm.isNotified) {
-                WorkManager.getInstance(requireContext()).cancelWorkById(alarm.workId)
-            }
+            WorkManager.getInstance(requireContext()).cancelWorkById(alarm.workId)
             alarmViewModel.delete(alarm)
         }
     }
 
+    private fun setOneTimeWorkRequest(alarm: Alarm): UUID {
+        val data = Data.Builder()
+            .putString("id", alarm.id.toString())
+            .putString("type", "custom")
+            .build()
+
+        // Calculate triggering time
+        val currentTime = System.currentTimeMillis()
+        var specificTimeToTrigger = alarm.start - 7200000
+        if (alarm.start - 7200000 <= currentTime && alarm.start > currentTime) {
+            specificTimeToTrigger = alarm.start
+        }
+        val delayToPass = specificTimeToTrigger - currentTime
+
+        val alarmWorkRequest = OneTimeWorkRequest.Builder(AlarmWorker::class.java)
+            .setInputData(data)
+            .setInitialDelay(delayToPass, TimeUnit.MILLISECONDS)
+            .build()
+
+        workManager.enqueue(alarmWorkRequest)
+
+        Log.i("myTag", "Alarm has been Scheduled")
+        return alarmWorkRequest.id
+    }
 }

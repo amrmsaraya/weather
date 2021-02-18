@@ -26,7 +26,6 @@
             android:layout_marginTop="8dp"
             android:text="Description"
             android:textColor="@color/light_gray"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="@+id/tvAlarmTitle"
             app:layout_constraintTop_toBottomOf="@+id/tvAlarmTitle" />
 

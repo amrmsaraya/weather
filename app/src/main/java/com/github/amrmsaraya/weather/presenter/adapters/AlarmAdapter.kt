@@ -14,7 +14,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class AlarmAdapter(
-    private val onSwitchStatusChanged: (Alarm) -> Unit,
     private val onDeleteClicked: (Alarm) -> Unit
 ) :
     ListAdapter<Alarm, AlarmAdapter.AlarmViewHolder>(
@@ -37,24 +36,15 @@ class AlarmAdapter(
 
     override fun onBindViewHolder(holder: AlarmViewHolder, position: Int) {
         val alarm = getItem(position)
-
-        holder.binding.switchAlert.isChecked = getItem(position).isChecked
-        holder.binding.switchAlert.setOnCheckedChangeListener { buttonView, isChecked ->
-
-            alarm.isChecked = isChecked
-            onSwitchStatusChanged(alarm)
-        }
-
-        val popupMenu = PopupMenu(holder.binding.root.context, holder.binding.root)
+        val popupMenu = PopupMenu(holder.binding.root.context, holder.binding.btnAlertMenu)
         popupMenu.inflate(R.menu.favorite_menu)
         popupMenu.setOnMenuItemClickListener {
             onDeleteClicked(alarm)
             true
         }
 
-        holder.binding.root.setOnLongClickListener {
+        holder.binding.btnAlertMenu.setOnClickListener {
             popupMenu.show()
-            true
         }
 
         holder.binding.tvAlarmFromTime.text =
@@ -70,7 +60,7 @@ class AlarmAdapter(
 
 object AlarmDiffUtil : DiffUtil.ItemCallback<Alarm>() {
     override fun areItemsTheSame(oldItem: Alarm, newItem: Alarm): Boolean {
-        return oldItem == newItem
+        return oldItem.id == newItem.id
     }
 
     override fun areContentsTheSame(oldItem: Alarm, newItem: Alarm): Boolean {

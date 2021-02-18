@@ -14,7 +14,11 @@ import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.github.amrmsaraya.weather.R
+import com.github.amrmsaraya.weather.data.local.WeatherDatabase
 import com.github.amrmsaraya.weather.presenter.ui.MainActivity
+import com.github.amrmsaraya.weather.repositories.DataStoreRepo
+import kotlinx.coroutines.flow.collect
+import java.util.*
 
 
 private const val CHANNEL_ID = "com.github.amrmsaraya.weather.alert"
@@ -25,39 +29,84 @@ class AlarmWorker(private val context: Context, private val params: WorkerParame
     private var notificationManager: NotificationManager? = null
 
     override suspend fun doWork(): Result {
-        Log.i("myTag", "Alarm Worker Started")
 
         notificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         createNotificationChannel(CHANNEL_ID, "Alert", "Weather Alerts")
 
-        val event = inputData.getString("event") ?: "Unknown"
-        val description = inputData.getString("description") ?: "Unknown"
+        val database = WeatherDatabase.getInstance(context)
+        val location = database.locationDao().getCurrentLocation()
+
+        val alarmId = inputData.getString("id") ?: ""
         val type = inputData.getString("type") ?: "Unknown"
+        val event = inputData.getString("type") ?: "Unknown"
+        val description = inputData.getString("type") ?: "Unknown"
 
         return try {
             when (type) {
-                "default_notification", "alarm_notification" -> displayNotification(
-                    event,
-                    description
-                )
-                "alarm" -> {
-                    if (!Settings.canDrawOverlays(context)) {
-                        val permissionIntent = Intent(
-                            Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                            Uri.parse("package:" + context.packageName)
-                        )
-                        permissionIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                        context.startActivity(permissionIntent)
-                    } else {
-                        val bundle = Bundle()
-                        bundle.putString("event", event)
-                        bundle.putString("description", description)
-                        context.startService(
-                            Intent(context, AlarmService::class.java).putExtras(
-                                bundle
-                            )
-                        )
+                "system" -> if (DataStoreRepo(context).readDataStore("notification") == "true") {
+                    displayNotification(event, description)
+                }
+                "custom" -> {
+                    if (alarmId.isNotEmpty()) {
+                        val alarm = database.alarmDao().getAlarm(UUID.fromString(alarmId))
+                        val alerts =
+                            database.weatherDao()
+                                .getLocationWeather(location.lat, location.lon).alerts
+
+                        when (alarm.type) {
+                            "Notification" -> {
+                                if (alerts.isNullOrEmpty()) {
+                                    displayNotification(
+                                        context.getString(R.string.weather_alert),
+                                        context.getString(R.string.weather_is_fine)
+                                    )
+                                } else {
+                                    displayNotification(
+                                        alerts[0].event,
+                                        alerts[0].sender_name
+                                    )
+                                }
+                            }
+
+                            "Alarm" -> {
+                                if (!Settings.canDrawOverlays(context)) {
+                                    val permissionIntent = Intent(
+                                        Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                        Uri.parse("package:" + context.packageName)
+                                    )
+                                    permissionIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    context.startActivity(permissionIntent)
+                                } else {
+                                    if (alerts.isNullOrEmpty()) {
+                                        val bundle = Bundle()
+                                        bundle.putString(
+                                            "event",
+                                            context.getString(R.string.weather_alert)
+                                        )
+                                        bundle.putString(
+                                            "description",
+                                            context.getString(R.string.weather_is_fine)
+                                        )
+                                        context.startService(
+                                            Intent(context, AlarmService::class.java).putExtras(
+                                                bundle
+                                            )
+                                        )
+                                    } else {
+                                        val bundle = Bundle()
+                                        bundle.putString("event", event)
+                                        bundle.putString("description", description)
+                                        context.startService(
+                                            Intent(context, AlarmService::class.java).putExtras(
+                                                bundle
+                                            )
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                        database.alarmDao().delete(alarm)
                     }
                 }
                 else -> Unit
@@ -93,6 +142,7 @@ class AlarmWorker(private val context: Context, private val params: WorkerParame
                     .bigText(description)
             )
             .build()
+
         notificationManager?.notify(notificationId, notification)
     }
 
