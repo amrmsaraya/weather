@@ -106,12 +106,8 @@ class FavoritesWeatherFragment : Fragment() {
                     is WeatherRepo.ResponseState.Success -> {
                         binding.swipeRefresh.isRefreshing = false
                         displayWeather(it.weatherResponse)
-                        // Delete old current weather data
-                        weatherViewModel.deleteCurrent()
-                        val response = it.weatherResponse
-                        response.isCurrent = true
-                        // Insert the new current weather data
-                        weatherViewModel.insert(response)
+                        // Insert the new  weather data
+                        weatherViewModel.insert(it.weatherResponse)
                     }
                     is WeatherRepo.ResponseState.Error -> {
                         val weatherResponse =

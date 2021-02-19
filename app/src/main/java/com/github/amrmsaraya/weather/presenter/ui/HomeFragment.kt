@@ -121,7 +121,6 @@ class HomeFragment : Fragment() {
 
             } else {
                 getCachedLocation()
-
             }
         }
 
@@ -322,7 +321,7 @@ class HomeFragment : Fragment() {
         hourlyAdapter.submitList(weatherResponse.hourly.subList(0, 24))
         // Add List to Daily Adapter
         dailyAdapter.submitList(
-            weatherResponse.daily.subList(1, weatherResponse.daily.size-1)
+            weatherResponse.daily.subList(1, weatherResponse.daily.size - 1)
         )
     }
 
