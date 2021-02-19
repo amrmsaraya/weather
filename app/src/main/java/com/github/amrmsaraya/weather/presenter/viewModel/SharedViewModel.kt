@@ -17,6 +17,7 @@ class SharedViewModel(private val context: Context) : ViewModel() {
     private val dataStoreRepo = DataStoreRepo(context)
     private val _actionBarTitle = MutableStateFlow(context.getString(R.string.weather_forecast))
     private val _actionBarVisibility = MutableStateFlow(true)
+    private val _mainActivityVisibility = MutableStateFlow(true)
     private val _currentFragment = MutableStateFlow("Home")
     private val _mapStatus = MutableStateFlow("Current")
     private val _weatherAnimation = MutableStateFlow(
@@ -28,6 +29,7 @@ class SharedViewModel(private val context: Context) : ViewModel() {
     private val _latLng = MutableStateFlow(LatLng(0.0, 0.0))
     private val _currentLatLng = MutableStateFlow(LatLng(0.0, 0.0))
     private val _isPermissionGranted = MutableStateFlow(true)
+    private val _locationType = MutableStateFlow("")
     private val _langUnit = MutableStateFlow("")
     private val _tempUnit = MutableStateFlow("Celsius")
     private val _windUnit = MutableStateFlow("Meter / Sec")
@@ -36,12 +38,14 @@ class SharedViewModel(private val context: Context) : ViewModel() {
 
     val actionBarTitle: StateFlow<String> = _actionBarTitle
     val actionBarVisibility: StateFlow<Boolean> = _actionBarVisibility
+    val mainActivityVisibility: StateFlow<Boolean> = _mainActivityVisibility
     val currentFragment: StateFlow<String> = _currentFragment
     val mapStatus: StateFlow<String> = _mapStatus
     val weatherAnimation: StateFlow<WeatherAnimation> = _weatherAnimation
     val latLng: StateFlow<LatLng> = _latLng
     val currentLatLng: StateFlow<LatLng> = _currentLatLng
     val isPermissionGranted: StateFlow<Boolean> = _isPermissionGranted
+    val locationType = _locationType
     val langUnit = _langUnit
     val tempUnit = _tempUnit
     val windUnit = _windUnit
@@ -55,6 +59,10 @@ class SharedViewModel(private val context: Context) : ViewModel() {
 
     fun setActionBarVisibility(isVisible: Boolean) {
         _actionBarVisibility.value = isVisible
+    }
+
+    fun setMainActivityVisibility(isVisible: Boolean) {
+        _mainActivityVisibility.value = isVisible
     }
 
     fun setCurrentFragment(name: String) {
@@ -90,7 +98,6 @@ class SharedViewModel(private val context: Context) : ViewModel() {
             readDataStore("language").isNullOrEmpty() ||
             readDataStore("temperature").isNullOrEmpty() ||
             readDataStore("windSpeed").isNullOrEmpty() ||
-            readDataStore("notification").isNullOrEmpty() ||
             readDataStore("isWorkerEnqueued").isNullOrEmpty()
         ) {
             saveDataStore("location", location)
@@ -100,7 +107,6 @@ class SharedViewModel(private val context: Context) : ViewModel() {
             }
             saveDataStore("temperature", "Celsius")
             saveDataStore("windSpeed", "Meter / Sec")
-            saveDataStore("notification", "true")
             saveDataStore("isWorkerEnqueued", "false")
         }
     }
@@ -117,6 +123,7 @@ class SharedViewModel(private val context: Context) : ViewModel() {
         val value = dataStoreRepo.readDataStore(key)
         if (value != null) {
             when (key) {
+                "location" -> _locationType.value = value
                 "language" -> when (value) {
                     "English" -> _langUnit.value = "en"
                     "Arabic" -> _langUnit.value = "ar"

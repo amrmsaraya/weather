@@ -1,5 +1,7 @@
 package com.github.amrmsaraya.weather.data.remote
-
+//            if (lat != 0.0 && lon != 0.0) {
+//                weatherViewModel.getLiveWeather(lat, lon, lang = sharedViewModel.langUnit.value)
+//            }
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -15,9 +17,9 @@ class RetrofitInstance {
         }
         private val okHttpClient = OkHttpClient.Builder().apply {
             addInterceptor(interceptor)
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .readTimeout(20, TimeUnit.SECONDS)
-                .writeTimeout(25, TimeUnit.SECONDS)
+                .connectTimeout(10, TimeUnit.SECONDS)
+                .readTimeout(10, TimeUnit.SECONDS)
+                .writeTimeout(10, TimeUnit.SECONDS)
         }.build()
 
         fun getRetrofitInstance(): Retrofit {

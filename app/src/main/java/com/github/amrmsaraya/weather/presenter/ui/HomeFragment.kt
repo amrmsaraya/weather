@@ -26,9 +26,9 @@ import androidx.work.PeriodicWorkRequest
 import androidx.work.WorkManager
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.local.WeatherDatabase
-import com.github.amrmsaraya.weather.data.models.Current
 import com.github.amrmsaraya.weather.data.models.Location
 import com.github.amrmsaraya.weather.data.models.WeatherAnimation
+import com.github.amrmsaraya.weather.data.models.WeatherResponse
 import com.github.amrmsaraya.weather.databinding.FragmentHomeBinding
 import com.github.amrmsaraya.weather.presenter.adapters.DailyAdapter
 import com.github.amrmsaraya.weather.presenter.adapters.HourlyAdapter
@@ -49,9 +49,9 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
+import java.io.IOException
 import java.math.BigDecimal
 import java.math.RoundingMode
-import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -69,6 +69,7 @@ class HomeFragment : Fragment() {
     private val locationPermissionCode = 2
     private var lon = 0.0
     private var lat = 0.0
+    private var city = ""
 
     @SuppressLint("ResourceType")
     override fun onCreateView(
@@ -106,11 +107,29 @@ class HomeFragment : Fragment() {
         sharedViewModel.setActionBarVisibility(true)
 
         lifecycleScope.launchWhenStarted {
-            sharedViewModel.getCachedSettings()
+            if (sharedViewModel.readDataStore("location").isNullOrEmpty()) {
+                locationViewModel.insert(
+                    Location(
+                        roundDouble(0.0),
+                        roundDouble(0.0),
+                        getString(R.string.weather_forecast),
+                        1
+                    )
+                )
+                delay(1500)
+                getCachedLocation()
+
+            } else {
+                getCachedLocation()
+
+            }
         }
 
         lifecycleScope.launchWhenStarted {
-            getCachedLocation()
+            delay(500)
+            if (sharedViewModel.readDataStore("location") == "GPS") {
+                getLocationFromGPS()
+            }
         }
 
         binding.btnAllowPermission.setOnClickListener {
@@ -135,13 +154,10 @@ class HomeFragment : Fragment() {
 
         // SwipeRefresh
         binding.swipeRefresh.setProgressBackgroundColorSchemeColor(Color.parseColor("#FF313131"))
-        binding.swipeRefresh.setColorSchemeColors(
-            Color.parseColor("#FFFF00e4"),
-            Color.parseColor("#FF6011F4"),
-        )
+        binding.swipeRefresh.setColorSchemeColors(Color.parseColor("#FFFF00e4"))
         binding.swipeRefresh.setOnRefreshListener {
             lifecycleScope.launchWhenStarted {
-                if (sharedViewModel.readDataStore("location") == "GPS") {
+                if (sharedViewModel.locationType.value == "GPS") {
                     getLocationFromGPS()
                 }
                 if (lat != 0.0 && lon != 0.0) {
@@ -153,49 +169,39 @@ class HomeFragment : Fragment() {
         binding.tvDate.text =
             SimpleDateFormat("E, dd MMM", Locale.getDefault()).format(System.currentTimeMillis())
 
-        lifecycleScope.launchWhenStarted {
-            if (sharedViewModel.readDataStore("location") == "GPS") {
-                getLocationFromGPS()
-            }
-            if (lat != 0.0 && lon != 0.0) {
-                weatherViewModel.getLiveWeather(lat, lon, lang = sharedViewModel.langUnit.value)
-            }
-        }
 
         // Get Retrofit Response
         lifecycleScope.launchWhenStarted {
             weatherViewModel.weatherResponse.collect {
                 when (it) {
                     is WeatherRepo.ResponseState.Success -> {
+                        binding.swipeRefresh.isRefreshing = false
+                        displayWeather(it.weatherResponse)
                         // Delete old current weather data
                         weatherViewModel.deleteCurrent()
                         val response = it.weatherResponse
                         response.isCurrent = true
                         // Insert the new current weather data
                         weatherViewModel.insert(response)
-                        if (lat != 0.0 && lon != 0.0) {
-                            getCachedWeather()
-                        }
                     }
-                    is WeatherRepo.ResponseState.Error ->
+                    is WeatherRepo.ResponseState.Error -> {
+                        if (lat != 0.0 && lon != 0.0) {
+                            val weatherResponse =
+                                weatherViewModel.getCachedLocationWeather(lat, lon)
+                            if (weatherResponse != null) {
+                                displayWeather(weatherResponse)
+                            }
+                        }
+                        binding.swipeRefresh.isRefreshing = false
                         Snackbar.make(
                             binding.root,
                             getString(R.string.no_internet_connection),
                             Snackbar.LENGTH_SHORT
                         ).show()
+                    }
                     else -> Unit
                 }
-                binding.swipeRefresh.isRefreshing = false
                 weatherViewModel.weatherResponse.value = WeatherRepo.ResponseState.Empty
-            }
-        }
-
-        // Get Cached Weather
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            weatherViewModel.getAllCachedWeather().collect {
-                if (lat != 0.0 && lon != 0.0) {
-                    getCachedWeather()
-                }
             }
         }
 
@@ -212,9 +218,10 @@ class HomeFragment : Fragment() {
     }
 
 
-    // show current weather data
+    // Display weather Data
     @SuppressLint("UseCompatLoadingForDrawables")
-    private fun showCurrentData(current: Current) {
+    private fun displayWeather(weatherResponse: WeatherResponse) {
+        val current = weatherResponse.current
         val animationType: PrecipType
         var emissionRate = 100f
         var temp = current.temp
@@ -250,6 +257,7 @@ class HomeFragment : Fragment() {
         binding.tvUltraviolet.text = current.uvi.toString()
         binding.tvVisibility.text = "${current.visibility} ${getString(R.string.meter)}"
 
+        // Display icon and animation
         when (current.weather[0].main) {
             "Clear" -> {
                 animationType = PrecipType.CLEAR
@@ -304,72 +312,46 @@ class HomeFragment : Fragment() {
             }
         }
         sharedViewModel.setWeatherAnimation(WeatherAnimation(animationType, emissionRate))
+
+        val hourlyAdapter = binding.rvHourly.adapter as HourlyAdapter
+        val dailyAdapter = binding.rvDaily.adapter as DailyAdapter
+
+        // Send sunrise and sunset time to Adapter
+        hourlyAdapter.setSunriseAndSunset(weatherResponse.daily)
+        // Add List to Hourly Adapter
+        hourlyAdapter.submitList(weatherResponse.hourly.subList(0, 24))
+        // Add List to Daily Adapter
+        dailyAdapter.submitList(
+            weatherResponse.daily.subList(1, weatherResponse.daily.size-1)
+        )
     }
 
-    private suspend fun getCachedWeather() {
-        val weatherResponse = weatherViewModel.getCachedLocationWeather(lat, lon)
-        if (weatherResponse != null) {
-            val hourlyAdapter = binding.rvHourly.adapter as HourlyAdapter
-            val dailyAdapter = binding.rvDaily.adapter as DailyAdapter
-            // Show Current Data
-            showCurrentData(weatherResponse.current)
-            // Send sunrise and sunset time to Adapter
-            hourlyAdapter.setSunriseAndSunset(weatherResponse.daily)
-            // Add List to Hourly Adapter
-            hourlyAdapter.submitList(weatherResponse.hourly.subList(0, 23))
-            // Add List to Daily Adapter
-            dailyAdapter.submitList(
-                weatherResponse.daily.subList(
-                    1,
-                    weatherResponse.daily.size - 1
-                )
-            )
-        }
-    }
 
     private suspend fun getCachedLocation() {
-        try {
-            locationViewModel.getLocation(1).collect {
-                if (it.lat != 0.0 && it.lon != 0.0) {
-                    weatherViewModel.getLiveWeather(
-                        it.lat,
-                        it.lon,
-                        lang = sharedViewModel.langUnit.value
-                    )
-                    lat = it.lat
-                    lon = it.lon
-                    sharedViewModel.setActionBarTitle(it.name)
-                    sharedViewModel.setCurrentLatLng(LatLng(it.lat, it.lon))
+        locationViewModel.getLocation(1).collect {
+            if (it.lat != 0.0 && it.lon != 0.0) {
+                val weatherResponse =
+                    weatherViewModel.getCachedLocationWeather(it.lat, it.lon)
+                if (weatherResponse != null) {
+                    displayWeather(weatherResponse)
                 }
-            }
-        } catch (e: Exception) {
-            locationViewModel.insert(
-                Location(
-                    roundDouble(lat),
-                    roundDouble(lon),
-                    getString(R.string.weather_forecast),
-                    1
+                binding.swipeRefresh.isRefreshing = true
+                weatherViewModel.getLiveWeather(
+                    it.lat,
+                    it.lon,
+                    lang = sharedViewModel.langUnit.value
                 )
-            )
-            locationViewModel.getLocation(1).collect {
-                if (lat != 0.0 && lon != 0.0) {
-                    weatherViewModel.getLiveWeather(
-                        it.lat,
-                        it.lon,
-                        lang = sharedViewModel.langUnit.value
-                    )
-                }
-                lat = it.lat
-                lon = it.lon
-                sharedViewModel.setActionBarTitle(it.name)
             }
+            lat = it.lat
+            lon = it.lon
+            city = it.name
+            sharedViewModel.setActionBarTitle(it.name)
+            sharedViewModel.setCurrentLatLng(LatLng(it.lat, it.lon))
         }
     }
 
     private fun roundDouble(double: Double): Double {
-        val d = DecimalFormat("#.####")
         return BigDecimal(double).setScale(4, RoundingMode.HALF_UP).toDouble()
-//        return "%.4f".format(double).toDouble()
     }
 
     private fun setPeriodicWorkRequest() {
@@ -389,9 +371,11 @@ class HomeFragment : Fragment() {
         if (checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
             != PackageManager.PERMISSION_GRANTED
         ) {
-            binding.scrollView.visibility = View.GONE
             requestPermissions(
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
+                arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ),
                 locationPermissionCode
             )
             return
@@ -401,32 +385,33 @@ class HomeFragment : Fragment() {
             null
         ).addOnSuccessListener {
             if (it != null) {
-                addresses = geocoder.getFromLocation(
-                    it.latitude,
-                    it.longitude,
-                    1
-                )
-                val city = if (addresses[0].locality.isNullOrEmpty()) {
-                    addresses[0].adminArea
-                } else {
-                    addresses[0].locality
-                }
-                locationViewModel.insert(
-                    Location(
-                        roundDouble(it.latitude),
-                        roundDouble(it.longitude),
-                        city,
-                        1
+                if (roundDouble(it.latitude) != lat && roundDouble(it.longitude) != lon) {
+                    try {
+                        addresses = geocoder.getFromLocation(
+                            it.latitude,
+                            it.longitude,
+                            1
+                        )
+                        city = if (addresses[0].locality.isNullOrEmpty()) {
+                            addresses[0].adminArea
+                        } else {
+                            addresses[0].locality
+                        }
+                    } catch (e: IOException) {
+                        e.printStackTrace()
+                    }
+                    locationViewModel.insert(
+                        Location(
+                            roundDouble(it.latitude),
+                            roundDouble(it.longitude),
+                            city,
+                            1
+                        )
                     )
-                )
-                weatherViewModel.getLiveWeather(
-                    roundDouble(it.latitude),
-                    roundDouble(it.longitude),
-                    lang = sharedViewModel.langUnit.value
-                )
+                }
             } else {
-                Snackbar.make(binding.root, "Failed to get Location", Snackbar.LENGTH_SHORT).show()
-
+                Snackbar.make(binding.root, "Failed to get Location", Snackbar.LENGTH_SHORT)
+                    .show()
             }
         }.addOnFailureListener {
             Snackbar.make(binding.root, "Failed to get location", Snackbar.LENGTH_SHORT).show()
@@ -453,6 +438,8 @@ class HomeFragment : Fragment() {
                 binding.noPermissionLayout.visibility = View.VISIBLE
             }
         }
-        binding.scrollView.visibility = View.VISIBLE
+        sharedViewModel.setMainActivityVisibility(true)
     }
+
+
 }

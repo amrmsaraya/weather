@@ -219,7 +219,7 @@ class AlertsFragment : Fragment() {
                         requireContext().startActivity(permissionIntent)
                     }
                 }
-                if (to > System.currentTimeMillis() && from > System.currentTimeMillis()) {
+                if (to > System.currentTimeMillis() && from > System.currentTimeMillis() && from < to) {
                     lifecycleScope.launchWhenStarted {
                         val alarm = Alarm(UUID.randomUUID(), from, to, alarmType.text.toString())
                         val workId = setOneTimeWorkRequest(alarm)

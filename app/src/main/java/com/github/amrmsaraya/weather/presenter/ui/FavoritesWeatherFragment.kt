@@ -13,9 +13,8 @@ import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.local.WeatherDatabase
-import com.github.amrmsaraya.weather.data.models.Alerts
-import com.github.amrmsaraya.weather.data.models.Current
 import com.github.amrmsaraya.weather.data.models.WeatherAnimation
+import com.github.amrmsaraya.weather.data.models.WeatherResponse
 import com.github.amrmsaraya.weather.databinding.FragmentHomeBinding
 import com.github.amrmsaraya.weather.presenter.adapters.DailyAdapter
 import com.github.amrmsaraya.weather.presenter.adapters.HourlyAdapter
@@ -58,10 +57,8 @@ class FavoritesWeatherFragment : Fragment() {
 
         // SwipeRefresh
         binding.swipeRefresh.setProgressBackgroundColorSchemeColor(Color.parseColor("#FF313131"))
-        binding.swipeRefresh.setColorSchemeColors(
-            Color.parseColor("#FFFF00e4"),
-            Color.parseColor("#FF6011F4"),
-        )
+        binding.swipeRefresh.setColorSchemeColors(Color.parseColor("#FFFF00e4"))
+
         binding.swipeRefresh.setOnRefreshListener {
             lifecycleScope.launchWhenStarted {
                 weatherViewModel.getLiveWeather(
@@ -75,10 +72,24 @@ class FavoritesWeatherFragment : Fragment() {
         binding.tvDate.text =
             SimpleDateFormat("E, dd MMM", Locale.US).format(Date(System.currentTimeMillis()))
 
+
+        binding.swipeRefresh.isRefreshing = true
         weatherViewModel.getLiveWeather(
             sharedViewModel.clickedFavoriteLocation.value.lat,
             sharedViewModel.clickedFavoriteLocation.value.lon
         )
+
+        lifecycleScope.launchWhenStarted {
+            val weatherResponse =
+                weatherViewModel.getCachedLocationWeather(
+                    sharedViewModel.clickedFavoriteLocation.value.lat,
+                    sharedViewModel.clickedFavoriteLocation.value.lon
+                )
+            if (weatherResponse != null) {
+                displayWeather(weatherResponse)
+            }
+        }
+
 
         val layoutManager =
             LinearLayoutManager(requireContext(), LinearLayoutManager.HORIZONTAL, false)
@@ -93,35 +104,44 @@ class FavoritesWeatherFragment : Fragment() {
             weatherViewModel.weatherResponse.collect {
                 when (it) {
                     is WeatherRepo.ResponseState.Success -> {
-                        weatherViewModel.insert(it.weatherResponse)
-                        getCachedWeather()
+                        binding.swipeRefresh.isRefreshing = false
+                        displayWeather(it.weatherResponse)
+                        // Delete old current weather data
+                        weatherViewModel.deleteCurrent()
+                        val response = it.weatherResponse
+                        response.isCurrent = true
+                        // Insert the new current weather data
+                        weatherViewModel.insert(response)
                     }
-                    is WeatherRepo.ResponseState.Error ->
+                    is WeatherRepo.ResponseState.Error -> {
+                        val weatherResponse =
+                            weatherViewModel.getCachedLocationWeather(
+                                sharedViewModel.clickedFavoriteLocation.value.lat,
+                                sharedViewModel.clickedFavoriteLocation.value.lon
+                            )
+                        if (weatherResponse != null) {
+                            displayWeather(weatherResponse)
+                        }
+                        binding.swipeRefresh.isRefreshing = false
                         Snackbar.make(
                             binding.root,
-                            it.message,
+                            getString(R.string.no_internet_connection),
                             Snackbar.LENGTH_SHORT
                         ).show()
+                    }
                     else -> Unit
                 }
-                binding.swipeRefresh.isRefreshing = false
                 weatherViewModel.weatherResponse.value = WeatherRepo.ResponseState.Empty
-            }
-        }
-
-        // Get Cached Weather
-        viewLifecycleOwner.lifecycleScope.launchWhenStarted {
-            weatherViewModel.getAllCachedWeather().collect {
-                getCachedWeather()
             }
         }
 
         return binding.root
     }
 
-    // show current weather data
+    // Display weather Data
     @SuppressLint("UseCompatLoadingForDrawables")
-    private fun showCurrentData(current: Current) {
+    private fun displayWeather(weatherResponse: WeatherResponse) {
+        val current = weatherResponse.current
         val animationType: PrecipType
         var emissionRate = 100f
         var temp = current.temp
@@ -157,6 +177,7 @@ class FavoritesWeatherFragment : Fragment() {
         binding.tvUltraviolet.text = current.uvi.toString()
         binding.tvVisibility.text = "${current.visibility} ${getString(R.string.meter)}"
 
+        // Display icon and animation
         when (current.weather[0].main) {
             "Clear" -> {
                 animationType = PrecipType.CLEAR
@@ -211,29 +232,17 @@ class FavoritesWeatherFragment : Fragment() {
             }
         }
         sharedViewModel.setWeatherAnimation(WeatherAnimation(animationType, emissionRate))
-    }
 
-    private suspend fun getCachedWeather() {
-        val weatherResponse = weatherViewModel.getCachedLocationWeather(
-            sharedViewModel.clickedFavoriteLocation.value.lat,
-            sharedViewModel.clickedFavoriteLocation.value.lon
+        val hourlyAdapter = binding.rvHourly.adapter as HourlyAdapter
+        val dailyAdapter = binding.rvDaily.adapter as DailyAdapter
+
+        // Send sunrise and sunset time to Adapter
+        hourlyAdapter.setSunriseAndSunset(weatherResponse.daily)
+        // Add List to Hourly Adapter
+        hourlyAdapter.submitList(weatherResponse.hourly.subList(0, 24))
+        // Add List to Daily Adapter
+        dailyAdapter.submitList(
+            weatherResponse.daily.subList(1, weatherResponse.daily.size - 1)
         )
-        if (weatherResponse != null) {
-            val hourlyAdapter = binding.rvHourly.adapter as HourlyAdapter
-            val dailyAdapter = binding.rvDaily.adapter as DailyAdapter
-            // Show Current Data
-            showCurrentData(weatherResponse.current)
-            // Send sunrise and sunset time to Adapter
-            hourlyAdapter.setSunriseAndSunset(weatherResponse.daily)
-            // Add List to Hourly Adapter
-            hourlyAdapter.submitList(weatherResponse.hourly.subList(0, 23))
-            // Add List to Daily Adapter
-            dailyAdapter.submitList(
-                weatherResponse.daily.subList(
-                    1,
-                    weatherResponse.daily.size - 1
-                )
-            )
-        }
     }
 }

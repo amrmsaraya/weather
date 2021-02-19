@@ -6,6 +6,7 @@ import android.content.res.Resources
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
+import android.widget.RadioButton
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
@@ -21,6 +22,7 @@ import androidx.navigation.findNavController
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.models.WeatherAnimation
 import com.github.amrmsaraya.weather.databinding.ActivityMainBinding
+import com.github.amrmsaraya.weather.databinding.DialogInitialSetupBinding
 import com.github.amrmsaraya.weather.presenter.viewModel.SharedViewModel
 import com.github.amrmsaraya.weather.utils.SharedViewModelFactory
 import com.github.matteobattilana.weather.PrecipType
@@ -111,6 +113,15 @@ class MainActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launchWhenStarted {
+            sharedViewModel.mainActivityVisibility.collect {
+                when (it) {
+                    true -> binding.constrainLayout.visibility = View.VISIBLE
+                    false -> binding.constrainLayout.visibility = View.GONE
+                }
+            }
+        }
+
+        lifecycleScope.launchWhenStarted {
             sharedViewModel.currentFragment.collect {
                 currentFragment = it
                 when (it) {
@@ -163,39 +174,55 @@ class MainActivity : AppCompatActivity() {
     }
 
     private suspend fun getLocationProvider() {
-        binding.constrainLayout.visibility = View.GONE
+        sharedViewModel.setMainActivityVisibility(false)
         if (sharedViewModel.readDataStore("location").isNullOrEmpty()) {
-            var locationProvider = getString(R.string.gps)
+            val dialogBinding: DialogInitialSetupBinding =
+                DataBindingUtil.inflate(
+                    layoutInflater,
+                    R.layout.dialog_initial_setup,
+                    null,
+                    true
+                )
             val locationDialog =
                 AlertDialog.Builder(this@MainActivity)
-                    .setTitle(getString(R.string.location_provider))
-                    .setIcon(R.drawable.location)
-                    .setSingleChoiceItems(
-                        arrayOf(getString(R.string.gps), getString(R.string.map)),
-                        0
-                    ) { _, which ->
-                        when (which) {
-                            0 -> locationProvider = "GPS"
-                            1 -> locationProvider = "Map"
-                        }
-                    }
-                    .setPositiveButton(getString(R.string.ok)) { _, _ ->
-                        if (locationProvider == "Map") {
-                            navController.navigate(R.id.mapsFragment)
-                            binding.constrainLayout.visibility = View.VISIBLE
-                        } else {
-                            lifecycleScope.launchWhenStarted {
-                                sharedViewModel.saveDataStore("location", "GPS")
-                                navController.navigate(R.id.homeFragment)
-                                binding.constrainLayout.visibility = View.VISIBLE
-                            }
-                        }
-                    }
+                    .setView(dialogBinding.root)
                     .setCancelable(false)
                     .create()
             locationDialog.show()
+
+            var locationProvider = dialogBinding.root.findViewById<RadioButton>(R.id.rbInitialGPS)
+            var notification = true
+
+            dialogBinding.rgInitialLocation.setOnCheckedChangeListener { _, checkedId ->
+                locationProvider = dialogBinding.root.findViewById<RadioButton>(checkedId)
+            }
+
+            dialogBinding.initialNotificationSwitch.setOnCheckedChangeListener { _, isChecked ->
+                notification = isChecked
+            }
+
+            dialogBinding.btnInitialOk.setOnClickListener {
+                locationDialog.dismiss()
+                lifecycleScope.launchWhenStarted {
+                    sharedViewModel.saveDataStore("notification", notification.toString())
+                }
+                when (locationProvider.text.toString()) {
+                    "GPS", "موقعك الحالي" -> {
+                        lifecycleScope.launchWhenStarted {
+                            sharedViewModel.saveDataStore("location", "GPS")
+                            navController.navigate(R.id.homeFragment)
+                        }
+                    }
+                    "Map", "الخريطة" -> {
+                        navController.navigate(R.id.mapsFragment)
+                        binding.constrainLayout.visibility = View.VISIBLE
+                    }
+                }
+            }
+
+
         } else {
-            binding.constrainLayout.visibility = View.VISIBLE
+            sharedViewModel.setMainActivityVisibility(true)
         }
     }
 

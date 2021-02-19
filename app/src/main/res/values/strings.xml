@@ -51,5 +51,6 @@
     <string name="invalid_time">Invalid Time</string>
     <string name="weather_alert">Weather Alert</string>
     <string name="weather_is_fine">Weather is fine, no alerts for the scheduled time period</string>
+    <string name="initial_setup">Initial Setup</string>
 
 </resources>
