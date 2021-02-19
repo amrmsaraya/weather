@@ -1,6 +1,5 @@
 package com.github.amrmsaraya.weather.workers
 
-
 import android.app.Service
 import android.content.Intent
 import android.graphics.PixelFormat
@@ -12,10 +11,7 @@ import android.view.LayoutInflater
 import android.view.WindowManager
 import androidx.databinding.DataBindingUtil
 import com.github.amrmsaraya.weather.R
-import com.github.amrmsaraya.weather.data.local.WeatherDatabase
 import com.github.amrmsaraya.weather.databinding.DialogAlarmBinding
-import java.util.*
-
 
 class AlarmService : Service() {
     private lateinit var binding: DialogAlarmBinding
@@ -37,8 +33,6 @@ class AlarmService : Service() {
 
         val event = intent?.getStringExtra("event") ?: "Unknown"
         val description = intent?.getStringExtra("description") ?: "Unknown"
-
-
 
         binding.tvAlarmTitle.text = event
         binding.tvAlarmDescription.text = description
@@ -70,12 +64,11 @@ class AlarmService : Service() {
             )
         }
 
-
         // Specify the view position
         params.gravity =
             Gravity.TOP + Gravity.CENTER_HORIZONTAL
         params.x = 0
-        params.y = 50
+        params.y = 25
 
         // Add the view to the window
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
