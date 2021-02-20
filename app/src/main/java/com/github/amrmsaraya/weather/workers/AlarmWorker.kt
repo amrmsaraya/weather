@@ -87,20 +87,37 @@ class AlarmWorker(private val context: Context, private val params: WorkerParame
                                             "description",
                                             context.getString(R.string.weather_is_fine)
                                         )
-                                        context.startService(
-                                            Intent(context, AlarmService::class.java).putExtras(
-                                                bundle
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                            context.startForegroundService(
+                                                Intent(context, AlarmService::class.java).putExtras(
+                                                    bundle
+                                                )
                                             )
-                                        )
+                                        } else {
+                                            context.startService(
+                                                Intent(context, AlarmService::class.java).putExtras(
+                                                    bundle
+                                                )
+                                            )
+                                        }
+
                                     } else {
                                         val bundle = Bundle()
                                         bundle.putString("event", event)
                                         bundle.putString("description", description)
-                                        context.startService(
-                                            Intent(context, AlarmService::class.java).putExtras(
-                                                bundle
+                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                            context.startForegroundService(
+                                                Intent(context, AlarmService::class.java).putExtras(
+                                                    bundle
+                                                )
                                             )
-                                        )
+                                        } else {
+                                            context.startService(
+                                                Intent(context, AlarmService::class.java).putExtras(
+                                                    bundle
+                                                )
+                                            )
+                                        }
                                     }
                                 }
                             }

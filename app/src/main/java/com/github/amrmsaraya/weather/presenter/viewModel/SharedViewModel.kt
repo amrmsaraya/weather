@@ -17,7 +17,7 @@ class SharedViewModel(private val context: Context) : ViewModel() {
     private val dataStoreRepo = DataStoreRepo(context)
     private val _actionBarTitle = MutableStateFlow(context.getString(R.string.weather_forecast))
     private val _actionBarVisibility = MutableStateFlow(true)
-    private val _mainActivityVisibility = MutableStateFlow(true)
+    private val _mainActivityVisibility = MutableStateFlow("")
     private val _currentFragment = MutableStateFlow("Home")
     private val _mapStatus = MutableStateFlow("Current")
     private val _weatherAnimation = MutableStateFlow(
@@ -38,7 +38,7 @@ class SharedViewModel(private val context: Context) : ViewModel() {
 
     val actionBarTitle: StateFlow<String> = _actionBarTitle
     val actionBarVisibility: StateFlow<Boolean> = _actionBarVisibility
-    val mainActivityVisibility: StateFlow<Boolean> = _mainActivityVisibility
+    val mainActivityVisibility: StateFlow<String> = _mainActivityVisibility
     val currentFragment: StateFlow<String> = _currentFragment
     val mapStatus: StateFlow<String> = _mapStatus
     val weatherAnimation: StateFlow<WeatherAnimation> = _weatherAnimation
@@ -61,7 +61,7 @@ class SharedViewModel(private val context: Context) : ViewModel() {
         _actionBarVisibility.value = isVisible
     }
 
-    fun setMainActivityVisibility(isVisible: Boolean) {
+    fun setMainActivityVisibility(isVisible: String) {
         _mainActivityVisibility.value = isVisible
     }
 

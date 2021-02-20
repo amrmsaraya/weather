@@ -278,7 +278,7 @@ class AlertsFragment : Fragment() {
 
         workManager.enqueue(alarmWorkRequest)
 
-        Log.i("myTag", "Alarm has been Scheduled")
+        Log.i("myTag", "Alarm has been scheduled at ${SimpleDateFormat("E, dd MMM h:mm:ss a").format(specificTimeToTrigger)}")
         return alarmWorkRequest.id
     }
 }

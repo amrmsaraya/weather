@@ -125,7 +125,7 @@ class HomeFragment : Fragment() {
         }
 
         lifecycleScope.launchWhenStarted {
-            delay(500)
+            delay(1000)
             if (sharedViewModel.readDataStore("location") == "GPS") {
                 getLocationFromGPS()
             }
@@ -384,21 +384,21 @@ class HomeFragment : Fragment() {
             null
         ).addOnSuccessListener {
             if (it != null) {
-                if (roundDouble(it.latitude) != lat && roundDouble(it.longitude) != lon) {
-                    try {
-                        addresses = geocoder.getFromLocation(
-                            it.latitude,
-                            it.longitude,
-                            1
-                        )
-                        city = if (addresses[0].locality.isNullOrEmpty()) {
-                            addresses[0].adminArea
-                        } else {
-                            addresses[0].locality
-                        }
-                    } catch (e: IOException) {
-                        e.printStackTrace()
+                try {
+                    addresses = geocoder.getFromLocation(
+                        it.latitude,
+                        it.longitude,
+                        1
+                    )
+                    city = if (addresses[0].locality.isNullOrEmpty()) {
+                        addresses[0].adminArea
+                    } else {
+                        addresses[0].locality
                     }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+                if (roundDouble(it.latitude) != lat && roundDouble(it.longitude) != lon) {
                     locationViewModel.insert(
                         Location(
                             roundDouble(it.latitude),
@@ -437,7 +437,7 @@ class HomeFragment : Fragment() {
                 binding.noPermissionLayout.visibility = View.VISIBLE
             }
         }
-        sharedViewModel.setMainActivityVisibility(true)
+        sharedViewModel.setMainActivityVisibility("true")
     }
 
 

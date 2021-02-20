@@ -18,6 +18,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintGuide_begin="200dp" />
+
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:id="@+id/noPermissionLayout"
                     android:layout_width="match_parent"
@@ -87,6 +94,7 @@
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
                     android:background="@drawable/gradient_square"
+                    android:paddingBottom="20dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.0"
                     app:layout_constraintStart_toStartOf="parent"
@@ -111,7 +119,6 @@
                         android:id="@+id/tvTemp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="24dp"
                         android:fontFamily="@font/spartan"
                         android:gravity="center"
                         android:text=" "
@@ -367,11 +374,10 @@
                     android:id="@+id/ivIcon"
                     android:layout_width="125dp"
                     android:layout_height="125dp"
-                    android:layout_marginTop="170dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintHorizontal_bias="0.5"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="@+id/currentTempLayout" />
+                    app:layout_constraintTop_toBottomOf="@id/guideline3" />
 
                 <TextView
                     android:id="@+id/tvDate"

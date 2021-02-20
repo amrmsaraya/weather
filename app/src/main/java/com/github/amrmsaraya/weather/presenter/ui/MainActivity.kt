@@ -74,10 +74,6 @@ class MainActivity : AppCompatActivity() {
 
         binding.tvTitle.text = sharedViewModel.actionBarTitle.value
 
-        lifecycleScope.launchWhenStarted {
-            getLocationProvider()
-        }
-
         // Set Custom ActionBar
         setSupportActionBar(binding.toolbar)
         supportActionBar?.displayOptions = ActionBar.DISPLAY_SHOW_CUSTOM
@@ -115,11 +111,13 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launchWhenStarted {
             sharedViewModel.mainActivityVisibility.collect {
                 when (it) {
-                    true -> binding.constrainLayout.visibility = View.VISIBLE
-                    false -> binding.constrainLayout.visibility = View.GONE
+                    "true" -> binding.constrainLayout.visibility = View.VISIBLE
+                    "false" -> binding.constrainLayout.visibility = View.GONE
                 }
             }
         }
+
+
 
         lifecycleScope.launchWhenStarted {
             sharedViewModel.currentFragment.collect {
@@ -162,6 +160,10 @@ class MainActivity : AppCompatActivity() {
             }
             true
         }
+
+        lifecycleScope.launchWhenStarted {
+            getLocationProvider()
+        }
     }
 
     private fun setLocale(lang: String) {
@@ -174,7 +176,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private suspend fun getLocationProvider() {
-        sharedViewModel.setMainActivityVisibility(false)
+        binding.constrainLayout.visibility = View.GONE
         if (sharedViewModel.readDataStore("location").isNullOrEmpty()) {
             val dialogBinding: DialogInitialSetupBinding =
                 DataBindingUtil.inflate(
@@ -222,7 +224,7 @@ class MainActivity : AppCompatActivity() {
 
 
         } else {
-            sharedViewModel.setMainActivityVisibility(true)
+            binding.constrainLayout.visibility = View.VISIBLE
         }
     }
 
