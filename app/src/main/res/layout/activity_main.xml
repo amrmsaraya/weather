@@ -45,7 +45,7 @@
                 android:layout_height="wrap_content"
                 android:maxLength="25"
                 android:singleLine="true"
-                android:text="@string/weather_forecast"
+                android:text="@string/home"
                 android:textColor="@color/white"
                 android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="@+id/toolbar"

@@ -42,6 +42,7 @@ class MainActivity : AppCompatActivity() {
     @SuppressLint("UseCompatLoadingForDrawables")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         // Restore Default Theme
         setTheme(R.style.Theme_Weather)
 
@@ -72,6 +73,7 @@ class MainActivity : AppCompatActivity() {
             binding.constrainLayout.visibility = View.VISIBLE
         }
 
+
         binding.tvTitle.text = sharedViewModel.actionBarTitle.value
 
         // Set Custom ActionBar
@@ -84,6 +86,15 @@ class MainActivity : AppCompatActivity() {
         binding.drawerLayout.addDrawerListener(toggle)
         toggle.syncState()
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        lifecycleScope.launchWhenStarted {
+            sharedViewModel.mainActivityVisibility.collect {
+                when (it) {
+                    "true" -> binding.constrainLayout.visibility = View.VISIBLE
+                    "false" -> binding.constrainLayout.visibility = View.GONE
+                }
+            }
+        }
 
         lifecycleScope.launchWhenStarted {
             sharedViewModel.isPermissionGranted.collect {
@@ -104,15 +115,6 @@ class MainActivity : AppCompatActivity() {
                 when (it) {
                     true -> supportActionBar?.show()
                     false -> supportActionBar?.hide()
-                }
-            }
-        }
-
-        lifecycleScope.launchWhenStarted {
-            sharedViewModel.mainActivityVisibility.collect {
-                when (it) {
-                    "true" -> binding.constrainLayout.visibility = View.VISIBLE
-                    "false" -> binding.constrainLayout.visibility = View.GONE
                 }
             }
         }
@@ -176,7 +178,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private suspend fun getLocationProvider() {
-        binding.constrainLayout.visibility = View.GONE
+
         if (sharedViewModel.readDataStore("location").isNullOrEmpty()) {
             val dialogBinding: DialogInitialSetupBinding =
                 DataBindingUtil.inflate(
@@ -190,23 +192,28 @@ class MainActivity : AppCompatActivity() {
                     .setView(dialogBinding.root)
                     .setCancelable(false)
                     .create()
+
+            sharedViewModel.setMainActivityVisibility("false")
             locationDialog.show()
 
             var locationProvider = dialogBinding.root.findViewById<RadioButton>(R.id.rbInitialGPS)
-            var notification = true
+            var notifications = "Enable"
 
             dialogBinding.rgInitialLocation.setOnCheckedChangeListener { _, checkedId ->
                 locationProvider = dialogBinding.root.findViewById<RadioButton>(checkedId)
             }
 
             dialogBinding.initialNotificationSwitch.setOnCheckedChangeListener { _, isChecked ->
-                notification = isChecked
+                notifications = when (isChecked) {
+                    true -> "Enable"
+                    false -> "Disable"
+                }
             }
 
             dialogBinding.btnInitialOk.setOnClickListener {
                 locationDialog.dismiss()
                 lifecycleScope.launchWhenStarted {
-                    sharedViewModel.saveDataStore("notification", notification.toString())
+                    sharedViewModel.saveDataStore("notifications", notifications)
                 }
                 when (locationProvider.text.toString()) {
                     "GPS", "موقعك الحالي" -> {
@@ -217,14 +224,10 @@ class MainActivity : AppCompatActivity() {
                     }
                     "Map", "الخريطة" -> {
                         navController.navigate(R.id.mapsFragment)
-                        binding.constrainLayout.visibility = View.VISIBLE
+                        sharedViewModel.setMainActivityVisibility("true")
                     }
                 }
             }
-
-
-        } else {
-            binding.constrainLayout.visibility = View.VISIBLE
         }
     }
 

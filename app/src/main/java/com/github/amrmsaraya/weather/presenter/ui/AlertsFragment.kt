@@ -93,24 +93,8 @@ class AlertsFragment : Fragment() {
             sharedViewModel.setWeatherAnimation(WeatherAnimation(PrecipType.CLEAR, 100f))
         }
 
-        lifecycleScope.launchWhenCreated {
-            when (sharedViewModel.readDataStore("notification")) {
-                "true" -> binding.switchNotifications.isChecked = true
-                "false" -> binding.switchNotifications.isChecked = false
-            }
-        }
-
         sharedViewModel.setActionBarTitle(getString(R.string.alerts))
         sharedViewModel.setCurrentFragment("Alerts")
-
-        binding.switchNotifications.setOnCheckedChangeListener { _, isChecked ->
-            lifecycleScope.launchWhenCreated {
-                when (isChecked) {
-                    true -> sharedViewModel.saveDataStore("notification", "true")
-                    false -> sharedViewModel.saveDataStore("notification", "false")
-                }
-            }
-        }
 
         binding.fabAddAlert.setOnClickListener {
             val calendar: Calendar = Calendar.getInstance()
@@ -121,7 +105,6 @@ class AlertsFragment : Fragment() {
             val minute = calendar.get(Calendar.MINUTE)
             to = System.currentTimeMillis()
             from = System.currentTimeMillis()
-
 
             val dialogBinding: DialogAddAlertBinding =
                 DataBindingUtil.inflate(layoutInflater, R.layout.dialog_add_alert, container, false)
@@ -278,7 +261,12 @@ class AlertsFragment : Fragment() {
 
         workManager.enqueue(alarmWorkRequest)
 
-        Log.i("myTag", "Alarm has been scheduled at ${SimpleDateFormat("E, dd MMM h:mm:ss a").format(specificTimeToTrigger)}")
+        Log.i(
+            "myTag",
+            "Alarm has been scheduled at ${
+                SimpleDateFormat("E, dd MMM h:mm:ss a").format(specificTimeToTrigger)
+            }"
+        )
         return alarmWorkRequest.id
     }
 }

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Weather</string>
-    <string name="weather_forecast">حالة الطقس</string>
     <string name="pressure">الضغط</string>
     <string name="humidity">الرطوبة</string>
     <string name="wind">الرياح</string>
@@ -46,12 +45,13 @@
     <string name="hpa">ه.ب.ا</string>
     <string name="meter">م</string>
     <string name="no_internet_connection">لا يوجد إتصال بالإنترنت</string>
-    <string name="location_provider">مزود خدمة الموقع</string>
     <string name="ok">تم</string>
     <string name="unknown">غير معروف</string>
     <string name="invalid_time">الوقت غير صحيح</string>
     <string name="weather_alert">تحذير الطقس</string>
     <string name="weather_is_fine">الطقس علي ما يرام، لا يوجد اي تحذيرات للوقت المحدد مسبقاً</string>
     <string name="initial_setup">الإعدادات اﻷولية</string>
+    <string name="enable">تفعيل</string>
+    <string name="disable">إلغاء</string>
 
 </resources>

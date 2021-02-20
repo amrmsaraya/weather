@@ -72,6 +72,11 @@ class SettingsFragment : Fragment() {
                 "Meter / Sec" -> binding.rgWindSpeed.check(R.id.rbMeter)
                 "Mile / Hour" -> binding.rgWindSpeed.check(R.id.rbMile)
             }
+            when (sharedViewModel.readDataStore("notifications")) {
+                "Enable" -> binding.rgNotifications.check(R.id.rbEnableNotification)
+                "Disable" -> binding.rgNotifications.check(R.id.rbDisableNotification)
+            }
+
             binding.rgLanguage.setOnCheckedChangeListener { _, checkedId ->
                 val lang = binding.root.findViewById<RadioButton>(checkedId)
                 var text = lang.text.toString()
@@ -105,7 +110,6 @@ class SettingsFragment : Fragment() {
         }
 
 
-
         binding.rgTemperature.setOnCheckedChangeListener { _, checkedId ->
             val temp = binding.root.findViewById<RadioButton>(checkedId)
             var text = temp.text.toString()
@@ -128,6 +132,18 @@ class SettingsFragment : Fragment() {
             }
             lifecycleScope.launchWhenStarted {
                 sharedViewModel.saveDataStore("windSpeed", text)
+            }
+        }
+
+        binding.rgNotifications.setOnCheckedChangeListener { _, checkedId ->
+            val notifications = binding.root.findViewById<RadioButton>(checkedId)
+            var text = notifications.text.toString()
+            when (notifications.text.toString()) {
+                "تفعيل" -> text = "Enable"
+                "إلغاء" -> text = "Disable"
+            }
+            lifecycleScope.launchWhenStarted {
+                sharedViewModel.saveDataStore("notifications", text)
             }
         }
 

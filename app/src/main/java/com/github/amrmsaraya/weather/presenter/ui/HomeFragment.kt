@@ -104,6 +104,7 @@ class HomeFragment : Fragment() {
             ViewModelProvider(requireActivity(), sharedFactory).get(SharedViewModel::class.java)
 
         sharedViewModel.setCurrentFragment("Home")
+        sharedViewModel.setActionBarTitle(getString(R.string.home))
         sharedViewModel.setActionBarVisibility(true)
 
         lifecycleScope.launchWhenStarted {
@@ -112,7 +113,7 @@ class HomeFragment : Fragment() {
                     Location(
                         roundDouble(0.0),
                         roundDouble(0.0),
-                        getString(R.string.weather_forecast),
+                        getString(R.string.unknown),
                         1
                     )
                 )
@@ -344,7 +345,7 @@ class HomeFragment : Fragment() {
             lat = it.lat
             lon = it.lon
             city = it.name
-            sharedViewModel.setActionBarTitle(it.name)
+            binding.tvCurrentAddress.text = it.name
             sharedViewModel.setCurrentLatLng(LatLng(it.lat, it.lon))
         }
     }
@@ -371,10 +372,7 @@ class HomeFragment : Fragment() {
             != PackageManager.PERMISSION_GRANTED
         ) {
             requestPermissions(
-                arrayOf(
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-                ),
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 locationPermissionCode
             )
             return
@@ -384,13 +382,14 @@ class HomeFragment : Fragment() {
             null
         ).addOnSuccessListener {
             if (it != null) {
+                var newCity = ""
                 try {
                     addresses = geocoder.getFromLocation(
                         it.latitude,
                         it.longitude,
                         1
                     )
-                    city = if (addresses[0].locality.isNullOrEmpty()) {
+                    newCity = if (addresses[0].locality.isNullOrEmpty()) {
                         addresses[0].adminArea
                     } else {
                         addresses[0].locality
@@ -398,12 +397,12 @@ class HomeFragment : Fragment() {
                 } catch (e: IOException) {
                     e.printStackTrace()
                 }
-                if (roundDouble(it.latitude) != lat && roundDouble(it.longitude) != lon) {
+                if ((roundDouble(it.latitude) != lat && roundDouble(it.longitude) != lon) || newCity != city) {
                     locationViewModel.insert(
                         Location(
                             roundDouble(it.latitude),
                             roundDouble(it.longitude),
-                            city,
+                            newCity,
                             1
                         )
                     )

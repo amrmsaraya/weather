@@ -53,7 +53,8 @@ class FavoritesWeatherFragment : Fragment() {
             ViewModelProvider(requireActivity(), sharedFactory).get(SharedViewModel::class.java)
 
         sharedViewModel.setCurrentFragment("FavoriteWeather")
-        sharedViewModel.setActionBarTitle(sharedViewModel.clickedFavoriteLocation.value.name)
+        sharedViewModel.setActionBarTitle(getString(R.string.favorites))
+        binding.tvCurrentAddress.text = sharedViewModel.clickedFavoriteLocation.value.name
 
         // SwipeRefresh
         binding.swipeRefresh.setProgressBackgroundColorSchemeColor(Color.parseColor("#FF313131"))
@@ -70,13 +71,14 @@ class FavoritesWeatherFragment : Fragment() {
         }
 
         binding.tvDate.text =
-            SimpleDateFormat("E, dd MMM", Locale.US).format(Date(System.currentTimeMillis()))
+            SimpleDateFormat("E, dd MMM", Locale.getDefault()).format(System.currentTimeMillis())
 
 
         binding.swipeRefresh.isRefreshing = true
         weatherViewModel.getLiveWeather(
             sharedViewModel.clickedFavoriteLocation.value.lat,
-            sharedViewModel.clickedFavoriteLocation.value.lon
+            sharedViewModel.clickedFavoriteLocation.value.lon,
+            lang = sharedViewModel.langUnit.value
         )
 
         lifecycleScope.launchWhenStarted {

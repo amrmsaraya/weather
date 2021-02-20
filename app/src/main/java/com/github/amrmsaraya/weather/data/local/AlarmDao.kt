@@ -1,6 +1,5 @@
 package com.github.amrmsaraya.weather.data.local
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.github.amrmsaraya.weather.data.models.Alarm
 import kotlinx.coroutines.flow.Flow

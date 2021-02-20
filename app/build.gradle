@@ -5,6 +5,14 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        config {
+            storeFile file('/var/home/amr/development/Android Keys/weather/weather_key.jks')
+            storePassword 'mrbeancant'
+            keyAlias 'weather'
+            keyPassword 'mrbeancant'
+        }
+    }
     compileSdkVersion 30
     buildToolsVersion "30.0.3"
 
@@ -16,12 +24,15 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        signingConfig signingConfigs.config
     }
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            debuggable true
+            signingConfig signingConfigs.config
         }
     }
     compileOptions {
@@ -37,7 +48,6 @@ android {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     def lifecycle_version = "2.3.0"
     def room_version = "2.2.6"
     def retrofit_version = "2.9.0"
@@ -76,7 +86,7 @@ dependencies {
     // Retrofit
     implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
     implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
-    implementation "com.squareup.okhttp3:logging-interceptor:4.9.0"
+    implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.2'
 
     // Room
     implementation "androidx.room:room-runtime:$room_version"
@@ -91,7 +101,7 @@ dependencies {
 
     // Maps
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
-    implementation 'com.google.android.gms:play-services-location:17.1.0'
+    implementation 'com.google.android.gms:play-services-location:18.0.0'
 
     // Weather Animation
     implementation 'com.github.MatteoBattilana:WeatherView:3.0.0'

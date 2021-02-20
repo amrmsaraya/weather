@@ -15,7 +15,7 @@ import java.util.*
 class SharedViewModel(private val context: Context) : ViewModel() {
 
     private val dataStoreRepo = DataStoreRepo(context)
-    private val _actionBarTitle = MutableStateFlow(context.getString(R.string.weather_forecast))
+    private val _actionBarTitle = MutableStateFlow(context.getString(R.string.home))
     private val _actionBarVisibility = MutableStateFlow(true)
     private val _mainActivityVisibility = MutableStateFlow("")
     private val _currentFragment = MutableStateFlow("Home")
@@ -116,7 +116,7 @@ class SharedViewModel(private val context: Context) : ViewModel() {
         readDataStore("language")
         readDataStore("temperature")
         readDataStore("windSpeed")
-        readDataStore("notification")
+        readDataStore("notifications")
     }
 
     suspend fun readDataStore(key: String): String? {

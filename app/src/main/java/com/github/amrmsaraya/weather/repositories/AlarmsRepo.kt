@@ -1,6 +1,5 @@
 package com.github.amrmsaraya.weather.repositories
 
-import androidx.lifecycle.LiveData
 import com.github.amrmsaraya.weather.data.local.AlarmDao
 import com.github.amrmsaraya.weather.data.models.Alarm
 import kotlinx.coroutines.flow.Flow

@@ -43,7 +43,7 @@ class AlarmWorker(private val context: Context, private val params: WorkerParame
 
         return try {
             when (type) {
-                "system" -> if (DataStoreRepo(context).readDataStore("notification") == "true") {
+                "system" -> if (DataStoreRepo(context).readDataStore("notifications") == "Enable") {
                     displayNotification(event, description)
                 }
                 "custom" -> {
