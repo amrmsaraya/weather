@@ -20,7 +20,7 @@ import com.github.amrmsaraya.weather.repositories.DataStoreRepo
 import java.util.*
 
 
-private const val CHANNEL_ID = "com.github.amrmsaraya.weather.alert"
+const val CHANNEL_ID = "com.github.amrmsaraya.weather.alert"
 
 class AlarmWorker(private val context: Context, private val params: WorkerParameters) :
     CoroutineWorker(context, params) {

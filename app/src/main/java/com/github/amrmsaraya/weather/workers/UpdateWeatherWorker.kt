@@ -73,17 +73,15 @@ class UpdateWeatherWorker(private val context: Context, private val params: Work
             .putString("type", "system")
             .build()
 
-        // Calculate triggering time
-        val currentTime = System.currentTimeMillis()
-        var specificTimeToTrigger = startTime - 7200000
-        if (startTime - 7200000 <= currentTime && startTime > currentTime) {
-            specificTimeToTrigger = startTime
+        var timeToTrigger = startTime - 7200000
+        if (startTime - 7200000 <= System.currentTimeMillis() && startTime > System.currentTimeMillis()) {
+            timeToTrigger = startTime
         }
-        val delayToPass = specificTimeToTrigger - currentTime
+
 
         val alarmWorkRequest = OneTimeWorkRequest.Builder(AlarmWorker::class.java)
             .setInputData(data)
-            .setInitialDelay(delayToPass, TimeUnit.MILLISECONDS)
+            .setInitialDelay(getDelayToPass(timeToTrigger), TimeUnit.MILLISECONDS)
             .build()
 
         workManager.enqueueUniqueWork(
@@ -93,5 +91,9 @@ class UpdateWeatherWorker(private val context: Context, private val params: Work
         )
 
         Log.i("myTag", "systemAlarm has been scheduled")
+    }
+
+    private fun getDelayToPass(timeToTrigger: Long): Long {
+        return (timeToTrigger - timeToTrigger % 60000 - System.currentTimeMillis())
     }
 }

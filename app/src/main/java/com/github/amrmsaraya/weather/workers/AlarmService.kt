@@ -9,6 +9,7 @@ import android.os.IBinder
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.WindowManager
+import androidx.core.app.NotificationCompat
 import androidx.databinding.DataBindingUtil
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.databinding.DialogAlarmBinding
@@ -24,6 +25,7 @@ class AlarmService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
         binding = DataBindingUtil.inflate(
             LayoutInflater.from(applicationContext),
             R.layout.dialog_alarm,
@@ -34,11 +36,28 @@ class AlarmService : Service() {
         val event = intent?.getStringExtra("event") ?: "Unknown"
         val description = intent?.getStringExtra("description") ?: "Unknown"
 
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
+                .setContentTitle(event)
+                .setContentText(description)
+                .setSmallIcon(R.drawable.cloud)
+                .setNotificationSilent()
+                .setAutoCancel(true)
+                .setStyle(
+                    NotificationCompat.BigTextStyle()
+                        .bigText(description)
+                )
+                .build()
+            startForeground(startId, notification)
+        }
+
         binding.tvAlarmTitle.text = event
         binding.tvAlarmDescription.text = description
         binding.btnAlarmDismiss.setOnClickListener {
             mediaPlayer.stop()
             windowManager.removeView(binding.root)
+            stopForeground(true)
             stopSelf()
         }
 

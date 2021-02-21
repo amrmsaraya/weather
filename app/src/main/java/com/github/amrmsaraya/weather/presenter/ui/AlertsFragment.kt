@@ -97,14 +97,13 @@ class AlertsFragment : Fragment() {
         sharedViewModel.setCurrentFragment("Alerts")
 
         binding.fabAddAlert.setOnClickListener {
-            val calendar: Calendar = Calendar.getInstance()
-            val day = calendar.get(Calendar.DAY_OF_MONTH)
-            val month = calendar.get(Calendar.MONTH)
-            val year = calendar.get(Calendar.YEAR)
-            val hour = calendar.get(Calendar.HOUR_OF_DAY)
-            val minute = calendar.get(Calendar.MINUTE)
-            to = System.currentTimeMillis()
-            from = System.currentTimeMillis()
+            from = System.currentTimeMillis() + 60000
+            to = from + 3600000
+            val fromCalendar: Calendar = Calendar.getInstance()
+            val toCalendar: Calendar = Calendar.getInstance()
+            fromCalendar.timeInMillis = from
+            toCalendar.timeInMillis = to
+
 
             val dialogBinding: DialogAddAlertBinding =
                 DataBindingUtil.inflate(layoutInflater, R.layout.dialog_add_alert, container, false)
@@ -124,39 +123,6 @@ class AlertsFragment : Fragment() {
                 .create()
             alertDialog.show()
 
-            dialogBinding.layoutTo.setOnClickListener {
-                val datePickerDialog =
-                    DatePickerDialog(
-                        requireContext(),
-                        DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
-                            val timePickerDialog = TimePickerDialog(
-                                requireContext(),
-                                TimePickerDialog.OnTimeSetListener { _, hourOfDay, minute ->
-                                    val c = Calendar.getInstance()
-                                    c.set(year, month, dayOfMonth, hourOfDay, minute)
-                                    to = c.timeInMillis
-                                    dialogBinding.tvToDate.text =
-                                        SimpleDateFormat(
-                                            "dd MMM, y",
-                                            Locale.getDefault()
-                                        ).format(to)
-                                    dialogBinding.tvToTime.text =
-                                        SimpleDateFormat("h:mm a", Locale.getDefault()).format(to)
-                                },
-                                hour,
-                                minute,
-                                false
-                            )
-                            timePickerDialog.show()
-                        },
-                        year,
-                        month,
-                        day
-                    )
-                datePickerDialog.datePicker.minDate = calendar.timeInMillis
-                datePickerDialog.show()
-            }
-
             dialogBinding.layoutFrom.setOnClickListener {
                 val datePickerDialog =
                     DatePickerDialog(
@@ -165,9 +131,8 @@ class AlertsFragment : Fragment() {
                             val timePickerDialog = TimePickerDialog(
                                 requireContext(),
                                 TimePickerDialog.OnTimeSetListener { _, hourOfDay, minute ->
-                                    val c = Calendar.getInstance()
-                                    c.set(year, month, dayOfMonth, hourOfDay, minute)
-                                    from = c.timeInMillis
+                                    fromCalendar.set(year, month, dayOfMonth, hourOfDay, minute)
+                                    from = fromCalendar.timeInMillis
                                     dialogBinding.tvFromDate.text =
                                         SimpleDateFormat("dd MMM, y", Locale.getDefault()).format(
                                             from
@@ -175,19 +140,52 @@ class AlertsFragment : Fragment() {
                                     dialogBinding.tvFromTime.text =
                                         SimpleDateFormat("h:mm a", Locale.getDefault()).format(from)
                                 },
-                                hour,
-                                minute,
+                                fromCalendar.get(Calendar.HOUR_OF_DAY),
+                                fromCalendar.get(Calendar.MINUTE),
                                 false
                             )
                             timePickerDialog.show()
                         },
-                        year,
-                        month,
-                        day
+                        fromCalendar.get(Calendar.YEAR),
+                        fromCalendar.get(Calendar.MONTH),
+                        fromCalendar.get(Calendar.DAY_OF_MONTH)
                     )
-                datePickerDialog.datePicker.minDate = calendar.timeInMillis
+                datePickerDialog.datePicker.minDate = System.currentTimeMillis()
                 datePickerDialog.show()
             }
+
+            dialogBinding.layoutTo.setOnClickListener {
+                val datePickerDialog =
+                    DatePickerDialog(
+                        requireContext(),
+                        DatePickerDialog.OnDateSetListener { _, year, month, dayOfMonth ->
+                            val timePickerDialog = TimePickerDialog(
+                                requireContext(),
+                                TimePickerDialog.OnTimeSetListener { _, hourOfDay, minute ->
+                                    toCalendar.set(year, month, dayOfMonth, hourOfDay, minute)
+                                    to = toCalendar.timeInMillis
+                                    dialogBinding.tvToDate.text =
+                                        SimpleDateFormat(
+                                            "dd MMM, y",
+                                            Locale.getDefault()
+                                        ).format(to)
+                                    dialogBinding.tvToTime.text =
+                                        SimpleDateFormat("h:mm a", Locale.getDefault()).format(to)
+                                },
+                                toCalendar.get(Calendar.HOUR_OF_DAY),
+                                toCalendar.get(Calendar.MINUTE),
+                                false
+                            )
+                            timePickerDialog.show()
+                        },
+                        toCalendar.get(Calendar.YEAR),
+                        toCalendar.get(Calendar.MONTH),
+                        toCalendar.get(Calendar.DAY_OF_MONTH)
+                    )
+                datePickerDialog.datePicker.minDate = System.currentTimeMillis()
+                datePickerDialog.show()
+            }
+
             dialogBinding.rgAlarmType.setOnCheckedChangeListener { _, checkedId ->
                 alarmType = dialogBinding.root.findViewById<RadioButton>(checkedId)
             }
@@ -246,17 +244,14 @@ class AlertsFragment : Fragment() {
             .putString("type", "custom")
             .build()
 
-        // Calculate triggering time
-        val currentTime = System.currentTimeMillis()
-        var specificTimeToTrigger = alarm.start - 7200000
-        if (alarm.start - 7200000 <= currentTime && alarm.start > currentTime) {
-            specificTimeToTrigger = alarm.start
+        var timeToTrigger = alarm.start - 7200000
+        if (alarm.start - 7200000 <= System.currentTimeMillis() && alarm.start > System.currentTimeMillis()) {
+            timeToTrigger = alarm.start
         }
-        val delayToPass = specificTimeToTrigger - currentTime
 
         val alarmWorkRequest = OneTimeWorkRequest.Builder(AlarmWorker::class.java)
             .setInputData(data)
-            .setInitialDelay(delayToPass, TimeUnit.MILLISECONDS)
+            .setInitialDelay(getDelayToPass(timeToTrigger), TimeUnit.MILLISECONDS)
             .build()
 
         workManager.enqueue(alarmWorkRequest)
@@ -264,9 +259,13 @@ class AlertsFragment : Fragment() {
         Log.i(
             "myTag",
             "Alarm has been scheduled at ${
-                SimpleDateFormat("E, dd MMM h:mm:ss a").format(specificTimeToTrigger)
+                SimpleDateFormat("E, dd MMM h:mm:ss a").format(getDelayToPass(timeToTrigger) + System.currentTimeMillis())
             }"
         )
         return alarmWorkRequest.id
+    }
+
+    private fun getDelayToPass(timeToTrigger: Long): Long {
+        return (timeToTrigger - timeToTrigger % 60000 - System.currentTimeMillis())
     }
 }
