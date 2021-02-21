@@ -30,7 +30,7 @@ class UpdateWeatherWorker(private val context: Context, private val params: Work
                 WeatherRepo(context, database.weatherDao()).getLive(
                     location.lat,
                     location.lon,
-                    lang
+                    lang = lang
                 )
 
             // Update Database
