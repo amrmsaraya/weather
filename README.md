@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/amrmsaraya/Weather/blob/main/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png">
+  <img src="https://raw.githubusercontent.com/amrmsaraya/Weather/main/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png">
 </p>
 
 # Weather
