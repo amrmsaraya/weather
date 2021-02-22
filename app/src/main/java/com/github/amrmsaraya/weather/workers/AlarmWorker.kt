@@ -123,7 +123,7 @@ class AlarmWorker(private val context: Context, private val params: WorkerParame
                             }
                         }
                         database.alarmDao().delete(alarm)
-
+                        database.close()
                     }
                 }
                 else -> Unit
@@ -137,7 +137,7 @@ class AlarmWorker(private val context: Context, private val params: WorkerParame
     }
 
     private fun displayNotification(title: String, description: String) {
-        val notificationId = 120
+        val notificationId = 1
         val tapResultIntent = Intent(context, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
             context,

@@ -1,11 +1,13 @@
 package com.github.amrmsaraya.weather.workers
 
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.WindowManager
@@ -19,12 +21,39 @@ class AlarmService : Service() {
     private lateinit var windowManager: WindowManager
     private lateinit var params: WindowManager.LayoutParams
     private lateinit var mediaPlayer: MediaPlayer
+    private var wakeLock: PowerManager.WakeLock? = null
 
     override fun onBind(intent: Intent?): IBinder? {
         throw  UnsupportedOperationException("Not yet implemented");
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+
+        val event = intent?.getStringExtra("event") ?: "Unknown"
+        val description = intent?.getStringExtra("description") ?: "Unknown"
+
+        val notification = NotificationCompat.Builder(baseContext, CHANNEL_ID)
+            .setContentTitle(event)
+            .setContentText(description)
+            .setSmallIcon(R.drawable.cloud)
+            .setNotificationSilent()
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setAutoCancel(true)
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText(description)
+            )
+            .build()
+        startForeground(1, notification)
+
+
+        wakeLock =
+            (getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+                newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "EndlessService::lock").apply {
+                    acquire(10 * 60 * 1000L)
+                }
+            }
 
         binding = DataBindingUtil.inflate(
             LayoutInflater.from(applicationContext),
@@ -33,30 +62,16 @@ class AlarmService : Service() {
             false
         )
 
-        val event = intent?.getStringExtra("event") ?: "Unknown"
-        val description = intent?.getStringExtra("description") ?: "Unknown"
-
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notification = NotificationCompat.Builder(applicationContext, CHANNEL_ID)
-                .setContentTitle(event)
-                .setContentText(description)
-                .setSmallIcon(R.drawable.cloud)
-                .setNotificationSilent()
-                .setAutoCancel(true)
-                .setStyle(
-                    NotificationCompat.BigTextStyle()
-                        .bigText(description)
-                )
-                .build()
-            startForeground(startId, notification)
-        }
-
         binding.tvAlarmTitle.text = event
         binding.tvAlarmDescription.text = description
         binding.btnAlarmDismiss.setOnClickListener {
             mediaPlayer.stop()
             windowManager.removeView(binding.root)
+            wakeLock?.let {
+                if (it.isHeld) {
+                    it.release()
+                }
+            }
             stopForeground(true)
             stopSelf()
         }

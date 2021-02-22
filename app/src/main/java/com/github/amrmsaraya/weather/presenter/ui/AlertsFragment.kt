@@ -258,7 +258,11 @@ class AlertsFragment : Fragment() {
 
         Log.i(
             "myTag",
-            "Alarm has been scheduled at ${
+            "Delay to pass ${getDelayToPass(timeToTrigger) / 1000}"
+        )
+        Log.i(
+            "myTag",
+            "Delay to pass ${
                 SimpleDateFormat("E, dd MMM h:mm:ss a").format(getDelayToPass(timeToTrigger) + System.currentTimeMillis())
             }"
         )

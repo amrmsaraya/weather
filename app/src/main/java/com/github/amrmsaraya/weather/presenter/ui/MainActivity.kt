@@ -59,14 +59,18 @@ class MainActivity : AppCompatActivity() {
             if (!sharedViewModel.isLangSynced.value) {
                 when (sharedViewModel.langUnit.value) {
                     "ar" -> {
-                        setLocale("ar")
-                        sharedViewModel.isLangSynced.value = true
-                        recreate()
+                        if (Locale.getDefault().language != "ar") {
+                            setLocale("ar")
+                            sharedViewModel.isLangSynced.value = true
+                            recreate()
+                        }
                     }
                     "en" -> {
-                        setLocale("en")
-                        sharedViewModel.isLangSynced.value = true
-                        recreate()
+                        if (Locale.getDefault().language != "en") {
+                            setLocale("en")
+                            sharedViewModel.isLangSynced.value = true
+                            recreate()
+                        }
                     }
                 }
             }
