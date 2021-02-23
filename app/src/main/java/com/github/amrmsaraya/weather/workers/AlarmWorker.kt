@@ -38,21 +38,21 @@ class AlarmWorker(private val context: Context, private val params: WorkerParame
 
         val alarmId = inputData.getString("id") ?: ""
         val type = inputData.getString("type") ?: "Unknown"
-        val event = inputData.getString("type") ?: "Unknown"
-        val description = inputData.getString("type") ?: "Unknown"
 
         return try {
+            val alerts =
+                database.weatherDao()
+                    .getLocationWeather(location.lat, location.lon).alerts
             when (type) {
                 "system" -> if (DataStoreRepo(context).readDataStore("notifications") == "Enable") {
-                    displayNotification(event, description)
+                    if (!alerts.isNullOrEmpty()) {
+                        displayNotification(alerts[0].event, alerts[0].description)
+                    }
+
                 }
                 "custom" -> {
                     if (alarmId.isNotEmpty()) {
                         val alarm = database.alarmDao().getAlarm(UUID.fromString(alarmId))
-                        val alerts =
-                            database.weatherDao()
-                                .getLocationWeather(location.lat, location.lon).alerts
-
                         when (alarm.type) {
                             "Notification", "إشعار" -> {
                                 if (alerts.isNullOrEmpty()) {
@@ -61,10 +61,19 @@ class AlarmWorker(private val context: Context, private val params: WorkerParame
                                         context.getString(R.string.weather_is_fine)
                                     )
                                 } else {
-                                    displayNotification(
-                                        alerts[0].event,
-                                        alerts[0].sender_name
-                                    )
+                                    if (alarm.start in alerts[0].start.toLong() * 1000..alerts[0].end.toLong() * 1000) {
+                                        if (alerts[0].description.isEmpty()) {
+                                            displayNotification(
+                                                alerts[0].event,
+                                                "No Description provided"
+                                            )
+                                        } else {
+                                            displayNotification(
+                                                alerts[0].event,
+                                                alerts[0].description
+                                            )
+                                        }
+                                    }
                                 }
                             }
 
@@ -102,21 +111,40 @@ class AlarmWorker(private val context: Context, private val params: WorkerParame
                                         }
 
                                     } else {
-                                        val bundle = Bundle()
-                                        bundle.putString("event", event)
-                                        bundle.putString("description", description)
-                                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                            context.startForegroundService(
-                                                Intent(context, AlarmService::class.java).putExtras(
-                                                    bundle
+                                        if (alarm.start in alerts[0].start.toLong() * 1000..alerts[0].end.toLong() * 1000) {
+                                            val bundle = Bundle()
+                                            bundle.putString("event", alerts[0].event)
+                                            if (alerts[0].description.isEmpty()) {
+                                                bundle.putString(
+                                                    "description",
+                                                    "No Description provided"
                                                 )
-                                            )
-                                        } else {
-                                            context.startService(
-                                                Intent(context, AlarmService::class.java).putExtras(
-                                                    bundle
+                                            } else {
+                                                bundle.putString(
+                                                    "description",
+                                                    alerts[0].description
                                                 )
-                                            )
+                                            }
+
+                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                                context.startForegroundService(
+                                                    Intent(
+                                                        context,
+                                                        AlarmService::class.java
+                                                    ).putExtras(
+                                                        bundle
+                                                    )
+                                                )
+                                            } else {
+                                                context.startService(
+                                                    Intent(
+                                                        context,
+                                                        AlarmService::class.java
+                                                    ).putExtras(
+                                                        bundle
+                                                    )
+                                                )
+                                            }
                                         }
                                     }
                                 }

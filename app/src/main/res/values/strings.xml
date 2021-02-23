@@ -12,7 +12,6 @@
     <string name="alerts">Alerts</string>
     <string name="favorites">Favorites</string>
     <string name="visibility">Visibility</string>
-    <string name="google_maps_key">AIzaSyAQXDx6neXi3sIg1WucpTBvxgp2vWTRegE</string>
     <string name="open_weather_map_app_id">22efb44963e22ae7005aac70558c7464</string>
     <string name="save">Save</string>
     <string name="tomorrow">Tomorrow</string>
@@ -52,5 +51,7 @@
     <string name="initial_setup">Initial Setup</string>
     <string name="enable">Enable</string>
     <string name="disable">Disable</string>
+    <string name="no_alerts">No Alerts</string>
+    <string name="no_places">No Places</string>
 
 </resources>

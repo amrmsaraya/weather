@@ -13,7 +13,6 @@
     <string name="alerts">التنبيهات</string>
     <string name="favorites">المفضلة</string>
     <string name="visibility">الرؤية</string>
-    <string name="google_maps_key">AIzaSyAQXDx6neXi3sIg1WucpTBvxgp2vWTRegE</string>
     <string name="open_weather_map_app_id">22efb44963e22ae7005aac70558c7464</string>
     <string name="save">حفظ</string>
     <string name="tomorrow">غداً</string>
@@ -53,5 +52,7 @@
     <string name="initial_setup">الإعدادات اﻷولية</string>
     <string name="enable">تفعيل</string>
     <string name="disable">إلغاء</string>
+    <string name="no_alerts">لا يوجد تنبيهات</string>
+    <string name="no_places">لا يوجد أماكن</string>
 
 </resources>

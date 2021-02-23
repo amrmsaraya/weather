@@ -7,17 +7,28 @@
         android:layout_height="wrap_content"
         android:layout_margin="24dp"
         android:background="@drawable/gray_small_rounded_corners"
+        android:minWidth="300dp"
         android:padding="24dp">
+
+        <ImageView
+            android:id="@+id/imageView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/cloud"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/tvAlarmTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
             android:text="TextView"
             android:textColor="@color/white"
             android:textSize="16sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintBottom_toBottomOf="@+id/imageView5"
+            app:layout_constraintStart_toEndOf="@+id/imageView5"
+            app:layout_constraintTop_toTopOf="@+id/imageView5" />
 
         <TextView
             android:id="@+id/tvAlarmDescription"
@@ -26,8 +37,8 @@
             android:layout_marginTop="8dp"
             android:text="Description"
             android:textColor="@color/light_gray"
-            app:layout_constraintStart_toStartOf="@+id/tvAlarmTitle"
-            app:layout_constraintTop_toBottomOf="@+id/tvAlarmTitle" />
+            app:layout_constraintStart_toStartOf="@+id/imageView5"
+            app:layout_constraintTop_toBottomOf="@+id/imageView5" />
 
         <Button
             android:id="@+id/btnAlarmDismiss"
@@ -42,5 +53,7 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/tvAlarmDescription" />
+
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

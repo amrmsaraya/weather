@@ -225,6 +225,11 @@ class AlertsFragment : Fragment() {
 
         lifecycleScope.launchWhenStarted {
             alarmViewModel.queryAll().collect {
+                if (it.isNullOrEmpty()) {
+                    binding.alertsEmpty.visibility = View.VISIBLE
+                } else {
+                    binding.alertsEmpty.visibility = View.GONE
+                }
                 alarmAdapter.submitList(it)
             }
         }

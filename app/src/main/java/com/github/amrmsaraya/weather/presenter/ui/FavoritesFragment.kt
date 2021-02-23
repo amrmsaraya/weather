@@ -81,6 +81,12 @@ class FavoritesFragment : Fragment() {
             locationViewModel.getAllLocations().collect {
                 val locations = it.toMutableList()
                 locations.removeAt(0)
+                if(locations.isEmpty()){
+                    binding.favoritesEmpty.visibility = View.VISIBLE
+                }
+                else{
+                    binding.favoritesEmpty.visibility = View.GONE
+                }
                 favoritesAdapter.submitList(locations)
             }
         }

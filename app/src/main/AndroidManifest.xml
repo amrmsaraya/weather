@@ -20,11 +20,11 @@
         <service
             android:name=".workers.AlarmService"
             android:enabled="true"
-            android:exported="true" />
+            android:exported="false" />
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" />
+            android:value="${mapsApiKey}" />
 
         <activity android:name=".presenter.ui.MainActivity">
             <intent-filter>
