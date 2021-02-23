@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.presenter.ui
+package com.github.amrmsaraya.weather.presentation.ui
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
@@ -27,11 +27,11 @@ import com.github.amrmsaraya.weather.data.models.Alarm
 import com.github.amrmsaraya.weather.data.models.WeatherAnimation
 import com.github.amrmsaraya.weather.databinding.DialogAddAlertBinding
 import com.github.amrmsaraya.weather.databinding.FragmentAlertsBinding
-import com.github.amrmsaraya.weather.presenter.adapters.AlarmAdapter
-import com.github.amrmsaraya.weather.presenter.viewModel.AlarmViewModel
-import com.github.amrmsaraya.weather.presenter.viewModel.LocationViewModel
-import com.github.amrmsaraya.weather.presenter.viewModel.SharedViewModel
-import com.github.amrmsaraya.weather.presenter.viewModel.WeatherViewModel
+import com.github.amrmsaraya.weather.presentation.adapters.AlarmAdapter
+import com.github.amrmsaraya.weather.presentation.viewModel.AlarmViewModel
+import com.github.amrmsaraya.weather.presentation.viewModel.LocationViewModel
+import com.github.amrmsaraya.weather.presentation.viewModel.SharedViewModel
+import com.github.amrmsaraya.weather.presentation.viewModel.WeatherViewModel
 import com.github.amrmsaraya.weather.repositories.AlarmsRepo
 import com.github.amrmsaraya.weather.repositories.LocationRepo
 import com.github.amrmsaraya.weather.repositories.WeatherRepo

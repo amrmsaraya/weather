@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.presenter.adapters
+package com.github.amrmsaraya.weather.presentation.adapters
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.models.Daily
 import com.github.amrmsaraya.weather.databinding.DailyItemBinding
-import com.github.amrmsaraya.weather.presenter.viewModel.SharedViewModel
+import com.github.amrmsaraya.weather.presentation.viewModel.SharedViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt

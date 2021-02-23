@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.presenter.ui
+package com.github.amrmsaraya.weather.presentation.ui
 
 import android.annotation.SuppressLint
 import android.content.res.Configuration
@@ -23,7 +23,7 @@ import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.models.WeatherAnimation
 import com.github.amrmsaraya.weather.databinding.ActivityMainBinding
 import com.github.amrmsaraya.weather.databinding.DialogInitialSetupBinding
-import com.github.amrmsaraya.weather.presenter.viewModel.SharedViewModel
+import com.github.amrmsaraya.weather.presentation.viewModel.SharedViewModel
 import com.github.amrmsaraya.weather.utils.SharedViewModelFactory
 import com.github.matteobattilana.weather.PrecipType
 import kotlinx.coroutines.flow.collect
@@ -59,18 +59,14 @@ class MainActivity : AppCompatActivity() {
             if (!sharedViewModel.isLangSynced.value) {
                 when (sharedViewModel.langUnit.value) {
                     "ar" -> {
-                        if (Locale.getDefault().language != "ar") {
-                            setLocale("ar")
-                            sharedViewModel.isLangSynced.value = true
-                            recreate()
-                        }
+                        setLocale("ar")
+                        sharedViewModel.isLangSynced.value = true
+                        recreate()
                     }
                     "en" -> {
-                        if (Locale.getDefault().language != "en") {
-                            setLocale("en")
-                            sharedViewModel.isLangSynced.value = true
-                            recreate()
-                        }
+                        setLocale("en")
+                        sharedViewModel.isLangSynced.value = true
+                        recreate()
                     }
                 }
             }

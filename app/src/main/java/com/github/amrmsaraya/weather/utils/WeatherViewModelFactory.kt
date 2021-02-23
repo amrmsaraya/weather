@@ -2,7 +2,7 @@ package com.github.amrmsaraya.weather.utils
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.github.amrmsaraya.weather.presenter.viewModel.WeatherViewModel
+import com.github.amrmsaraya.weather.presentation.viewModel.WeatherViewModel
 import com.github.amrmsaraya.weather.repositories.WeatherRepo
 
 class WeatherViewModelFactory(private val weatherRepo: WeatherRepo) :

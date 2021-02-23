@@ -2,7 +2,7 @@ package com.github.amrmsaraya.weather.utils
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.github.amrmsaraya.weather.presenter.viewModel.LocationViewModel
+import com.github.amrmsaraya.weather.presentation.viewModel.LocationViewModel
 import com.github.amrmsaraya.weather.repositories.LocationRepo
 
 class LocationViewModelFactory(private val locationRepo: LocationRepo) : ViewModelProvider.Factory {

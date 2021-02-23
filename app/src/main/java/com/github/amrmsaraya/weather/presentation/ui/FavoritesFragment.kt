@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.presenter.ui
+package com.github.amrmsaraya.weather.presentation.ui
 
 import android.os.Bundle
 import android.util.Log
@@ -16,10 +16,10 @@ import com.github.amrmsaraya.weather.data.local.WeatherDatabase
 import com.github.amrmsaraya.weather.data.models.Location
 import com.github.amrmsaraya.weather.data.models.WeatherAnimation
 import com.github.amrmsaraya.weather.databinding.FragmentFavoritesBinding
-import com.github.amrmsaraya.weather.presenter.adapters.FavoritesAdapter
-import com.github.amrmsaraya.weather.presenter.viewModel.LocationViewModel
-import com.github.amrmsaraya.weather.presenter.viewModel.SharedViewModel
-import com.github.amrmsaraya.weather.presenter.viewModel.WeatherViewModel
+import com.github.amrmsaraya.weather.presentation.adapters.FavoritesAdapter
+import com.github.amrmsaraya.weather.presentation.viewModel.LocationViewModel
+import com.github.amrmsaraya.weather.presentation.viewModel.SharedViewModel
+import com.github.amrmsaraya.weather.presentation.viewModel.WeatherViewModel
 import com.github.amrmsaraya.weather.repositories.LocationRepo
 import com.github.amrmsaraya.weather.repositories.WeatherRepo
 import com.github.amrmsaraya.weather.utils.LocationViewModelFactory
@@ -81,10 +81,9 @@ class FavoritesFragment : Fragment() {
             locationViewModel.getAllLocations().collect {
                 val locations = it.toMutableList()
                 locations.removeAt(0)
-                if(locations.isEmpty()){
+                if (locations.isEmpty()) {
                     binding.favoritesEmpty.visibility = View.VISIBLE
-                }
-                else{
+                } else {
                     binding.favoritesEmpty.visibility = View.GONE
                 }
                 favoritesAdapter.submitList(locations)

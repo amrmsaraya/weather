@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.presenter.viewModel
+package com.github.amrmsaraya.weather.presentation.viewModel
 
 
 import androidx.lifecycle.ViewModel

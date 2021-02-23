@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.presenter.ui
+package com.github.amrmsaraya.weather.presentation.ui
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -30,11 +30,11 @@ import com.github.amrmsaraya.weather.data.models.Location
 import com.github.amrmsaraya.weather.data.models.WeatherAnimation
 import com.github.amrmsaraya.weather.data.models.WeatherResponse
 import com.github.amrmsaraya.weather.databinding.FragmentHomeBinding
-import com.github.amrmsaraya.weather.presenter.adapters.DailyAdapter
-import com.github.amrmsaraya.weather.presenter.adapters.HourlyAdapter
-import com.github.amrmsaraya.weather.presenter.viewModel.LocationViewModel
-import com.github.amrmsaraya.weather.presenter.viewModel.SharedViewModel
-import com.github.amrmsaraya.weather.presenter.viewModel.WeatherViewModel
+import com.github.amrmsaraya.weather.presentation.adapters.DailyAdapter
+import com.github.amrmsaraya.weather.presentation.adapters.HourlyAdapter
+import com.github.amrmsaraya.weather.presentation.viewModel.LocationViewModel
+import com.github.amrmsaraya.weather.presentation.viewModel.SharedViewModel
+import com.github.amrmsaraya.weather.presentation.viewModel.WeatherViewModel
 import com.github.amrmsaraya.weather.repositories.LocationRepo
 import com.github.amrmsaraya.weather.repositories.WeatherRepo
 import com.github.amrmsaraya.weather.utils.LocationViewModelFactory
@@ -360,7 +360,7 @@ class HomeFragment : Fragment() {
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .build()
         val updateWeatherWorkRequest = PeriodicWorkRequest
-            .Builder(UpdateWeatherWorker::class.java, 2, TimeUnit.HOURS, 15, TimeUnit.MINUTES)
+            .Builder(UpdateWeatherWorker::class.java, 1, TimeUnit.HOURS, 15, TimeUnit.MINUTES)
             .setConstraints(constraints)
             .build()
         workManager.enqueue(updateWeatherWorkRequest)

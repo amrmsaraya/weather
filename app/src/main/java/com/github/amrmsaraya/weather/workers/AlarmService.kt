@@ -3,6 +3,8 @@ package com.github.amrmsaraya.weather.workers
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.graphics.PixelFormat
 import android.media.MediaPlayer
 import android.os.Build
@@ -15,6 +17,7 @@ import androidx.core.app.NotificationCompat
 import androidx.databinding.DataBindingUtil
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.databinding.DialogAlarmBinding
+import java.util.*
 
 class AlarmService : Service() {
     private lateinit var binding: DialogAlarmBinding
@@ -31,6 +34,11 @@ class AlarmService : Service() {
 
         val event = intent?.getStringExtra("event") ?: "Unknown"
         val description = intent?.getStringExtra("description") ?: "Unknown"
+        val locale = intent?.getStringExtra("language") ?: "Unknown"
+        when (locale) {
+            "English" -> setLocale("en")
+            "Arabic" -> setLocale("ar")
+        }
 
         val notification = NotificationCompat.Builder(baseContext, CHANNEL_ID)
             .setContentTitle(event)
@@ -109,5 +117,14 @@ class AlarmService : Service() {
         windowManager.addView(binding.root, params)
 
         return super.onStartCommand(intent, flags, startId)
+    }
+
+    private fun setLocale(lang: String) {
+        val locale = Locale(lang)
+        Locale.setDefault(locale)
+        val res: Resources = resources
+        val config: Configuration = res.configuration
+        config.setLocale(locale)
+        res.updateConfiguration(config, res.displayMetrics)
     }
 }

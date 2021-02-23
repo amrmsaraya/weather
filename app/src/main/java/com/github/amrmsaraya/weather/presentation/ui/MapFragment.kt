@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.presenter.ui
+package com.github.amrmsaraya.weather.presentation.ui
 
 
 import android.os.Bundle
@@ -11,7 +11,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.databinding.FragmentMapBinding
-import com.github.amrmsaraya.weather.presenter.viewModel.SharedViewModel
+import com.github.amrmsaraya.weather.presentation.viewModel.SharedViewModel
 import com.github.amrmsaraya.weather.utils.SharedViewModelFactory
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.OnMapReadyCallback

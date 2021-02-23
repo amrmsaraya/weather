@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.presenter.adapters
+package com.github.amrmsaraya.weather.presentation.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -48,13 +48,13 @@ class AlarmAdapter(
         }
 
         holder.binding.tvAlarmFromTime.text =
-            SimpleDateFormat("h:mm a", Locale.US).format(getItem(position).start)
+            SimpleDateFormat("h:mm a", Locale.getDefault()).format(getItem(position).start)
         holder.binding.tvAlarmFromDate.text =
-            SimpleDateFormat("dd MMM", Locale.US).format(getItem(position).start)
+            SimpleDateFormat("dd MMM", Locale.getDefault()).format(getItem(position).start)
         holder.binding.tvAlarmToTime.text =
-            SimpleDateFormat("h:mm a", Locale.US).format(getItem(position).end)
+            SimpleDateFormat("h:mm a", Locale.getDefault()).format(getItem(position).end)
         holder.binding.tvAlarmToDate.text =
-            SimpleDateFormat("dd MMM", Locale.US).format(getItem(position).end)
+            SimpleDateFormat("dd MMM", Locale.getDefault()).format(getItem(position).end)
     }
 }
 

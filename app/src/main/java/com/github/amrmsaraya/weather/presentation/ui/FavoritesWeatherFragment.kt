@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.presenter.ui
+package com.github.amrmsaraya.weather.presentation.ui
 
 import android.annotation.SuppressLint
 import android.graphics.Color
@@ -16,10 +16,10 @@ import com.github.amrmsaraya.weather.data.local.WeatherDatabase
 import com.github.amrmsaraya.weather.data.models.WeatherAnimation
 import com.github.amrmsaraya.weather.data.models.WeatherResponse
 import com.github.amrmsaraya.weather.databinding.FragmentHomeBinding
-import com.github.amrmsaraya.weather.presenter.adapters.DailyAdapter
-import com.github.amrmsaraya.weather.presenter.adapters.HourlyAdapter
-import com.github.amrmsaraya.weather.presenter.viewModel.SharedViewModel
-import com.github.amrmsaraya.weather.presenter.viewModel.WeatherViewModel
+import com.github.amrmsaraya.weather.presentation.adapters.DailyAdapter
+import com.github.amrmsaraya.weather.presentation.adapters.HourlyAdapter
+import com.github.amrmsaraya.weather.presentation.viewModel.SharedViewModel
+import com.github.amrmsaraya.weather.presentation.viewModel.WeatherViewModel
 import com.github.amrmsaraya.weather.repositories.WeatherRepo
 import com.github.amrmsaraya.weather.utils.SharedViewModelFactory
 import com.github.amrmsaraya.weather.utils.WeatherViewModelFactory

@@ -5,6 +5,8 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
+import android.content.res.Resources
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -15,7 +17,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.local.WeatherDatabase
-import com.github.amrmsaraya.weather.presenter.ui.MainActivity
+import com.github.amrmsaraya.weather.presentation.ui.MainActivity
 import com.github.amrmsaraya.weather.repositories.DataStoreRepo
 import java.util.*
 
@@ -35,9 +37,14 @@ class AlarmWorker(private val context: Context, private val params: WorkerParame
 
         val database = WeatherDatabase.getInstance(context)
         val location = database.locationDao().getCurrentLocation()
-
+        val locale = readDataStore("language")
         val alarmId = inputData.getString("id") ?: ""
         val type = inputData.getString("type") ?: "Unknown"
+
+        when (locale) {
+            "English" -> setLocale("en")
+            "Arabic" -> setLocale("ar")
+        }
 
         return try {
             val alerts =
@@ -96,6 +103,7 @@ class AlarmWorker(private val context: Context, private val params: WorkerParame
                                             "description",
                                             context.getString(R.string.weather_is_fine)
                                         )
+                                        bundle.putString("language", locale)
                                         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                                             context.startForegroundService(
                                                 Intent(context, AlarmService::class.java).putExtras(
@@ -114,6 +122,7 @@ class AlarmWorker(private val context: Context, private val params: WorkerParame
                                         if (alarm.start in alerts[0].start.toLong() * 1000..alerts[0].end.toLong() * 1000) {
                                             val bundle = Bundle()
                                             bundle.putString("event", alerts[0].event)
+                                            bundle.putString("language", locale)
                                             if (alerts[0].description.isEmpty()) {
                                                 bundle.putString(
                                                     "description",
@@ -199,5 +208,18 @@ class AlarmWorker(private val context: Context, private val params: WorkerParame
             }
             notificationManager?.createNotificationChannel(channel)
         }
+    }
+
+    private suspend fun readDataStore(key: String): String? {
+        return DataStoreRepo(context).readDataStore(key)
+    }
+
+    private fun setLocale(lang: String) {
+        val locale = Locale(lang)
+        Locale.setDefault(locale)
+        val res: Resources = context.resources
+        val config: Configuration = res.configuration
+        config.setLocale(locale)
+        res.updateConfiguration(config, res.displayMetrics)
     }
 }

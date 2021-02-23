@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.presenter.ui
+package com.github.amrmsaraya.weather.presentation.ui
 
 import android.annotation.SuppressLint
 import android.location.Address
@@ -15,8 +15,8 @@ import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.local.WeatherDatabase
 import com.github.amrmsaraya.weather.data.models.Location
 import com.github.amrmsaraya.weather.databinding.BottomSheetFragmentBinding
-import com.github.amrmsaraya.weather.presenter.viewModel.LocationViewModel
-import com.github.amrmsaraya.weather.presenter.viewModel.SharedViewModel
+import com.github.amrmsaraya.weather.presentation.viewModel.LocationViewModel
+import com.github.amrmsaraya.weather.presentation.viewModel.SharedViewModel
 import com.github.amrmsaraya.weather.repositories.LocationRepo
 import com.github.amrmsaraya.weather.utils.LocationViewModelFactory
 import com.github.amrmsaraya.weather.utils.SharedViewModelFactory

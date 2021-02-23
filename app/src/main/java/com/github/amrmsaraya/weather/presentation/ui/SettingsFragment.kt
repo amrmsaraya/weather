@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.presenter.ui
+package com.github.amrmsaraya.weather.presentation.ui
 
 import android.content.res.Configuration
 import android.content.res.Resources
@@ -18,7 +18,7 @@ import androidx.navigation.fragment.findNavController
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.models.WeatherAnimation
 import com.github.amrmsaraya.weather.databinding.FragmentSettingsBinding
-import com.github.amrmsaraya.weather.presenter.viewModel.SharedViewModel
+import com.github.amrmsaraya.weather.presentation.viewModel.SharedViewModel
 import com.github.amrmsaraya.weather.utils.SharedViewModelFactory
 import com.github.matteobattilana.weather.PrecipType
 import java.util.*
@@ -101,7 +101,7 @@ class SettingsFragment : Fragment() {
             val location = binding.root.findViewById<RadioButton>(checkedId)
             var text = location.text.toString()
             when (location.text.toString()) {
-                "موقعك الحالي" -> text = "GPS"
+                "موقعي الحالي" -> text = "GPS"
                 "الخريطة" -> text = "Map"
             }
             lifecycleScope.launchWhenStarted {

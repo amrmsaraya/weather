@@ -2,7 +2,7 @@ package com.github.amrmsaraya.weather.utils
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.github.amrmsaraya.weather.presenter.viewModel.AlarmViewModel
+import com.github.amrmsaraya.weather.presentation.viewModel.AlarmViewModel
 import com.github.amrmsaraya.weather.repositories.AlarmsRepo
 
 class AlarmViewModelFactory(private val alarmsRepo: AlarmsRepo) : ViewModelProvider.Factory {

@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.presenter.adapters
+package com.github.amrmsaraya.weather.presentation.adapters
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
