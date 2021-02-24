@@ -43,9 +43,8 @@ class UpdateWeatherWorker(private val context: Context, private val params: Work
 
             val alerts = database.weatherDao()
                 .getLocationWeather(location.lat, location.lon).alerts
-            var workId: UUID = UUID.randomUUID()
 
-            if (!alerts.isNullOrEmpty()) {
+            if (!alerts.isNullOrEmpty() && System.currentTimeMillis() < alerts[0].start.toLong() * 1000) {
                 val alertStart = alerts[0].start.toLong() * 1000
                 setOneTimeWorkRequest(
                     alerts[0].event,
@@ -86,7 +85,7 @@ class UpdateWeatherWorker(private val context: Context, private val params: Work
 
         workManager.enqueueUniqueWork(
             "systemAlarm",
-            ExistingWorkPolicy.REPLACE,
+            ExistingWorkPolicy.KEEP,
             alarmWorkRequest
         )
 
