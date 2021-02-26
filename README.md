@@ -14,3 +14,5 @@ Android Mobile Application that inform user about the current weather condition 
 - Change application language (English, Arabic)
 - Change temperature unit (Celsius, Kelvin, Fahrenheit)
 - Change wind speed unit (m/s, mph)
+#
+## Download from [Google Play](https://play.google.com/store/apps/details?id=com.github.amrmsaraya.weather)
