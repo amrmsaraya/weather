@@ -74,7 +74,7 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
 
 
-    // Compose
+    // Compose Material Icons
     implementation "androidx.compose.material:material-icons-extended:$compose_version"
 
     // Splash Screen
@@ -91,8 +91,8 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07"
 
     // Navigation
-    // implementation "androidx.navigation:navigation-compose:$navigation_version"
     implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"
+
     // Coroutines
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"

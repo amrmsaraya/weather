@@ -4,11 +4,11 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -36,14 +36,13 @@ import com.google.accompanist.placeholder.material.placeholder
 
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
-    val state = rememberLazyListState()
-    LazyColumn(
+    val state = rememberScrollState()
+    Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(start = 16.dp, top = 16.dp, end = 16.dp),
-        state = state
+            .padding(start = 16.dp, top = 16.dp, end = 16.dp)
+            .verticalScroll(state = state),
     ) {
-        item {
             Text(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -53,23 +52,19 @@ fun HomeScreen(modifier: Modifier = Modifier) {
                 textAlign = TextAlign.Center
             )
             Spacer(modifier = Modifier.size(16.dp))
-        }
-        item {
+
             TemperatureBox()
             Spacer(modifier = Modifier.size(32.dp))
-        }
-        item {
+
             HourlyForecast()
             Spacer(modifier = Modifier.size(32.dp))
-        }
-        item {
+
             DailyForecast()
             Spacer(modifier = Modifier.size(16.dp))
-        }
-        item {
+
             ForecastDetails()
             Spacer(modifier = Modifier.size(8.dp))
-        }
+
     }
 }
 
