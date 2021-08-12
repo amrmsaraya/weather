@@ -30,14 +30,6 @@ class MainActivity : ComponentActivity() {
 
         val splashScreen = installSplashScreen()
 
-        // Keep splash screen for 1 seconds
-        var keepSplashScreen = true
-        splashScreen.setKeepVisibleCondition { keepSplashScreen }
-        lifecycleScope.launchWhenStarted {
-            delay(1000)
-            keepSplashScreen = false
-        }
-
         setContent {
             WeatherTheme {
                 Surface(
