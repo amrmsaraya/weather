@@ -33,7 +33,6 @@ import com.github.amrmsaraya.weather.util.ForecastDetailsEnum.*
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material.fade
 import com.google.accompanist.placeholder.material.placeholder
-import javax.inject.Inject
 
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
@@ -44,27 +43,27 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             .padding(start = 16.dp, top = 16.dp, end = 16.dp)
             .verticalScroll(state = state),
     ) {
-            Text(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp),
-                text = "Al Omraneyah Al Gharbeyah",
-                fontSize = 18.sp,
-                textAlign = TextAlign.Center
-            )
-            Spacer(modifier = Modifier.size(16.dp))
+        Text(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp),
+            text = "Al Omraneyah Al Gharbeyah",
+            fontSize = 18.sp,
+            textAlign = TextAlign.Center
+        )
+        Spacer(modifier = Modifier.size(16.dp))
 
-            TemperatureBox()
-            Spacer(modifier = Modifier.size(32.dp))
+        TemperatureBox()
+        Spacer(modifier = Modifier.size(26.dp))
 
-            HourlyForecast()
-            Spacer(modifier = Modifier.size(32.dp))
+        HourlyForecast()
+        Spacer(modifier = Modifier.size(26.dp))
 
-            DailyForecast()
-            Spacer(modifier = Modifier.size(16.dp))
+        DailyForecast()
+        Spacer(modifier = Modifier.size(16.dp))
 
-            ForecastDetails()
-            Spacer(modifier = Modifier.size(8.dp))
+        ForecastDetails()
+        Spacer(modifier = Modifier.size(8.dp))
 
     }
 }
@@ -145,7 +144,7 @@ fun HourlyForecast() {
     LazyRow(verticalAlignment = Alignment.CenterVertically) {
         items(list) {
             Card(
-                modifier = Modifier.padding(start = 2.dp, end = 16.dp),
+                modifier = Modifier.padding(start = 2.dp, end = 8.dp),
                 elevation = 2.dp,
                 shape = MaterialTheme.shapes.medium,
             ) {
@@ -179,12 +178,11 @@ fun DailyForecast() {
             Daily(
                 "32",
                 "16",
-                "asdasdasdasdasdasdasdasd",
+                "Clear Sky",
                 "Tomorrow",
                 R.drawable.clear_day_24
             )
         }
-    list.add(2, Daily("32", "16", "Clear sky", "Sun", R.drawable.clear_day_24))
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -193,13 +191,16 @@ fun DailyForecast() {
             Card(
                 modifier = if (item == 0) Modifier
                     .fillMaxWidth()
+                    .padding(bottom = 10.dp)
                     .clip(MaterialTheme.shapes.medium)
                     .background(
                         Brush.linearGradient(
                             colors = listOf(Pink, Blue)
                         )
                     )
-                else Modifier.fillMaxWidth(),
+                else Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 10.dp),
                 elevation = if (item == 0) 0.dp else 2.dp,
                 backgroundColor = if (item == 0) Color.Transparent else MaterialTheme.colors.surface,
             ) {
@@ -250,7 +251,6 @@ fun DailyForecast() {
                     )
                 }
             }
-            Spacer(modifier = Modifier.size(16.dp))
         }
     }
 }

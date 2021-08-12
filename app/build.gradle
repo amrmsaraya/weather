@@ -126,4 +126,7 @@ dependencies {
     // Placeholder
     implementation "com.google.accompanist:accompanist-placeholder-material:$accompanist_version"
 
+    // Swipe Refresh
+    implementation "com.google.accompanist:accompanist-swiperefresh:$accompanist_version"
+
 }

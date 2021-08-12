@@ -12,14 +12,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import com.github.amrmsaraya.weather.presentation.theme.WeatherTheme
 import com.github.amrmsaraya.weather.util.Navigation
 import com.github.amrmsaraya.weather.util.Screens
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.delay
 
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
@@ -28,7 +26,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val splashScreen = installSplashScreen()
+        installSplashScreen()
 
         setContent {
             WeatherTheme {
@@ -54,8 +52,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun BottomNav(navController: NavHostController) {
     BottomNavigation(
-        elevation = 0.dp,
-        backgroundColor = MaterialTheme.colors.surface
+        backgroundColor = MaterialTheme.colors.surface,
+        elevation = 0.dp
     ) {
         var selectedScreen by remember {
             mutableStateOf(Screens.Home.name)
@@ -63,6 +61,7 @@ fun BottomNav(navController: NavHostController) {
 
         for (screen in Screens.values()) {
             BottomNavigationItem(
+                selected = selectedScreen == screen.name,
                 icon = {
                     when (selectedScreen == screen.name) {
                         true -> Icon(imageVector = screen.activeIcon, contentDescription = null)
@@ -70,7 +69,6 @@ fun BottomNav(navController: NavHostController) {
                     }
                 },
                 label = { Text(text = screen.name) },
-                selected = selectedScreen == screen.name,
                 selectedContentColor = MaterialTheme.colors.secondary,
                 unselectedContentColor = Color.Gray,
                 onClick = {
