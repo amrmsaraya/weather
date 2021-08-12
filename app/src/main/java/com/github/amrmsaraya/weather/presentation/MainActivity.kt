@@ -18,10 +18,12 @@ import com.github.amrmsaraya.weather.presentation.theme.WeatherTheme
 import com.github.amrmsaraya.weather.util.Navigation
 import com.github.amrmsaraya.weather.util.Screens
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.delay
 
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,6 +68,7 @@ fun BottomNav(navController: NavHostController) {
         var selectedScreen by remember {
             mutableStateOf(Screens.Home.name)
         }
+
         for (screen in Screens.values()) {
             BottomNavigationItem(
                 icon = {
@@ -79,7 +82,7 @@ fun BottomNav(navController: NavHostController) {
                 selectedContentColor = MaterialTheme.colors.secondary,
                 unselectedContentColor = Color.Gray,
                 onClick = {
-                    if(selectedScreen != screen.name) {
+                    if (selectedScreen != screen.name) {
                         navController.navigate(screen.name)
                         selectedScreen = screen.name
                     }

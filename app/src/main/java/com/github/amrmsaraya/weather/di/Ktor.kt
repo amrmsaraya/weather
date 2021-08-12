@@ -3,6 +3,7 @@ package com.github.amrmsaraya.weather.di
 import android.util.Log
 import com.github.amrmsaraya.weather.BuildConfig
 import dagger.Module
+import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import io.ktor.client.*
@@ -14,6 +15,7 @@ import io.ktor.client.features.logging.*
 import io.ktor.client.features.observer.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -37,7 +39,7 @@ class Ktor {
         install(Logging) {
             logger = object : Logger {
                 override fun log(message: String) {
-                    Log.v("Logger Ktor =>", message)
+                    Log.v("Logger Ktor", message)
                 }
             }
             level = LogLevel.BODY
@@ -45,7 +47,7 @@ class Ktor {
 
         install(ResponseObserver) {
             onResponse { response ->
-                Log.d("HTTP status:", "${response.status.value}")
+                Log.d("HTTP status", "${response.status.value}")
             }
         }
 
@@ -56,9 +58,16 @@ class Ktor {
             }
 
             parameter("appid", BuildConfig.API_KEY)
+            parameter("exclude", "minutely")
 
             header(HttpHeaders.ContentType, ContentType.Application.Json)
 
         }
+    }
+
+    @Singleton
+    @Provides
+    fun provideKtorClient(): HttpClient {
+        return client
     }
 }

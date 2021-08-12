@@ -33,6 +33,7 @@ import com.github.amrmsaraya.weather.util.ForecastDetailsEnum.*
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material.fade
 import com.google.accompanist.placeholder.material.placeholder
+import javax.inject.Inject
 
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
