@@ -28,8 +28,8 @@ import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.presentation.theme.Blue
 import com.github.amrmsaraya.weather.presentation.theme.Pink
 import com.github.amrmsaraya.weather.presentation.theme.Spartan
-import com.github.amrmsaraya.weather.util.ForecastDetailsEnum
-import com.github.amrmsaraya.weather.util.ForecastDetailsEnum.*
+import com.github.amrmsaraya.weather.util.ForecastIcons
+import com.github.amrmsaraya.weather.util.ForecastIcons.*
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material.fade
 import com.google.accompanist.placeholder.material.placeholder
@@ -287,7 +287,7 @@ fun ForecastDetails() {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    for (item in ForecastDetailsEnum.values()
+                    for (item in ForecastIcons.values()
                         .copyOfRange(range.first, range.second)) {
                         ForecastDetailsItem(item = item, details = details)
                     }
@@ -298,7 +298,7 @@ fun ForecastDetails() {
 }
 
 @Composable
-fun ForecastDetailsItem(item: ForecastDetailsEnum, details: ForecastDetails) {
+fun ForecastDetailsItem(item: ForecastIcons, details: ForecastDetails) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {

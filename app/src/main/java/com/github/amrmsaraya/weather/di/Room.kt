@@ -1,8 +1,8 @@
 package com.github.amrmsaraya.weather.di
 
 import android.content.Context
-import com.github.amrmsaraya.weather.data.source.local.WeatherDao
-import com.github.amrmsaraya.weather.data.source.local.WeatherDatabase
+import com.github.amrmsaraya.weather.data.local.WeatherDao
+import com.github.amrmsaraya.weather.data.local.WeatherDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

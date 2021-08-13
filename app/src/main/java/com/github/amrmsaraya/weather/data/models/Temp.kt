@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.data.model
+package com.github.amrmsaraya.weather.data.models
 
 
 import kotlinx.serialization.SerialName
@@ -7,15 +7,15 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Temp(
     @SerialName("day")
-    val day: Double,
+    val day: Double = 0.0,
     @SerialName("min")
-    val min: Double,
+    val min: Double = 0.0,
     @SerialName("max")
-    val max: Double,
+    val max: Double = 0.0,
     @SerialName("night")
-    val night: Double,
+    val night: Double = 0.0,
     @SerialName("eve")
-    val eve: Double,
+    val eve: Double = 0.0,
     @SerialName("morn")
-    val morn: Double
+    val morn: Double = 0.0
 )

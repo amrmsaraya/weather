@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.data.model
+package com.github.amrmsaraya.weather.data.models
 
 
 import kotlinx.serialization.SerialName
@@ -7,39 +7,39 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Daily(
     @SerialName("dt")
-    val dt: Int,
+    val dt: Int = 0,
     @SerialName("sunrise")
-    val sunrise: Int,
+    val sunrise: Int = 0,
     @SerialName("sunset")
-    val sunset: Int,
+    val sunset: Int = 0,
     @SerialName("moonrise")
-    val moonrise: Int,
+    val moonrise: Int = 0,
     @SerialName("moonset")
-    val moonset: Int,
+    val moonset: Int = 0,
     @SerialName("moon_phase")
-    val moonPhase: Double,
+    val moonPhase: Double = 0.0,
     @SerialName("temp")
     val temp: Temp,
     @SerialName("feels_like")
-    val feelsLike: FeelsLike,
+    val feelsLike: FeelsLike = FeelsLike(),
     @SerialName("pressure")
-    val pressure: Int,
+    val pressure: Int = 0,
     @SerialName("humidity")
-    val humidity: Int,
+    val humidity: Int = 0,
     @SerialName("dew_point")
-    val dewPoint: Double,
+    val dewPoint: Double = 0.0,
     @SerialName("wind_speed")
-    val windSpeed: Double,
+    val windSpeed: Double = 0.0,
     @SerialName("wind_deg")
-    val windDeg: Int,
+    val windDeg: Int = 0,
     @SerialName("wind_gust")
-    val windGust: Double,
+    val windGust: Double = 0.0,
     @SerialName("weather")
-    val weather: List<Weather>,
+    val weather: List<Weather> = listOf(),
     @SerialName("clouds")
-    val clouds: Int,
+    val clouds: Int = 0,
     @SerialName("pop")
-    val pop: Double,
+    val pop: Double = 0.0,
     @SerialName("uvi")
-    val uvi: Double
+    val uvi: Double = 0.0
 )

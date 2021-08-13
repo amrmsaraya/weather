@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.data.model
+package com.github.amrmsaraya.weather.data.models
 
 
 import kotlinx.serialization.SerialName
@@ -7,11 +7,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class FeelsLike(
     @SerialName("day")
-    val day: Double,
+    val day: Double = 0.0,
     @SerialName("night")
-    val night: Double,
+    val night: Double = 0.0,
     @SerialName("eve")
-    val eve: Double,
+    val eve: Double = 0.0,
     @SerialName("morn")
-    val morn: Double
+    val morn: Double = 0.0
 )

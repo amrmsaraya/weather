@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.data.model
+package com.github.amrmsaraya.weather.data.models
 
 
 import androidx.room.ColumnInfo
@@ -7,40 +7,40 @@ import androidx.room.PrimaryKey
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Entity
+@Entity(tableName = "forecast")
 @Serializable
 data class Forecast(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    val id: Int,
+    var id: Int,
 
     @SerialName("lat")
     @ColumnInfo(name = "lat")
-    val lat: Double,
+    val lat: Double = 0.0,
 
     @SerialName("lon")
     @ColumnInfo(name = "lon")
-    val lon: Double,
+    val lon: Double = 0.0,
 
     @SerialName("timezone")
     @ColumnInfo(name = "timezone")
-    val timezone: String,
+    val timezone: String = "",
 
     @SerialName("timezone_offset")
     @ColumnInfo(name = "timezone_offset")
-    val timezoneOffset: Int,
+    val timezoneOffset: Int = 0,
 
     @SerialName("current")
     @ColumnInfo(name = "current")
-    val current: Current,
+    val current: Current = Current(),
 
     @SerialName("hourly")
     @ColumnInfo(name = "hourly")
-    val hourly: List<Hourly>,
+    val hourly: List<Hourly> = listOf(),
 
     @SerialName("daily")
     @ColumnInfo(name = "daily")
-    val daily: List<Daily>,
+    val daily: List<Daily> = listOf(),
 
     @SerialName("alerts")
     @ColumnInfo(name = "alerts")

@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.data.model
+package com.github.amrmsaraya.weather.data.models
 
 
 import kotlinx.serialization.SerialName
@@ -7,11 +7,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Weather(
     @SerialName("id")
-    val id: Int,
+    val id: Int = 0,
     @SerialName("main")
-    val main: String,
+    val main: String = "",
     @SerialName("description")
-    val description: String,
+    val description: String = "",
     @SerialName("icon")
-    val icon: String
+    val icon: String = ""
 )

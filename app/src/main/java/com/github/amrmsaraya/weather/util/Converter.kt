@@ -1,10 +1,10 @@
 package com.github.amrmsaraya.weather.util
 
 import androidx.room.TypeConverter
-import com.github.amrmsaraya.weather.data.model.Alert
-import com.github.amrmsaraya.weather.data.model.Current
-import com.github.amrmsaraya.weather.data.model.Daily
-import com.github.amrmsaraya.weather.data.model.Hourly
+import com.github.amrmsaraya.weather.data.models.Alert
+import com.github.amrmsaraya.weather.data.models.Current
+import com.github.amrmsaraya.weather.data.models.Daily
+import com.github.amrmsaraya.weather.data.models.Hourly
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
