@@ -7,17 +7,21 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.github.amrmsaraya.weather.presentation.theme.WeatherTheme
 import com.github.amrmsaraya.weather.util.Navigation
-import com.github.amrmsaraya.weather.util.Screens
+import com.github.amrmsaraya.weather.util.Screens.*
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import dagger.hilt.android.AndroidEntryPoint
+
 
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
@@ -55,26 +59,29 @@ fun BottomNav(navController: NavHostController) {
         backgroundColor = MaterialTheme.colors.surface,
         elevation = 0.dp
     ) {
-        var selectedScreen by remember {
-            mutableStateOf(Screens.Home.name)
-        }
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentDestination = navBackStackEntry?.destination
+        val screens = listOf(Home, Favorites, Alerts, Settings)
 
-        for (screen in Screens.values()) {
+        for (screen in screens) {
             BottomNavigationItem(
-                selected = selectedScreen == screen.name,
+                selected = currentDestination?.route == screen.route,
                 icon = {
-                    when (selectedScreen == screen.name) {
+                    when (currentDestination?.route == screen.route) {
                         true -> Icon(imageVector = screen.activeIcon, contentDescription = null)
                         false -> Icon(imageVector = screen.inactiveIcon, contentDescription = null)
                     }
                 },
-                label = { Text(text = screen.name) },
+                label = { Text(text = stringResource(id = screen.stringId)) },
                 selectedContentColor = MaterialTheme.colors.secondary,
                 unselectedContentColor = Color.Gray,
                 onClick = {
-                    if (selectedScreen != screen.name) {
-                        navController.navigate(screen.name)
-                        selectedScreen = screen.name
+                    navController.navigate(screen.route) {
+                        popUpTo(navController.graph.startDestinationId) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
                     }
                 }
             )

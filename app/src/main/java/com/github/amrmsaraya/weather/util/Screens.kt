@@ -1,27 +1,48 @@
 package com.github.amrmsaraya.weather.util
 
+import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.github.amrmsaraya.weather.R
 
-enum class Screens(val activeIcon: ImageVector, val inactiveIcon: ImageVector) {
-    Home(
+sealed class Screens(
+    val route: String,
+    @StringRes val stringId: Int,
+    val activeIcon: ImageVector,
+    val inactiveIcon: ImageVector
+) {
+    object Home : Screens(
+        route = "home",
+        stringId = R.string.home,
         activeIcon = Icons.Filled.Home,
         inactiveIcon = Icons.Outlined.Home
-    ),
-    Favorites(
+    )
+
+    object Favorites : Screens(
+        route = "favourites",
+        stringId = R.string.favorites,
         activeIcon = Icons.Filled.Favorite,
-        inactiveIcon = Icons.Filled.FavoriteBorder
-    ),
-    Alerts(
+        inactiveIcon = Icons.Outlined.FavoriteBorder
+    )
+
+    object Alerts : Screens(
+        route = "alerts",
+        stringId = R.string.alerts,
         activeIcon = Icons.Filled.Notifications,
         inactiveIcon = Icons.Outlined.Notifications
-    ),
-    Settings(
+    )
+
+    object Settings : Screens(
+        route = "settings",
+        stringId = R.string.settings,
         activeIcon = Icons.Filled.Settings,
         inactiveIcon = Icons.Outlined.Settings
     )
