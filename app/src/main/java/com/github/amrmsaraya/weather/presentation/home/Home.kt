@@ -12,7 +12,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,12 +33,37 @@ import com.github.amrmsaraya.weather.util.ForecastIcons.*
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.material.fade
 import com.google.accompanist.placeholder.material.placeholder
+import com.google.accompanist.swiperefresh.SwipeRefresh
+import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
+import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 
 @Composable
 fun HomeScreen(modifier: Modifier = Modifier) {
+    var isRefreshing by remember { mutableStateOf(false) }
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
+
+    SwipeRefresh(
+        modifier = modifier,
+        state = swipeRefreshState,
+        onRefresh = { isRefreshing = true },
+        indicator = { state, trigger ->
+            SwipeRefreshIndicator(
+                state = state,
+                refreshTriggerDistance = trigger,
+                scale = true,
+                contentColor = MaterialTheme.colors.secondary
+            )
+        },
+    ) {
+        HomeContent()
+    }
+}
+
+@Composable
+fun HomeContent() {
     val state = rememberScrollState()
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .padding(start = 16.dp, top = 16.dp, end = 16.dp)
             .verticalScroll(state = state),
