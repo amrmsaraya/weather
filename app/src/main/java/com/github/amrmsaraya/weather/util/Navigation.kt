@@ -1,6 +1,7 @@
 package com.github.amrmsaraya.weather.util
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.material.ScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -14,7 +15,10 @@ import com.google.accompanist.navigation.animation.composable
 
 @ExperimentalAnimationApi
 @Composable
-fun Navigation(modifier: Modifier = Modifier, navController: NavHostController) {
+fun Navigation(
+    modifier: Modifier = Modifier,
+    navController: NavHostController
+) {
     AnimatedNavHost(
         navController = navController,
         startDestination = Home.route

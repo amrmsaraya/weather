@@ -51,6 +51,6 @@
     <string name="enable">Enable</string>
     <string name="disable">Disable</string>
     <string name="no_alerts">No Alerts</string>
-    <string name="no_places">No Places</string>
+    <string name="no_favorites">No Favorites</string>
 
 </resources>

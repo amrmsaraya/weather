@@ -38,7 +38,10 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colors.surface,
                 ) {
                     val navController = rememberAnimatedNavController()
+                    val scaffoldState = rememberScaffoldState()
+
                     Scaffold(
+                        scaffoldState = scaffoldState,
                         bottomBar = { BottomNav(navController = navController) },
                     ) { innerPadding ->
                         Navigation(

@@ -198,16 +198,16 @@ fun HourlyForecast() {
 
 @Composable
 fun DailyForecast() {
-    val list =
-        MutableList(6) {
-            Daily(
-                "32",
-                "16",
-                "Clear Sky",
-                "Tomorrow",
-                R.drawable.clear_day_24
-            )
-        }
+    val list = MutableList(6) {
+        Daily(
+            "32",
+            "16",
+            "Clear Sky",
+            "Tomorrow",
+            R.drawable.clear_day_24
+        )
+    }
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -367,7 +367,8 @@ data class Daily(
     val description: String,
     val day: String,
     @DrawableRes
-    val icon: Int
+    val icon: Int,
+    val name: String = "Place",
 )
 
 data class ForecastDetails(
@@ -378,71 +379,3 @@ data class ForecastDetails(
     val ultraViolet: String,
     val visibility: String,
 )
-
-@Composable
-fun DailyForecastLegacy() {
-    val list =
-        MutableList(6) {
-            Daily(
-                "32",
-                "16",
-                "asdasdasdasdasdasdasdasd",
-                "Tomorrow",
-                R.drawable.clear_day_24
-            )
-        }
-    list.add(2, Daily("32", "16", "Clear sky", "Sun", R.drawable.clear_day_24))
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        for (item in list.indices) {
-            Card(
-                modifier = if (item == 0) Modifier
-                    .fillMaxWidth()
-                    .clip(MaterialTheme.shapes.medium)
-                    .background(
-                        Brush.linearGradient(
-                            colors = listOf(Pink, Blue)
-                        )
-                    )
-                else Modifier.fillMaxWidth(),
-                elevation = if (item == 0) 0.dp else 2.dp,
-                backgroundColor = if (item == 0) Color.Transparent else MaterialTheme.colors.surface
-            ) {
-                Row(
-                    modifier = Modifier.padding(4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Start
-                ) {
-                    Text(
-                        text = list[item].day,
-                        maxLines = 1,
-                        color = if (item == 0) Color.White else MaterialTheme.colors.onSurface
-                    )
-                    Image(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .size(24.dp),
-                        painter = painterResource(id = list[item].icon),
-                        contentDescription = "Weather Icon"
-                    )
-                    Text(
-                        modifier = Modifier
-                            .padding(8.dp)
-                            .requiredWidth(100.dp),
-                        text = list[item].description,
-                        maxLines = 1,
-                        color = if (item == 0) Color.White else MaterialTheme.colors.onSurface
-                    )
-                    Text(
-                        modifier = Modifier.padding(8.dp),
-                        text = "${list[item].tempMax} / ${list[item].tempMin}°C",
-                        color = if (item == 0) Color.White else MaterialTheme.colors.onSurface
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.size(16.dp))
-        }
-    }
-}
