@@ -132,6 +132,4 @@ dependencies {
     // Swipe Refresh
     implementation "com.google.accompanist:accompanist-swiperefresh:$accompanist_version"
 
-    // DateTime Dialog
-    implementation "io.github.vanpra.compose-material-dialogs:datetime:0.5.1"
 }

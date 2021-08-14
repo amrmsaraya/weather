@@ -2,9 +2,12 @@ package com.github.amrmsaraya.weather.presentation.favorites
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -26,12 +29,17 @@ import com.github.amrmsaraya.weather.presentation.components.AnimatedVisibilityF
 import com.github.amrmsaraya.weather.presentation.components.DeleteFAB
 import com.github.amrmsaraya.weather.presentation.components.EmptyListIndicator
 import com.github.amrmsaraya.weather.presentation.home.Daily
+import com.github.amrmsaraya.weather.presentation.theme.LightPink
 
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable
 fun Favorites(modifier: Modifier = Modifier) {
     val scaffoldState = rememberScaffoldState()
+
+    val favorites = remember {
+        mutableStateListOf<Daily>()
+    }
 
     val selectedItems = remember {
         mutableStateListOf<Daily>()
@@ -53,7 +61,11 @@ fun Favorites(modifier: Modifier = Modifier) {
         modifier = modifier,
         floatingActionButton = {
             when (selectMode) {
-                true -> DeleteFAB { }
+                true -> DeleteFAB {
+                    favorites.removeAll(selectedItems)
+                    selectedItems.clear()
+                    selectMode = false
+                }
                 false -> AddFAB { }
             }
         },
@@ -65,22 +77,22 @@ fun Favorites(modifier: Modifier = Modifier) {
                 .padding(innerPadding)
                 .padding(start = 16.dp, top = 16.dp, end = 16.dp)
         ) {
-            val favorites = remember {
-                mutableStateListOf<Daily>()
-            }
 
-            favorites.clear()
-            favorites.addAll(MutableList(20) {
-                Daily(
-                    "32",
-                    "16",
-                    "Clear Sky",
-                    "Tomorrow",
-                    R.drawable.clear_day,
-                    "Talkha",
-                    id = it
-                )
-            })
+
+//            LaunchedEffect(key1 = true) {
+//                favorites.clear()
+//                favorites.addAll(MutableList(20) {
+//                    Daily(
+//                        "32",
+//                        "16",
+//                        "Clear Sky",
+//                        "Tomorrow",
+//                        R.drawable.clear_day,
+//                        "Talkha",
+//                        id = it
+//                    )
+//                })
+//            }
 
             AnimatedVisibilityFade(favorites.isEmpty()) {
                 EmptyListIndicator(Icons.Filled.FavoriteBorder, R.string.no_favorites)
@@ -126,15 +138,18 @@ fun FavoritesList(
         items(items) { item ->
             val isSelected = selectedItems.any { it == item }
 
-            val backgroundColor = when (isSelected) {
-                true -> MaterialTheme.colors.secondary.copy(alpha = 0.7f)
-                false -> MaterialTheme.colors.surface
-            }
+            val backgroundColor by animateColorAsState(
+                targetValue = when (isSelected) {
+                    true -> if (isSystemInDarkTheme()) LightPink.copy(0.8f) else LightPink
+                    false -> MaterialTheme.colors.surface
+                },
+                animationSpec = tween(750)
+            )
 
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp)
+                    .padding(top = 8.dp, bottom = 8.dp)
                     .combinedClickable(
                         onClick = {
                             onClick(Forecast(id = 4))

@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.github.amrmsaraya.weather.presentation.theme.Red
 
 @Composable
 fun AddFAB(onClick: () -> Unit) {
@@ -37,7 +36,7 @@ fun AddFAB(onClick: () -> Unit) {
 @Composable
 fun DeleteFAB(onClick: () -> Unit) {
     FloatingActionButton(
-        contentColor = Red,
+        contentColor = MaterialTheme.colors.secondary,
         backgroundColor = MaterialTheme.colors.surface,
         onClick = onClick
     ) {

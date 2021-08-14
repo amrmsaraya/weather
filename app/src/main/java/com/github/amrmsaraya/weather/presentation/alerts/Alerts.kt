@@ -1,10 +1,16 @@
 package com.github.amrmsaraya.weather.presentation.alerts
 
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
+import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -15,6 +21,7 @@ import androidx.compose.material.icons.outlined.NotificationsOff
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.github.amrmsaraya.weather.R
@@ -24,9 +31,7 @@ import com.github.amrmsaraya.weather.presentation.components.AnimatedVisibilityF
 import com.github.amrmsaraya.weather.presentation.components.DeleteFAB
 import com.github.amrmsaraya.weather.presentation.components.EmptyListIndicator
 import com.github.amrmsaraya.weather.presentation.home.Daily
-import com.vanpra.composematerialdialogs.MaterialDialog
-import com.vanpra.composematerialdialogs.datetime.date.datepicker
-import com.vanpra.composematerialdialogs.datetime.time.timepicker
+import com.github.amrmsaraya.weather.presentation.theme.LightPink
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -34,19 +39,13 @@ import java.util.*
 @ExperimentalAnimationApi
 @Composable
 fun Alert(modifier: Modifier = Modifier) {
+
     val scaffoldState = rememberScaffoldState()
+    val alerts = remember { mutableStateListOf<Daily>() }
+    val selectedItems = remember { mutableStateListOf<Daily>() }
+    var selectMode by remember { mutableStateOf(false) }
+    var showDialog by remember { mutableStateOf(false) }
 
-    val selectedItems = remember {
-        mutableStateListOf<Daily>()
-    }
-
-    var selectMode by remember {
-        mutableStateOf(false)
-    }
-
-    var showDialog by remember {
-        mutableStateOf(false)
-    }
     BackHandler {
         if (selectMode) {
             selectMode = false
@@ -59,7 +58,12 @@ fun Alert(modifier: Modifier = Modifier) {
         modifier = modifier,
         floatingActionButton = {
             when (selectMode) {
-                true -> DeleteFAB { }
+                true -> DeleteFAB {
+                    alerts.removeAll(selectedItems)
+                    selectedItems.clear()
+                    selectMode = false
+
+                }
                 false -> AddFAB { showDialog = true }
             }
         },
@@ -71,24 +75,25 @@ fun Alert(modifier: Modifier = Modifier) {
                 .padding(innerPadding)
                 .padding(start = 16.dp, top = 16.dp, end = 16.dp)
         ) {
-            val alerts = remember {
-                mutableStateListOf<Daily>()
+
+            if(showDialog) {
+                NewAlertDialog(onDismiss = { showDialog = false })
             }
 
-            AddAlertDialog(showDialog = showDialog, onDismiss = { showDialog = false })
-
-            alerts.clear()
-            alerts.addAll(MutableList(20) {
-                Daily(
-                    "32",
-                    "16",
-                    "Clear Sky",
-                    "Tomorrow",
-                    R.drawable.clear_day,
-                    "Talkha",
-                    id = it
-                )
-            })
+//            LaunchedEffect(true){
+//                alerts.clear()
+//                alerts.addAll(MutableList(20) {
+//                    Daily(
+//                        "32",
+//                        "16",
+//                        "Clear Sky",
+//                        "Tomorrow",
+//                        R.drawable.clear_day,
+//                        "Talkha",
+//                        id = it
+//                    )
+//                })
+//            }
 
             AnimatedVisibilityFade(alerts.isEmpty()) {
                 EmptyListIndicator(Icons.Outlined.NotificationsOff, R.string.no_alerts)
@@ -114,7 +119,6 @@ fun Alert(modifier: Modifier = Modifier) {
     }
 }
 
-
 @ExperimentalFoundationApi
 @Composable
 fun AlertList(
@@ -129,21 +133,24 @@ fun AlertList(
     val state = rememberLazyListState()
 
     LazyColumn(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxSize(),
         state = state
     ) {
         items(items) { item ->
             val isSelected = selectedItems.any { it == item }
 
-            val backgroundColor = when (isSelected) {
-                true -> MaterialTheme.colors.secondary.copy(alpha = 0.7f)
-                false -> MaterialTheme.colors.surface
-            }
+            val backgroundColor by animateColorAsState(
+                targetValue = when (isSelected) {
+                    true -> if (isSystemInDarkTheme()) LightPink.copy(0.8f) else LightPink
+                    false -> MaterialTheme.colors.surface
+                },
+                animationSpec = tween(750)
+            )
 
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp)
+                    .padding(top = 8.dp, bottom = 8.dp)
                     .combinedClickable(
                         onClick = {
                             onClick(Forecast(id = 4))
@@ -204,132 +211,175 @@ fun AlertList(
 }
 
 @Composable
-fun AddAlertDialog(showDialog: Boolean, onDismiss: () -> Unit) {
-    var state by remember {
-        mutableStateOf(true)
-    }
+fun NewAlertDialog(onDismiss: () -> Unit) {
 
-    if (showDialog) {
-        AlertDialog(
-            onDismissRequest = onDismiss,
-            title = { Text("New alert") },
-            text = {
-                Column() {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        OutlinedTextField(
-                            modifier = Modifier.weight(0.5f),
-                            label = { Text(text = "From Date") },
-                            value = millisToDate(System.currentTimeMillis()),
-                            onValueChange = {},
-                            readOnly = true
-                        )
+    val context = LocalContext.current
+    var alarmState by remember { mutableStateOf(true) }
 
-                        Spacer(modifier = Modifier.size(8.dp))
+    var fromDate by remember { mutableStateOf(Calendar.getInstance()) }
+    var fromTime by remember { mutableStateOf(Calendar.getInstance()) }
+    var toDate by remember { mutableStateOf(Calendar.getInstance()) }
+    var toTime by remember { mutableStateOf(Calendar.getInstance()) }
 
-                        OutlinedTextField(
-                            modifier = Modifier.weight(0.5f),
-                            label = { Text(text = "From Time") },
-                            value = millisToTime(System.currentTimeMillis()),
-                            onValueChange = {},
-                            readOnly = true
-                        )
-                    }
+    val from = Calendar.getInstance()
+    from.set(
+        fromDate[Calendar.YEAR],
+        fromDate[Calendar.MONTH],
+        fromDate[Calendar.DAY_OF_MONTH],
+        fromTime[Calendar.HOUR_OF_DAY],
+        fromTime[Calendar.MINUTE],
+    )
 
-                    Spacer(modifier = Modifier.size(16.dp))
+    val to = Calendar.getInstance()
+    to.set(
+        toDate[Calendar.YEAR],
+        toDate[Calendar.MONTH],
+        toDate[Calendar.DAY_OF_MONTH],
+        toTime[Calendar.HOUR_OF_DAY],
+        toTime[Calendar.MINUTE],
+    )
 
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        OutlinedTextField(
-                            modifier = Modifier.weight(0.5f),
-                            label = { Text(text = "To Date") },
-                            value = millisToDate(System.currentTimeMillis()),
-                            onValueChange = {},
-                            readOnly = true
-                        )
-
-                        Spacer(modifier = Modifier.size(8.dp))
-
-                        OutlinedTextField(
-                            modifier = Modifier.weight(0.5f),
-                            label = { Text(text = "To Time") },
-                            value = millisToTime(System.currentTimeMillis()),
-                            onValueChange = {},
-                            readOnly = true
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.size(16.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text(text = "Alarm")
-                        Switch(
-                            checked = state,
-                            onCheckedChange = { state = !state },
-                            colors = SwitchDefaults.colors()
-                        )
-                    }
-
-                }
-            },
-            buttons = {
-                Row(
-                    Modifier.padding(8.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedButton(
-                        modifier = Modifier
-                            .weight(1f),
-                        onClick = onDismiss
-                    ) {
-                        Text(text = stringResource(id = R.string.cancel))
-                    }
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("New alert") },
+        text = {
+            Column {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    DateTimeOutlinedTextField(
+                        modifier = Modifier.weight(0.5f),
+                        label = "From Date",
+                        value = millisToDate(fromDate.timeInMillis),
+                        onClick = { showDatePicker(context) { fromDate = it } }
+                    )
                     Spacer(modifier = Modifier.size(8.dp))
-                    Button(
-                        modifier = Modifier.weight(1f),
-                        onClick = onDismiss
-                    ) {
-                        Text(text = stringResource(id = R.string.ok))
+                    DateTimeOutlinedTextField(
+                        modifier = Modifier.weight(0.5f),
+                        label = "From Time",
+                        value = millisToTime(fromTime.timeInMillis),
+                        onClick = { showTimePicker(context) { fromTime = it } }
+                    )
+                }
+                Spacer(modifier = Modifier.size(16.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    DateTimeOutlinedTextField(
+                        modifier = Modifier.weight(0.5f),
+                        label = "To Date",
+                        value = millisToDate(toDate.timeInMillis),
+                        onClick = { showDatePicker(context) { toDate = it } }
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                    DateTimeOutlinedTextField(
+                        modifier = Modifier.weight(0.5f),
+                        label = "To Time",
+                        value = millisToTime(toTime.timeInMillis),
+                        onClick = { showTimePicker(context) { toTime = it } }
+                    )
+                }
+                Spacer(modifier = Modifier.size(16.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Text(text = "Alarm")
+                    Switch(
+                        checked = alarmState,
+                        onCheckedChange = { alarmState = !alarmState },
+                        colors = SwitchDefaults.colors()
+                    )
+                }
+
+            }
+        },
+        buttons = {
+            Row(
+                Modifier.padding(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedButton(
+                    modifier = Modifier
+                        .weight(1f),
+                    onClick = onDismiss
+                ) {
+                    Text(text = stringResource(id = R.string.cancel))
+                }
+                Spacer(modifier = Modifier.size(8.dp))
+                Button(
+                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        onDismiss()
+                        println(
+                            "DATETIME -> ${millisToDate(from.timeInMillis)}, ${
+                                millisToTime(
+                                    from.timeInMillis
+                                )
+                            }"
+                        )
+                        println("DATETIME -> ${millisToDate(to.timeInMillis)}, ${millisToTime(to.timeInMillis)}")
                     }
+                ) {
+                    Text(text = stringResource(id = R.string.ok))
                 }
             }
+        }
+    )
+}
+
+@Composable
+private fun DateTimeOutlinedTextField(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit,
+    label: String,
+    value: String
+) {
+    OutlinedTextField(
+        modifier = modifier.clickable(onClick = onClick),
+        label = { Text(label) },
+        value = value,
+        onValueChange = {},
+        readOnly = true,
+        enabled = false,
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            disabledTextColor = MaterialTheme.colors.onSurface.copy(ContentAlpha.medium),
+            disabledLabelColor = MaterialTheme.colors.onSurface.copy(ContentAlpha.medium),
+            disabledBorderColor = MaterialTheme.colors.onSurface.copy(ContentAlpha.medium),
         )
-    }
-
+    )
 }
 
 
-@Composable
-fun DatePicker(show: Boolean) {
-    val dialog = remember { MaterialDialog() }
-    dialog.build(
-        buttons = {
-            positiveButton(stringResource(id = R.string.ok))
-            negativeButton(stringResource(id = R.string.cancel))
-        }
-    ) {
-        datepicker() { date ->
-            // Do stuff with java.time.LocalDate object which is passed in
-        }
-    }
-    if (show) {
-        dialog.show()
-    }
+private fun showDatePicker(context: Context, onDateChange: (Calendar) -> Unit) {
+    val cal = Calendar.getInstance()
+    cal.timeInMillis = System.currentTimeMillis()
+    val dialog = DatePickerDialog(
+        context,
+        { _, year, month, dayOfMonth ->
+            cal.set(year, month, dayOfMonth)
+            onDateChange(cal)
+
+        }, cal[Calendar.YEAR], cal[Calendar.MONTH], cal[Calendar.DAY_OF_MONTH]
+    )
+    dialog.show()
 }
 
-@Composable
-fun TimePicker() {
-    val dialog = remember { MaterialDialog() }
-    dialog.build(buttons = {
-        positiveButton("Ok")
-        negativeButton("Cancel")
-    }) {
-        timepicker() { time ->
-            // Do stuff with java.time.LocalDate object which is passed in
-        }
-    }
+private fun showTimePicker(context: Context, onTimeChange: (Calendar) -> Unit) {
+    val cal = Calendar.getInstance()
+    cal.timeInMillis = System.currentTimeMillis()
+    val dialog =
+        TimePickerDialog(
+            context,
+            { _, hour, minute ->
+                cal.set(
+                    cal[Calendar.YEAR],
+                    cal[Calendar.MONTH],
+                    cal[Calendar.DAY_OF_MONTH],
+                    hour,
+                    minute
+                )
+                onTimeChange(cal)
+
+            }, cal[Calendar.HOUR_OF_DAY], cal[Calendar.MINUTE], false
+        )
     dialog.show()
 }
 
