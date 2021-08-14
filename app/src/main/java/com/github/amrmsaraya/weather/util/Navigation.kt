@@ -1,6 +1,7 @@
 package com.github.amrmsaraya.weather.util
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -13,6 +14,7 @@ import com.github.amrmsaraya.weather.util.Screens.*
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 
+@ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable
 fun Navigation(

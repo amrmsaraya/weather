@@ -42,6 +42,8 @@ fun HomeScreen(modifier: Modifier = Modifier) {
     var isRefreshing by remember { mutableStateOf(false) }
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
 
+
+
     SwipeRefresh(
         modifier = modifier,
         state = swipeRefreshState,
@@ -71,7 +73,12 @@ fun HomeContent() {
         Text(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp),
+                .padding(start = 16.dp, end = 16.dp)
+                .placeholder(
+                    visible = false,
+                    color = Color.LightGray,
+                    highlight = PlaceholderHighlight.fade()
+                ),
             text = "Al Omraneyah Al Gharbeyah",
             fontSize = 18.sp,
             textAlign = TextAlign.Center
@@ -127,7 +134,8 @@ fun TempAndDescription() {
             .placeholder(
                 visible = false,
                 color = Color.LightGray,
-                highlight = PlaceholderHighlight.fade()
+                highlight = PlaceholderHighlight.fade(),
+                shape = MaterialTheme.shapes.medium
             )
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -169,7 +177,13 @@ fun HourlyForecast() {
     LazyRow(verticalAlignment = Alignment.CenterVertically) {
         items(list) {
             Card(
-                modifier = Modifier.padding(start = 2.dp, end = 8.dp),
+                modifier = Modifier
+                    .padding(start = 2.dp, end = 8.dp)
+                    .placeholder(
+                        visible = false,
+                        color = Color.LightGray,
+                        highlight = PlaceholderHighlight.fade()
+                    ),
                 elevation = 2.dp,
                 shape = MaterialTheme.shapes.medium,
             ) {
@@ -223,9 +237,21 @@ fun DailyForecast() {
                             colors = listOf(Pink, Blue)
                         )
                     )
+                    .placeholder(
+                        visible = false,
+                        color = Color.LightGray,
+                        highlight = PlaceholderHighlight.fade(),
+                        shape = MaterialTheme.shapes.medium
+                    )
                 else Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 10.dp),
+                    .padding(bottom = 10.dp)
+                    .placeholder(
+                        visible = false,
+                        color = Color.LightGray,
+                        highlight = PlaceholderHighlight.fade(),
+                        shape = MaterialTheme.shapes.medium
+                    ),
                 elevation = if (item == 0) 0.dp else 2.dp,
                 backgroundColor = if (item == 0) Color.Transparent else MaterialTheme.colors.surface,
             ) {
@@ -292,7 +318,13 @@ fun ForecastDetails() {
     )
     Card(
         modifier = Modifier
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .placeholder(
+                visible = false,
+                color = Color.LightGray,
+                highlight = PlaceholderHighlight.fade(),
+                shape = MaterialTheme.shapes.medium
+            ),
         elevation = 2.dp
     ) {
         Row(
@@ -369,6 +401,7 @@ data class Daily(
     @DrawableRes
     val icon: Int,
     val name: String = "Place",
+    val id: Int = 0,
 )
 
 data class ForecastDetails(

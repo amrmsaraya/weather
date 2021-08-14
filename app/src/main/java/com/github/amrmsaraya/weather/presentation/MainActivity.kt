@@ -80,11 +80,8 @@ fun BottomNav(navController: NavHostController) {
                 unselectedContentColor = Color.Gray,
                 onClick = {
                     navController.navigate(screen.route) {
-                        popUpTo(navController.graph.startDestinationId) {
-                            saveState = true
-                        }
+                        popUpTo(navController.graph.startDestinationId)
                         launchSingleTop = true
-                        restoreState = true
                     }
                 }
             )
