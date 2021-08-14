@@ -30,7 +30,6 @@ import com.github.amrmsaraya.weather.presentation.components.AddFAB
 import com.github.amrmsaraya.weather.presentation.components.AnimatedVisibilityFade
 import com.github.amrmsaraya.weather.presentation.components.DeleteFAB
 import com.github.amrmsaraya.weather.presentation.components.EmptyListIndicator
-import com.github.amrmsaraya.weather.presentation.home.Daily
 import com.github.amrmsaraya.weather.presentation.theme.LightPink
 import java.text.SimpleDateFormat
 import java.util.*
@@ -41,8 +40,8 @@ import java.util.*
 fun Alert(modifier: Modifier = Modifier) {
 
     val scaffoldState = rememberScaffoldState()
-    val alerts = remember { mutableStateListOf<Daily>() }
-    val selectedItems = remember { mutableStateListOf<Daily>() }
+    val alerts = remember { mutableStateListOf<AlertTime>() }
+    val selectedItems = remember { mutableStateListOf<AlertTime>() }
     var selectMode by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
 
@@ -62,7 +61,6 @@ fun Alert(modifier: Modifier = Modifier) {
                     alerts.removeAll(selectedItems)
                     selectedItems.clear()
                     selectMode = false
-
                 }
                 false -> AddFAB { showDialog = true }
             }
@@ -76,24 +74,13 @@ fun Alert(modifier: Modifier = Modifier) {
                 .padding(start = 16.dp, top = 16.dp, end = 16.dp)
         ) {
 
-            if(showDialog) {
-                NewAlertDialog(onDismiss = { showDialog = false })
+            if (showDialog) {
+                NewAlertDialog(
+                    onConfirm = { from, to ->
+                        alerts.add(AlertTime(from.timeInMillis, to.timeInMillis))
+                    },
+                    onDismiss = { showDialog = false })
             }
-
-//            LaunchedEffect(true){
-//                alerts.clear()
-//                alerts.addAll(MutableList(20) {
-//                    Daily(
-//                        "32",
-//                        "16",
-//                        "Clear Sky",
-//                        "Tomorrow",
-//                        R.drawable.clear_day,
-//                        "Talkha",
-//                        id = it
-//                    )
-//                })
-//            }
 
             AnimatedVisibilityFade(alerts.isEmpty()) {
                 EmptyListIndicator(Icons.Outlined.NotificationsOff, R.string.no_alerts)
@@ -122,13 +109,13 @@ fun Alert(modifier: Modifier = Modifier) {
 @ExperimentalFoundationApi
 @Composable
 fun AlertList(
-    items: List<Daily>,
-    selectedItems: List<Daily>,
+    items: List<AlertTime>,
+    selectedItems: List<AlertTime>,
     selectMode: Boolean,
     onSelectMode: (Boolean) -> Unit,
     onClick: (Forecast) -> Unit,
-    onSelect: (Daily) -> Unit,
-    onUnselect: (Daily) -> Unit
+    onSelect: (AlertTime) -> Unit,
+    onUnselect: (AlertTime) -> Unit
 ) {
     val state = rememberLazyListState()
 
@@ -178,32 +165,9 @@ fun AlertList(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Row() {
-                        Text(
-                            text = "14 Aug,",
-                            maxLines = 1,
-                        )
-                        Spacer(modifier = Modifier.size(8.dp))
-                        Text(
-                            text = "12:18 AM",
-                            maxLines = 1,
-                        )
-                    }
-                    Text(
-                        text = "-",
-                        maxLines = 1,
-                    )
-                    Row {
-                        Text(
-                            text = "14 Aug,",
-                            maxLines = 1,
-                        )
-                        Spacer(modifier = Modifier.size(8.dp))
-                        Text(
-                            text = "12:18 AM",
-                            maxLines = 1,
-                        )
-                    }
+                    Text(text = millisToFullDate(item.from), maxLines = 1)
+                    Text(text = "-", maxLines = 1)
+                    Text(text = millisToFullDate(item.to), maxLines = 1)
                 }
             }
         }
@@ -211,7 +175,7 @@ fun AlertList(
 }
 
 @Composable
-fun NewAlertDialog(onDismiss: () -> Unit) {
+fun NewAlertDialog(onConfirm: (Calendar, Calendar) -> Unit, onDismiss: () -> Unit) {
 
     val context = LocalContext.current
     var alarmState by remember { mutableStateOf(true) }
@@ -307,6 +271,7 @@ fun NewAlertDialog(onDismiss: () -> Unit) {
                 Button(
                     modifier = Modifier.weight(1f),
                     onClick = {
+                        onConfirm(from, to)
                         onDismiss()
                         println(
                             "DATETIME -> ${millisToDate(from.timeInMillis)}, ${
@@ -391,3 +356,12 @@ private fun millisToDate(timeMillis: Long): String {
 private fun millisToTime(timeMillis: Long): String {
     return SimpleDateFormat("hh:mm a", Locale.getDefault()).format(timeMillis)
 }
+
+private fun millisToFullDate(timeMillis: Long): String {
+    return SimpleDateFormat("dd MMM  hh:mm a", Locale.getDefault()).format(timeMillis)
+}
+
+data class AlertTime(
+    val from: Long,
+    val to: Long
+)
