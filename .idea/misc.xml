@@ -29,6 +29,8 @@
         <entry key="app/src/main/res/drawable/ultraviolet.xml" value="0.30185185185185187" />
         <entry key="app/src/main/res/drawable/visibility.xml" value="0.30185185185185187" />
         <entry key="app/src/main/res/drawable/wind_speed.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/layout/fragment_maps.xml" value="0.16869300911854104" />
+        <entry key="app/src/main/res/layout/layout_maps.xml" value="0.16869300911854104" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.30185185185185187" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.30185185185185187" />
       </map>

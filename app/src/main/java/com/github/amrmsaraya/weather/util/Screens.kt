@@ -2,14 +2,8 @@ package com.github.amrmsaraya.weather.util
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.github.amrmsaraya.weather.R
 
@@ -45,5 +39,12 @@ sealed class Screens(
         stringId = R.string.settings,
         activeIcon = Icons.Filled.Settings,
         inactiveIcon = Icons.Outlined.Settings
+    )
+
+    object Maps : Screens(
+        route = "map",
+        stringId = R.string.map,
+        activeIcon = Icons.Filled.Map,
+        inactiveIcon = Icons.Outlined.Map
     )
 }

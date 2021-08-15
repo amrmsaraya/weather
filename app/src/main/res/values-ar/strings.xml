@@ -54,5 +54,11 @@
     <string name="no_alerts">لا يوجد تنبيهات</string>
     <string name="no_favorites">لا يوجد أماكن مفضلة</string>
     <string name="cancel">إلغاء</string>
-
+    <string name="general">عام</string>
+    <string name="units">وحدات</string>
+    <string name="from_date">من تاريخ</string>
+    <string name="from_time">من الساعة</string>
+    <string name="to_date">إلي تاريخ</string>
+    <string name="to_time">إلي الساعة</string>
+    <string name="new_alert">منبه جديد</string>
 </resources>

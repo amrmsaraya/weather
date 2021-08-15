@@ -19,8 +19,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -80,6 +83,7 @@ fun HomeContent() {
                     highlight = PlaceholderHighlight.fade()
                 ),
             text = "Al Omraneyah Al Gharbeyah",
+            maxLines = 1,
             fontSize = 18.sp,
             textAlign = TextAlign.Center
         )
@@ -151,23 +155,25 @@ fun TempAndDescription() {
 
 @Composable
 fun Temp(temp: Int = 39) {
-    ConstraintLayout {
-        val (tmp, degree) = createRefs()
-        Text(
-            modifier = Modifier.constrainAs(tmp) { centerTo(parent) },
-            text = temp.toString(),
-            color = Color.White,
-            style = MaterialTheme.typography.h1,
-            fontFamily = Spartan
-        )
-        Text(
-            modifier = Modifier
-                .constrainAs(degree) { start.linkTo(tmp.end) }
-                .padding(top = 20.dp),
-            text = "°C",
-            color = Color.White,
-            style = MaterialTheme.typography.h4
-        )
+    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+        ConstraintLayout {
+            val (tmp, degree) = createRefs()
+            Text(
+                modifier = Modifier.constrainAs(tmp) { centerTo(parent) },
+                text = temp.toString(),
+                color = Color.White,
+                style = MaterialTheme.typography.h1,
+                fontFamily = Spartan
+            )
+            Text(
+                modifier = Modifier
+                    .constrainAs(degree) { start.linkTo(tmp.end) }
+                    .padding(top = 20.dp),
+                text = "°C",
+                color = Color.White,
+                style = MaterialTheme.typography.h4
+            )
+        }
     }
 }
 
@@ -287,6 +293,7 @@ fun DailyForecast() {
                             },
                         text = list[item].description,
                         maxLines = 1,
+                        textAlign = TextAlign.End,
                         color = if (item == 0) Color.White else MaterialTheme.colors.onSurface
                     )
                     Text(
@@ -380,7 +387,7 @@ fun ForecastDetailsItem(item: ForecastIcons, details: ForecastDetails) {
         )
         Text(
             modifier = Modifier.padding(8.dp),
-            text = item.name,
+            text = stringResource(id = item.nameId),
             color = Color.Gray
         )
     }

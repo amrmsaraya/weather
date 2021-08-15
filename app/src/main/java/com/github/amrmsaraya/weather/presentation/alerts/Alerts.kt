@@ -205,20 +205,20 @@ fun NewAlertDialog(onConfirm: (Calendar, Calendar) -> Unit, onDismiss: () -> Uni
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("New alert") },
+        title = { Text(stringResource(R.string.new_alert)) },
         text = {
             Column {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     DateTimeOutlinedTextField(
                         modifier = Modifier.weight(0.5f),
-                        label = "From Date",
+                        label = stringResource(R.string.from_date),
                         value = millisToDate(fromDate.timeInMillis),
                         onClick = { showDatePicker(context) { fromDate = it } }
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                     DateTimeOutlinedTextField(
                         modifier = Modifier.weight(0.5f),
-                        label = "From Time",
+                        label = stringResource(R.string.from_time),
                         value = millisToTime(fromTime.timeInMillis),
                         onClick = { showTimePicker(context) { fromTime = it } }
                     )
@@ -227,14 +227,14 @@ fun NewAlertDialog(onConfirm: (Calendar, Calendar) -> Unit, onDismiss: () -> Uni
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     DateTimeOutlinedTextField(
                         modifier = Modifier.weight(0.5f),
-                        label = "To Date",
+                        label = stringResource(R.string.to_date),
                         value = millisToDate(toDate.timeInMillis),
                         onClick = { showDatePicker(context) { toDate = it } }
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                     DateTimeOutlinedTextField(
                         modifier = Modifier.weight(0.5f),
-                        label = "To Time",
+                        label = stringResource(R.string.to_time),
                         value = millisToTime(toTime.timeInMillis),
                         onClick = { showTimePicker(context) { toTime = it } }
                     )
@@ -245,7 +245,7 @@ fun NewAlertDialog(onConfirm: (Calendar, Calendar) -> Unit, onDismiss: () -> Uni
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = "Alarm")
+                    Text(text = stringResource(id = R.string.alarm))
                     Switch(
                         checked = alarmState,
                         onCheckedChange = { alarmState = !alarmState },
@@ -350,7 +350,7 @@ private fun showTimePicker(context: Context, onTimeChange: (Calendar) -> Unit) {
 
 
 private fun millisToDate(timeMillis: Long): String {
-    return SimpleDateFormat("y-MM-dd", Locale.getDefault()).format(timeMillis)
+    return SimpleDateFormat("dd-MM-y", Locale.getDefault()).format(timeMillis)
 }
 
 private fun millisToTime(timeMillis: Long): String {

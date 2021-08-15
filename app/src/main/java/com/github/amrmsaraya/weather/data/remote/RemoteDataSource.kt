@@ -1,4 +1,3 @@
 package com.github.amrmsaraya.weather.data.remote
 
-class RemoteDataSource {
-}
+class RemoteDataSource

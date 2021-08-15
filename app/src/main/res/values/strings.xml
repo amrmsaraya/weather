@@ -53,5 +53,11 @@
     <string name="disable">Disable</string>
     <string name="no_alerts">No Alerts</string>
     <string name="no_favorites">No Favorites</string>
-
+    <string name="general">General</string>
+    <string name="units">Units</string>
+    <string name="from_date">From Date</string>
+    <string name="from_time">From Time</string>
+    <string name="to_date">To Date</string>
+    <string name="to_time">To Time</string>
+    <string name="new_alert">New alert</string>
 </resources>
