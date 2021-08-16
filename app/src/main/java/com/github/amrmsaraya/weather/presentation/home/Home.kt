@@ -45,8 +45,6 @@ fun HomeScreen(modifier: Modifier = Modifier) {
     var isRefreshing by remember { mutableStateOf(false) }
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
 
-
-
     SwipeRefresh(
         modifier = modifier,
         state = swipeRefreshState,

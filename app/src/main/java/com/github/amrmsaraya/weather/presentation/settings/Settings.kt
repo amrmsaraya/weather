@@ -1,20 +1,25 @@
 package com.github.amrmsaraya.weather.presentation.settings
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.github.amrmsaraya.weather.R
+import com.github.amrmsaraya.weather.presentation.components.AnimatedVisibilityFade
 
+@ExperimentalAnimationApi
 @Composable
 fun Settings(modifier: Modifier = Modifier, onMapClick: () -> Unit) {
     val scrollState = rememberScrollState()
@@ -56,9 +61,6 @@ fun Settings(modifier: Modifier = Modifier, onMapClick: () -> Unit) {
         var temperature by remember { mutableStateOf(temperatureItems.first()) }
         var windSpeed by remember { mutableStateOf(windSpeedItems.first()) }
 
-        if (location == stringResource(id = R.string.map)) {
-            onMapClick()
-        }
         Text(
             text = stringResource(R.string.general),
             style = MaterialTheme.typography.h6,
@@ -72,6 +74,7 @@ fun Settings(modifier: Modifier = Modifier, onMapClick: () -> Unit) {
             expanded = expandedLocation,
             onClick = { expandedLocation = true },
             onDismiss = { expandedLocation = false },
+            onMapClick = onMapClick,
             selectedItem = location,
             onItemClick = { location = it }
         )
@@ -82,6 +85,7 @@ fun Settings(modifier: Modifier = Modifier, onMapClick: () -> Unit) {
             expanded = expandedLanguage,
             onClick = { expandedLanguage = true },
             onDismiss = { expandedLanguage = false },
+            onMapClick = onMapClick,
             selectedItem = language,
             onItemClick = { language = it }
         )
@@ -115,6 +119,7 @@ fun Settings(modifier: Modifier = Modifier, onMapClick: () -> Unit) {
             expanded = expandedTemperature,
             onClick = { expandedTemperature = true },
             onDismiss = { expandedTemperature = false },
+            onMapClick = onMapClick,
             selectedItem = temperature,
             onItemClick = { temperature = it }
         )
@@ -124,6 +129,7 @@ fun Settings(modifier: Modifier = Modifier, onMapClick: () -> Unit) {
             items = windSpeedItems,
             expanded = expandedWindSpeed,
             onClick = { expandedWindSpeed = true },
+            onMapClick = onMapClick,
             onDismiss = { expandedWindSpeed = false },
             selectedItem = windSpeed,
             onItemClick = { windSpeed = it }
@@ -131,6 +137,7 @@ fun Settings(modifier: Modifier = Modifier, onMapClick: () -> Unit) {
     }
 }
 
+@ExperimentalAnimationApi
 @Composable
 fun DropdownRow(
     modifier: Modifier = Modifier,
@@ -139,6 +146,7 @@ fun DropdownRow(
     expanded: Boolean,
     onClick: () -> Unit,
     onDismiss: () -> Unit,
+    onMapClick: () -> Unit,
     selectedItem: String,
     onItemClick: (String) -> Unit
 ) {
@@ -148,14 +156,29 @@ fun DropdownRow(
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         Text(text = title)
-        DropdownMenuBox(
-            items = items,
-            expanded = expanded,
-            onClick = onClick,
-            onDismiss = onDismiss,
-            selectedItem = selectedItem,
-            onItemClick = { onItemClick(it) }
-        )
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            AnimatedVisibilityFade(selectedItem == stringResource(id = R.string.map)) {
+                Button(
+                    modifier = Modifier.padding(end = 8.dp),
+                    colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.surface),
+                    onClick = { onMapClick() }) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        tint = MaterialTheme.colors.secondary,
+                        contentDescription = null
+                    )
+                }
+            }
+            DropdownMenuBox(
+                items = items,
+                expanded = expanded,
+                onClick = onClick,
+                onDismiss = onDismiss,
+                selectedItem = selectedItem,
+                onItemClick = { onItemClick(it) }
+            )
+        }
     }
 }
 
