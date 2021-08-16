@@ -7,13 +7,13 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.github.amrmsaraya.weather.presentation.theme.WeatherTheme
@@ -29,27 +29,36 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         installSplashScreen()
-
         setContent {
-            WeatherTheme {
-                Surface(
-                    color = MaterialTheme.colors.surface,
-                ) {
-                    val navController = rememberAnimatedNavController()
-                    val scaffoldState = rememberScaffoldState()
+            App()
+        }
+    }
+}
 
-                    Scaffold(
-                        scaffoldState = scaffoldState,
-                        bottomBar = { BottomNav(navController = navController) },
-                    ) { innerPadding ->
-                        Navigation(
-                            modifier = Modifier.padding(innerPadding),
-                            navController = navController
-                        )
-                    }
-                }
+@ExperimentalFoundationApi
+@ExperimentalAnimationApi
+@Composable
+private fun App() {
+    WeatherTheme {
+        Surface(
+            color = MaterialTheme.colors.surface,
+        ) {
+            val navController = rememberAnimatedNavController()
+            val scaffoldState = rememberScaffoldState()
+
+            Scaffold(
+                scaffoldState = scaffoldState,
+                bottomBar = {
+                    BottomNavigation(
+                        navController = navController,
+                    )
+                },
+            ) { innerPadding ->
+                Navigation(
+                    modifier = Modifier.padding(innerPadding),
+                    navController = navController
+                )
             }
         }
     }
@@ -57,13 +66,29 @@ class MainActivity : ComponentActivity() {
 
 @ExperimentalFoundationApi
 @Composable
-fun BottomNav(navController: NavHostController) {
+fun BottomNavigation(navController: NavHostController) {
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+
+    if (currentDestination?.route != Maps.route){
+        BottomNav(
+            navController = navController,
+            currentDestination = currentDestination
+        )
+    }
+
+}
+
+@ExperimentalFoundationApi
+@Composable
+fun BottomNav(
+    navController: NavHostController,
+    currentDestination: NavDestination?
+) {
     BottomNavigation(
         backgroundColor = MaterialTheme.colors.surface,
         elevation = 0.dp
     ) {
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentDestination = navBackStackEntry?.destination
         val screens = listOf(Home, Favorites, Alerts, Settings)
 
         for (screen in screens) {

@@ -85,7 +85,7 @@ fun Settings(modifier: Modifier = Modifier, onMapClick: () -> Unit) {
             expanded = expandedLanguage,
             onClick = { expandedLanguage = true },
             onDismiss = { expandedLanguage = false },
-            onMapClick = onMapClick,
+            onMapClick = {  },
             selectedItem = language,
             onItemClick = { language = it }
         )
@@ -119,7 +119,7 @@ fun Settings(modifier: Modifier = Modifier, onMapClick: () -> Unit) {
             expanded = expandedTemperature,
             onClick = { expandedTemperature = true },
             onDismiss = { expandedTemperature = false },
-            onMapClick = onMapClick,
+            onMapClick = {  },
             selectedItem = temperature,
             onItemClick = { temperature = it }
         )
@@ -129,7 +129,7 @@ fun Settings(modifier: Modifier = Modifier, onMapClick: () -> Unit) {
             items = windSpeedItems,
             expanded = expandedWindSpeed,
             onClick = { expandedWindSpeed = true },
-            onMapClick = onMapClick,
+            onMapClick = {  },
             onDismiss = { expandedWindSpeed = false },
             selectedItem = windSpeed,
             onItemClick = { windSpeed = it }

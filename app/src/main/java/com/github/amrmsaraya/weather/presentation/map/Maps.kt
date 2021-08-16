@@ -18,7 +18,6 @@ import com.google.android.libraries.maps.model.MarkerOptions
 import com.google.maps.android.ktx.awaitMap
 import kotlinx.coroutines.launch
 
-
 @Composable
 fun Maps(modifier: Modifier) {
     val map = rememberMapViewWithLifecycle()

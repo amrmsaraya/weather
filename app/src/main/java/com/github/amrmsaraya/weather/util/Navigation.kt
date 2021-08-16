@@ -48,7 +48,5 @@ fun Navigation(
         composable(Maps.route) {
             Maps(modifier)
         }
-
     }
-
 }
