@@ -19,7 +19,8 @@ import com.google.accompanist.navigation.animation.composable
 @Composable
 fun Navigation(
     modifier: Modifier = Modifier,
-    navController: NavHostController
+    navController: NavHostController,
+    isDarkTheme: (String) -> Unit
 ) {
     AnimatedNavHost(
         navController = navController,
@@ -42,7 +43,8 @@ fun Navigation(
                         popUpTo(Settings.route)
                         launchSingleTop = true
                     }
-                }
+                },
+                isDarkTheme = isDarkTheme
             )
         }
         composable(Maps.route) {

@@ -28,8 +28,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.github.amrmsaraya.weather.R
-import com.github.amrmsaraya.weather.presentation.theme.Blue
-import com.github.amrmsaraya.weather.presentation.theme.Pink
 import com.github.amrmsaraya.weather.presentation.theme.Spartan
 import com.github.amrmsaraya.weather.util.ForecastIcons
 import com.github.amrmsaraya.weather.util.ForecastIcons.*
@@ -132,7 +130,14 @@ fun TempAndDescription() {
             .fillMaxWidth()
             .height(250.dp)
             .clip(MaterialTheme.shapes.medium)
-            .background(Brush.linearGradient(colors = listOf(Pink, Blue)))
+            .background(
+                Brush.linearGradient(
+                    colors = listOf(
+                        MaterialTheme.colors.secondary,
+                        MaterialTheme.colors.primary
+                    )
+                )
+            )
             .placeholder(
                 visible = false,
                 color = Color.LightGray,
@@ -238,7 +243,10 @@ fun DailyForecast() {
                     .clip(MaterialTheme.shapes.medium)
                     .background(
                         Brush.linearGradient(
-                            colors = listOf(Pink, Blue)
+                            colors = listOf(
+                                MaterialTheme.colors.secondary,
+                                MaterialTheme.colors.primary
+                            )
                         )
                     )
                     .placeholder(

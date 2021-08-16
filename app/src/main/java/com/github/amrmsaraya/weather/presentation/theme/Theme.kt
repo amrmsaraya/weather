@@ -13,7 +13,6 @@ private val DarkColorPalette = darkColors(
     primaryVariant = Blue,
     secondary = Pink,
     secondaryVariant = Pink
-
 )
 
 private val LightColorPalette = lightColors(
@@ -21,24 +20,35 @@ private val LightColorPalette = lightColors(
     primaryVariant = Blue,
     secondary = Pink,
     secondaryVariant = Pink
+)
 
-    /* Other default colors to override
-    background = Color.White,
-    surface = Color.White,
-    onPrimary = Color.White,
-    onSecondary = Color.Black,
-    onBackground = Color.Black,
-    onSurface = Color.Black,
-    */
+
+private val DarkColorPalette1 = darkColors(
+    primary = Primary1,
+    primaryVariant = Primary1,
+    secondary = Secondary1,
+    secondaryVariant = Secondary1
+)
+
+private val LightColorPalette1 = lightColors(
+    primary = Primary1,
+    primaryVariant = Primary1,
+    secondary = Secondary1,
+    secondaryVariant = Secondary1
 )
 
 @Composable
 fun WeatherTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    theme: String = "Default",
     content: @Composable () -> Unit
 ) {
-    val colors = if (darkTheme) DarkColorPalette else LightColorPalette
+    var colors = LightColorPalette
 
+    colors = when (theme) {
+        "1" -> if (darkTheme) DarkColorPalette1 else LightColorPalette1
+        else -> if (darkTheme) DarkColorPalette else LightColorPalette
+    }
     val systemUiController = rememberSystemUiController()
     SideEffect {
         systemUiController.setSystemBarsColor(color = colors.surface)

@@ -211,14 +211,14 @@ fun NewAlertDialog(onConfirm: (Calendar, Calendar) -> Unit, onDismiss: () -> Uni
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     DateTimeOutlinedTextField(
                         modifier = Modifier.weight(0.5f),
-                        label = stringResource(R.string.from_date),
+                        label = stringResource(R.string.from),
                         value = millisToDate(fromDate.timeInMillis),
                         onClick = { showDatePicker(context) { fromDate = it } }
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                     DateTimeOutlinedTextField(
                         modifier = Modifier.weight(0.5f),
-                        label = stringResource(R.string.from_time),
+                        label = stringResource(R.string.from),
                         value = millisToTime(fromTime.timeInMillis),
                         onClick = { showTimePicker(context) { fromTime = it } }
                     )
@@ -227,14 +227,14 @@ fun NewAlertDialog(onConfirm: (Calendar, Calendar) -> Unit, onDismiss: () -> Uni
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     DateTimeOutlinedTextField(
                         modifier = Modifier.weight(0.5f),
-                        label = stringResource(R.string.to_date),
+                        label = stringResource(R.string.to),
                         value = millisToDate(toDate.timeInMillis),
                         onClick = { showDatePicker(context) { toDate = it } }
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                     DateTimeOutlinedTextField(
                         modifier = Modifier.weight(0.5f),
-                        label = stringResource(R.string.to_time),
+                        label = stringResource(R.string.to),
                         value = millisToTime(toTime.timeInMillis),
                         onClick = { showTimePicker(context) { toTime = it } }
                     )

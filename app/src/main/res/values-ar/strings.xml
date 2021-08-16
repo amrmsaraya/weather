@@ -61,4 +61,9 @@
     <string name="to_date">إلي تاريخ</string>
     <string name="to_time">إلي الساعة</string>
     <string name="new_alert">منبه جديد</string>
+    <string name="theme">السمة</string>
+    <string name="light">مضئ</string>
+    <string name="dark">مظلم</string>
+    <string name="accent">اﻷلوان</string>
+    <string name="default_">تلقائي</string>
 </resources>

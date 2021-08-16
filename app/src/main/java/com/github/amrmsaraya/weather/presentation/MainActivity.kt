@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -16,6 +17,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.presentation.theme.WeatherTheme
 import com.github.amrmsaraya.weather.util.Navigation
 import com.github.amrmsaraya.weather.util.Screens.*
@@ -40,7 +42,14 @@ class MainActivity : ComponentActivity() {
 @ExperimentalAnimationApi
 @Composable
 private fun App() {
-    WeatherTheme {
+    var isDarkTheme by remember { mutableStateOf("") }
+    val darkTheme = when (isDarkTheme) {
+        stringResource(id = R.string.light) -> false
+        stringResource(id = R.string.dark) -> true
+        else -> isSystemInDarkTheme()
+    }
+
+    WeatherTheme(darkTheme = darkTheme, theme = "Default") {
         Surface(
             color = MaterialTheme.colors.surface,
         ) {
@@ -57,7 +66,8 @@ private fun App() {
             ) { innerPadding ->
                 Navigation(
                     modifier = Modifier.padding(innerPadding),
-                    navController = navController
+                    navController = navController,
+                    isDarkTheme = { isDarkTheme = it }
                 )
             }
         }
@@ -70,7 +80,7 @@ fun BottomNavigation(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    if (currentDestination?.route != Maps.route){
+    if (currentDestination?.route != Maps.route) {
         BottomNav(
             navController = navController,
             currentDestination = currentDestination

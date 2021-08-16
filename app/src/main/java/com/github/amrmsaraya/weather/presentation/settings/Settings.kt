@@ -1,6 +1,8 @@
 package com.github.amrmsaraya.weather.presentation.settings
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -11,17 +13,19 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.presentation.components.AnimatedVisibilityFade
+import com.github.amrmsaraya.weather.presentation.theme.Blue
+import com.github.amrmsaraya.weather.presentation.theme.Pink
 
 @ExperimentalAnimationApi
 @Composable
-fun Settings(modifier: Modifier = Modifier, onMapClick: () -> Unit) {
+fun Settings(modifier: Modifier = Modifier, onMapClick: () -> Unit, isDarkTheme: (String) -> Unit) {
     val scrollState = rememberScrollState()
     Column(
         modifier = modifier
@@ -29,37 +33,44 @@ fun Settings(modifier: Modifier = Modifier, onMapClick: () -> Unit) {
             .verticalScroll(scrollState)
             .padding(16.dp)
     ) {
-        val locationItems =
-            listOf(
-                stringResource(id = R.string.gps),
-                stringResource(id = R.string.map)
-            )
-        val languageItems =
-            listOf(
-                stringResource(id = R.string.english),
-                stringResource(id = R.string.arabic)
-            )
+        val locationItems = listOf(
+            stringResource(id = R.string.gps),
+            stringResource(id = R.string.map)
+        )
+        val languageItems = listOf(
+            stringResource(id = R.string.english),
+            stringResource(id = R.string.arabic)
+        )
         val temperatureItems = listOf(
             stringResource(id = R.string.celsius),
             stringResource(id = R.string.kelvin),
             stringResource(id = R.string.fahrenheit)
         )
-        val windSpeedItems =
-            listOf(
-                stringResource(id = R.string.meter_sec),
-                stringResource(id = R.string.mile_hour)
-            )
+        val windSpeedItems = listOf(
+            stringResource(id = R.string.meter_sec),
+            stringResource(id = R.string.mile_hour)
+        )
+        val themeItems = listOf(
+            stringResource(id = R.string.default_),
+            stringResource(id = R.string.light),
+            stringResource(id = R.string.dark)
+        )
+
 
         var expandedLocation by remember { mutableStateOf(false) }
         var expandedLanguage by remember { mutableStateOf(false) }
         var expandedTemperature by remember { mutableStateOf(false) }
         var expandedWindSpeed by remember { mutableStateOf(false) }
+        var expandedTheme by remember { mutableStateOf(false) }
         var notificationsChecked by remember { mutableStateOf(true) }
 
         var location by remember { mutableStateOf(locationItems.first()) }
         var language by remember { mutableStateOf(languageItems.first()) }
         var temperature by remember { mutableStateOf(temperatureItems.first()) }
         var windSpeed by remember { mutableStateOf(windSpeedItems.first()) }
+        var theme by remember { mutableStateOf(themeItems.first()) }
+
+        isDarkTheme(theme)
 
         Text(
             text = stringResource(R.string.general),
@@ -85,10 +96,38 @@ fun Settings(modifier: Modifier = Modifier, onMapClick: () -> Unit) {
             expanded = expandedLanguage,
             onClick = { expandedLanguage = true },
             onDismiss = { expandedLanguage = false },
-            onMapClick = {  },
+            onMapClick = { },
             selectedItem = language,
             onItemClick = { language = it }
         )
+        Spacer(modifier = Modifier.size(8.dp))
+        DropdownRow(
+            title = stringResource(R.string.theme),
+            items = themeItems,
+            expanded = expandedTheme,
+            onClick = { expandedTheme = true },
+            onDismiss = { expandedTheme = false },
+            onMapClick = { },
+            selectedItem = theme,
+            onItemClick = { theme = it }
+        )
+        Spacer(modifier = Modifier.size(8.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(stringResource(id = R.string.accent))
+            Box(
+                modifier = Modifier
+                    .size(60.dp, 40.dp)
+                    .background(
+                        Brush.linearGradient(listOf(Pink, Blue)),
+                        shape = MaterialTheme.shapes.small
+                    )
+                    .clickable { }
+            )
+        }
         Spacer(modifier = Modifier.size(16.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -119,7 +158,7 @@ fun Settings(modifier: Modifier = Modifier, onMapClick: () -> Unit) {
             expanded = expandedTemperature,
             onClick = { expandedTemperature = true },
             onDismiss = { expandedTemperature = false },
-            onMapClick = {  },
+            onMapClick = { },
             selectedItem = temperature,
             onItemClick = { temperature = it }
         )
@@ -129,7 +168,7 @@ fun Settings(modifier: Modifier = Modifier, onMapClick: () -> Unit) {
             items = windSpeedItems,
             expanded = expandedWindSpeed,
             onClick = { expandedWindSpeed = true },
-            onMapClick = {  },
+            onMapClick = { },
             onDismiss = { expandedWindSpeed = false },
             selectedItem = windSpeed,
             onItemClick = { windSpeed = it }
@@ -192,22 +231,23 @@ fun DropdownMenuBox(
     selectedItem: String,
     onItemClick: (String) -> Unit
 ) {
-    Box(modifier = modifier.wrapContentSize(Alignment.TopEnd)) {
-        Button(
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor =
-                MaterialTheme.colors.surface
-            ),
-            onClick = onClick
+    Card(
+        modifier = modifier
+            .wrapContentSize(Alignment.Center)
+            .clickable { onClick() },
+        elevation = 2.dp,
+        backgroundColor = MaterialTheme.colors.surface,
+        shape = MaterialTheme.shapes.small
+    ) {
+        Row(
+            Modifier.padding(start = 16.dp, top = 8.dp, end = 8.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(text = selectedItem, fontWeight = FontWeight.Normal)
-                Spacer(modifier = Modifier.size(4.dp))
-                Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = null)
-            }
+            Text(text = selectedItem, fontWeight = FontWeight.Normal)
+            Spacer(modifier = Modifier.size(8.dp))
+            Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = null)
         }
+
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = onDismiss,
