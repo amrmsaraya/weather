@@ -1,14 +1,8 @@
 <resources>
-    <!-- Base application theme. -->
-    <style name="Theme.Weather" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Primary brand color. -->
+
+    <style name="Theme.Weather" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="colorPrimary">@color/blue</item>
-        <item name="colorPrimaryVariant">@color/blue</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/pink</item>
-        <item name="colorSecondaryVariant">@color/pink</item>
-        <item name="colorOnSecondary">@color/white</item>
     </style>
 
     <style name="Theme.Weather.Starting" parent="Theme.SplashScreen">
