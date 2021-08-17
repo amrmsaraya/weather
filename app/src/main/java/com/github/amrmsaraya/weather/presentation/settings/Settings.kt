@@ -1,14 +1,16 @@
 package com.github.amrmsaraya.weather.presentation.settings
 
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.GridCells
+import androidx.compose.foundation.lazy.LazyVerticalGrid
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,14 +20,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.presentation.components.AnimatedVisibilityFade
-import com.github.amrmsaraya.weather.presentation.theme.Blue
-import com.github.amrmsaraya.weather.presentation.theme.Pink
+import com.github.amrmsaraya.weather.presentation.theme.colorsList
 
+@ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable
-fun Settings(modifier: Modifier = Modifier, onMapClick: () -> Unit, isDarkTheme: (String) -> Unit) {
+fun Settings(
+    modifier: Modifier = Modifier,
+    onMapClick: () -> Unit,
+    isDarkTheme: (String) -> Unit,
+    colorIndex: (Int) -> Unit
+) {
     val scrollState = rememberScrollState()
     Column(
         modifier = modifier
@@ -56,7 +65,6 @@ fun Settings(modifier: Modifier = Modifier, onMapClick: () -> Unit, isDarkTheme:
             stringResource(id = R.string.dark)
         )
 
-
         var expandedLocation by remember { mutableStateOf(false) }
         var expandedLanguage by remember { mutableStateOf(false) }
         var expandedTemperature by remember { mutableStateOf(false) }
@@ -68,9 +76,22 @@ fun Settings(modifier: Modifier = Modifier, onMapClick: () -> Unit, isDarkTheme:
         var language by remember { mutableStateOf(languageItems.first()) }
         var temperature by remember { mutableStateOf(temperatureItems.first()) }
         var windSpeed by remember { mutableStateOf(windSpeedItems.first()) }
+
         var theme by remember { mutableStateOf(themeItems.first()) }
+        var color by remember { mutableStateOf(0) }
+
+        var showAccentDialog by remember { mutableStateOf(false) }
 
         isDarkTheme(theme)
+        colorIndex(color)
+
+        AccentDialog(
+            visible = showAccentDialog,
+            onDismiss = { showAccentDialog = false },
+            onClick = { color = it },
+            selectedColor = color
+        )
+
 
         Text(
             text = stringResource(R.string.general),
@@ -122,10 +143,15 @@ fun Settings(modifier: Modifier = Modifier, onMapClick: () -> Unit, isDarkTheme:
                 modifier = Modifier
                     .size(60.dp, 40.dp)
                     .background(
-                        Brush.linearGradient(listOf(Pink, Blue)),
+                        Brush.linearGradient(
+                            listOf(
+                                MaterialTheme.colors.secondary,
+                                MaterialTheme.colors.primary
+                            )
+                        ),
                         shape = MaterialTheme.shapes.small
                     )
-                    .clickable { }
+                    .clickable { showAccentDialog = true }
             )
         }
         Spacer(modifier = Modifier.size(16.dp))
@@ -263,4 +289,73 @@ fun DropdownMenuBox(
             }
         }
     }
+}
+
+@ExperimentalFoundationApi
+@Composable
+fun AccentDialog(
+    visible: Boolean,
+    onDismiss: () -> Unit,
+    onClick: (Int) -> Unit,
+    selectedColor: Int
+) {
+    val state = rememberLazyListState()
+    if (visible) {
+        Dialog(
+            onDismissRequest = onDismiss, properties = DialogProperties(
+                dismissOnBackPress = true,
+                dismissOnClickOutside = true
+            )
+        ) {
+            Box(
+                modifier = Modifier
+                    .wrapContentSize(Alignment.Center)
+                    .background(
+                        MaterialTheme.colors.surface,
+                        shape = MaterialTheme.shapes.medium
+                    )
+            ) {
+                LazyVerticalGrid(
+                    modifier = Modifier.fillMaxWidth(),
+                    cells = GridCells.Fixed(2),
+                    state = state,
+                    contentPadding = PaddingValues(8.dp)
+                ) {
+                    itemsIndexed(colorsList.toList()) { index, item ->
+                        Box(
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .size(100.dp, 75.dp)
+                                .background(
+                                    Brush.linearGradient(
+                                        listOf(
+                                            item.lightPalette.secondary,
+                                            item.lightPalette.primary
+                                        )
+                                    ),
+                                    shape = MaterialTheme.shapes.small
+                                )
+                                .clickable {
+                                    onClick(index)
+                                    onDismiss()
+                                }
+                        ) {
+                            if (index == selectedColor) {
+                                Icon(
+                                    modifier = Modifier
+                                        .align(Alignment.TopStart)
+                                        .padding(4.dp),
+                                    imageVector = Icons.Default.CheckCircle,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colors.surface
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+    }
+
 }

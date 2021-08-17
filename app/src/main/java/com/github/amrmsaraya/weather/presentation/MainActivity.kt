@@ -43,13 +43,15 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun App() {
     var isDarkTheme by remember { mutableStateOf("") }
+    var colorIndex by remember { mutableStateOf(0) }
+
     val darkTheme = when (isDarkTheme) {
         stringResource(id = R.string.light) -> false
         stringResource(id = R.string.dark) -> true
         else -> isSystemInDarkTheme()
     }
 
-    WeatherTheme(darkTheme = darkTheme, theme = "Default") {
+    WeatherTheme(darkTheme = darkTheme, colorIndex = colorIndex) {
         Surface(
             color = MaterialTheme.colors.surface,
         ) {
@@ -67,7 +69,8 @@ private fun App() {
                 Navigation(
                     modifier = Modifier.padding(innerPadding),
                     navController = navController,
-                    isDarkTheme = { isDarkTheme = it }
+                    isDarkTheme = { isDarkTheme = it },
+                    colorIndex = { colorIndex = it }
                 )
             }
         }

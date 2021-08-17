@@ -315,9 +315,11 @@ private fun DateTimeOutlinedTextField(
 
 private fun showDatePicker(context: Context, onDateChange: (Calendar) -> Unit) {
     val cal = Calendar.getInstance()
+    val x = 2
     cal.timeInMillis = System.currentTimeMillis()
     val dialog = DatePickerDialog(
         context,
+        theme(0),
         { _, year, month, dayOfMonth ->
             cal.set(year, month, dayOfMonth)
             onDateChange(cal)
@@ -333,6 +335,7 @@ private fun showTimePicker(context: Context, onTimeChange: (Calendar) -> Unit) {
     val dialog =
         TimePickerDialog(
             context,
+            theme(0),
             { _, hour, minute ->
                 cal.set(
                     cal[Calendar.YEAR],
@@ -359,6 +362,17 @@ private fun millisToTime(timeMillis: Long): String {
 
 private fun millisToFullDate(timeMillis: Long): String {
     return SimpleDateFormat("dd MMM  hh:mm a", Locale.getDefault()).format(timeMillis)
+}
+
+private fun theme(color: Int): Int {
+    return when (color) {
+        1 -> R.style.Dialog1
+        2 -> R.style.Dialog2
+        3 -> R.style.Dialog3
+        4 -> R.style.Dialog4
+        5 -> R.style.Dialog5
+        else -> R.style.Dialog
+    }
 }
 
 data class AlertTime(
