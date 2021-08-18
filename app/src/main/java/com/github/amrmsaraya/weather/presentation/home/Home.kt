@@ -12,7 +12,10 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +30,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.presentation.theme.Spartan
 import com.github.amrmsaraya.weather.util.ForecastIcons
@@ -37,16 +41,20 @@ import com.google.accompanist.placeholder.material.placeholder
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import kotlinx.coroutines.delay
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier) {
-    var isRefreshing by remember { mutableStateOf(false) }
-    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    viewModel: HomeViewModel = hiltViewModel()
+) {
+    val isLoading by viewModel.isLoading
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isLoading)
 
     SwipeRefresh(
         modifier = modifier,
         state = swipeRefreshState,
-        onRefresh = { isRefreshing = true },
+        onRefresh = { viewModel.isLoading.value = true },
         indicator = { state, trigger ->
             SwipeRefreshIndicator(
                 state = state,
@@ -56,6 +64,10 @@ fun HomeScreen(modifier: Modifier = Modifier) {
             )
         },
     ) {
+        LaunchedEffect(key1 = isLoading) {
+            delay(2000)
+            viewModel.isLoading.value = false
+        }
         HomeContent()
     }
 }
