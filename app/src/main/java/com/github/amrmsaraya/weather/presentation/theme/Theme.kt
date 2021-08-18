@@ -1,5 +1,6 @@
 package com.github.amrmsaraya.weather.presentation.theme
 
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
@@ -95,8 +96,6 @@ private val LightColorPalette5 = lightColors(
 )
 
 
-
-
 val colorsList = listOf(
     ColorPalette(LightColorPalette, DarkColorPalette),
     ColorPalette(LightColorPalette1, DarkColorPalette1),
@@ -118,6 +117,11 @@ fun WeatherTheme(
     val systemUiController = rememberSystemUiController()
     SideEffect {
         systemUiController.setSystemBarsColor(color = colors.surface)
+    }
+
+    when (darkTheme) {
+        true -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        false -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
     }
 
     MaterialTheme(

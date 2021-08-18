@@ -1,5 +1,6 @@
 package com.github.amrmsaraya.weather.presentation.settings
 
+import androidx.annotation.StringRes
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -22,6 +23,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.presentation.components.AnimatedVisibilityFade
 import com.github.amrmsaraya.weather.presentation.theme.colorsList
@@ -32,10 +34,10 @@ import com.github.amrmsaraya.weather.presentation.theme.colorsList
 fun Settings(
     modifier: Modifier = Modifier,
     onMapClick: () -> Unit,
-    isDarkTheme: (String) -> Unit,
-    colorIndex: (Int) -> Unit
+    viewModel: SettingsViewModel = hiltViewModel()
 ) {
     val scrollState = rememberScrollState()
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -43,26 +45,26 @@ fun Settings(
             .padding(16.dp)
     ) {
         val locationItems = listOf(
-            stringResource(id = R.string.gps),
-            stringResource(id = R.string.map)
+            R.string.gps,
+            R.string.map
         )
         val languageItems = listOf(
-            stringResource(id = R.string.english),
-            stringResource(id = R.string.arabic)
+            R.string.english,
+            R.string.arabic
         )
         val temperatureItems = listOf(
-            stringResource(id = R.string.celsius),
-            stringResource(id = R.string.kelvin),
-            stringResource(id = R.string.fahrenheit)
+            R.string.celsius,
+            R.string.kelvin,
+            R.string.fahrenheit
         )
         val windSpeedItems = listOf(
-            stringResource(id = R.string.meter_sec),
-            stringResource(id = R.string.mile_hour)
+            R.string.meter_sec,
+            R.string.mile_hour
         )
         val themeItems = listOf(
-            stringResource(id = R.string.default_),
-            stringResource(id = R.string.light),
-            stringResource(id = R.string.dark)
+            R.string.default_,
+            R.string.light,
+            R.string.dark
         )
 
         var expandedLocation by remember { mutableStateOf(false) }
@@ -70,68 +72,68 @@ fun Settings(
         var expandedTemperature by remember { mutableStateOf(false) }
         var expandedWindSpeed by remember { mutableStateOf(false) }
         var expandedTheme by remember { mutableStateOf(false) }
-        var notificationsChecked by remember { mutableStateOf(true) }
 
-        var location by remember { mutableStateOf(locationItems.first()) }
-        var language by remember { mutableStateOf(languageItems.first()) }
-        var temperature by remember { mutableStateOf(temperatureItems.first()) }
-        var windSpeed by remember { mutableStateOf(windSpeedItems.first()) }
+        viewModel.restorePreferences()
 
-        var theme by remember { mutableStateOf(themeItems.first()) }
-        var color by remember { mutableStateOf(0) }
+        val location by viewModel.location
+        val language by viewModel.language
+        val theme by viewModel.theme
+        val accent by viewModel.accent
+        val notifications by viewModel.notifications
+        val temperature by viewModel.temperature
+        val windSpeed by viewModel.windSpeed
 
         var showAccentDialog by remember { mutableStateOf(false) }
-
-        isDarkTheme(theme)
-        colorIndex(color)
 
         AccentDialog(
             visible = showAccentDialog,
             onDismiss = { showAccentDialog = false },
-            onClick = { color = it },
-            selectedColor = color
+            onClick = { viewModel.savePreference("accent", it) },
+            selectedColor = accent
         )
-
 
         Text(
             text = stringResource(R.string.general),
             style = MaterialTheme.typography.h6,
             color = MaterialTheme.colors.primary
         )
-        Spacer(modifier = Modifier.size(16.dp))
 
+        Spacer(modifier = Modifier.size(16.dp))
         DropdownRow(
             title = stringResource(id = R.string.location),
-            items = locationItems,
+            itemsIds = locationItems,
             expanded = expandedLocation,
             onClick = { expandedLocation = true },
             onDismiss = { expandedLocation = false },
             onMapClick = onMapClick,
-            selectedItem = location,
-            onItemClick = { location = it }
+            selectedItemId = location,
+            onItemClick = { viewModel.savePreference("location", it) }
         )
+
         Spacer(modifier = Modifier.size(8.dp))
         DropdownRow(
             title = stringResource(id = R.string.language),
-            items = languageItems,
+            itemsIds = languageItems,
             expanded = expandedLanguage,
             onClick = { expandedLanguage = true },
             onDismiss = { expandedLanguage = false },
             onMapClick = { },
-            selectedItem = language,
-            onItemClick = { language = it }
+            selectedItemId = language,
+            onItemClick = { viewModel.savePreference("language", it) }
         )
+
         Spacer(modifier = Modifier.size(8.dp))
         DropdownRow(
             title = stringResource(R.string.theme),
-            items = themeItems,
+            itemsIds = themeItems,
             expanded = expandedTheme,
             onClick = { expandedTheme = true },
             onDismiss = { expandedTheme = false },
             onMapClick = { },
-            selectedItem = theme,
-            onItemClick = { theme = it }
+            selectedItemId = theme,
+            onItemClick = { viewModel.savePreference("theme", it) }
         )
+
         Spacer(modifier = Modifier.size(8.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -154,6 +156,7 @@ fun Settings(
                     .clickable { showAccentDialog = true }
             )
         }
+
         Spacer(modifier = Modifier.size(16.dp))
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -162,8 +165,8 @@ fun Settings(
         ) {
             Text(text = stringResource(id = R.string.notifications))
             Switch(
-                checked = notificationsChecked,
-                onCheckedChange = { notificationsChecked = !notificationsChecked }
+                checked = notifications,
+                onCheckedChange = { viewModel.savePreference("notifications", it) }
             )
         }
 
@@ -176,28 +179,29 @@ fun Settings(
             style = MaterialTheme.typography.h6,
             color = MaterialTheme.colors.primary
         )
-        Spacer(modifier = Modifier.size(16.dp))
 
+        Spacer(modifier = Modifier.size(16.dp))
         DropdownRow(
             title = stringResource(id = R.string.temperature),
-            items = temperatureItems,
+            itemsIds = temperatureItems,
             expanded = expandedTemperature,
             onClick = { expandedTemperature = true },
             onDismiss = { expandedTemperature = false },
             onMapClick = { },
-            selectedItem = temperature,
-            onItemClick = { temperature = it }
+            selectedItemId = temperature,
+            onItemClick = { viewModel.savePreference("temperature", it) }
         )
+
         Spacer(modifier = Modifier.size(8.dp))
         DropdownRow(
             title = stringResource(id = R.string.wind_speed),
-            items = windSpeedItems,
+            itemsIds = windSpeedItems,
             expanded = expandedWindSpeed,
             onClick = { expandedWindSpeed = true },
             onMapClick = { },
             onDismiss = { expandedWindSpeed = false },
-            selectedItem = windSpeed,
-            onItemClick = { windSpeed = it }
+            selectedItemId = windSpeed,
+            onItemClick = { viewModel.savePreference("windSpeed", it) }
         )
     }
 }
@@ -207,13 +211,13 @@ fun Settings(
 fun DropdownRow(
     modifier: Modifier = Modifier,
     title: String,
-    items: List<String>,
+    itemsIds: List<Int>,
     expanded: Boolean,
     onClick: () -> Unit,
     onDismiss: () -> Unit,
     onMapClick: () -> Unit,
-    selectedItem: String,
-    onItemClick: (String) -> Unit
+    @StringRes selectedItemId: Int,
+    onItemClick: (Int) -> Unit
 ) {
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -223,7 +227,7 @@ fun DropdownRow(
         Text(text = title)
 
         Row(verticalAlignment = Alignment.CenterVertically) {
-            AnimatedVisibilityFade(selectedItem == stringResource(id = R.string.map)) {
+            AnimatedVisibilityFade(selectedItemId == R.string.map) {
                 Button(
                     modifier = Modifier.padding(end = 8.dp),
                     colors = ButtonDefaults.buttonColors(backgroundColor = MaterialTheme.colors.surface),
@@ -236,11 +240,11 @@ fun DropdownRow(
                 }
             }
             DropdownMenuBox(
-                items = items,
+                itemsIds = itemsIds,
                 expanded = expanded,
                 onClick = onClick,
                 onDismiss = onDismiss,
-                selectedItem = selectedItem,
+                selectedItemId = selectedItemId,
                 onItemClick = { onItemClick(it) }
             )
         }
@@ -250,12 +254,12 @@ fun DropdownRow(
 @Composable
 fun DropdownMenuBox(
     modifier: Modifier = Modifier,
-    items: List<String>,
+    itemsIds: List<Int>,
     expanded: Boolean,
     onClick: () -> Unit,
     onDismiss: () -> Unit,
-    selectedItem: String,
-    onItemClick: (String) -> Unit
+    @StringRes selectedItemId: Int,
+    onItemClick: (Int) -> Unit
 ) {
     Card(
         modifier = modifier
@@ -269,7 +273,7 @@ fun DropdownMenuBox(
             Modifier.padding(start = 16.dp, top = 8.dp, end = 8.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(text = selectedItem, fontWeight = FontWeight.Normal)
+            Text(text = stringResource(id = selectedItemId), fontWeight = FontWeight.Normal)
             Spacer(modifier = Modifier.size(8.dp))
             Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = null)
         }
@@ -279,12 +283,12 @@ fun DropdownMenuBox(
             onDismissRequest = onDismiss,
             offset = DpOffset(0.dp, 4.dp)
         ) {
-            items.forEach { item ->
+            itemsIds.forEach { itemId ->
                 DropdownMenuItem(onClick = {
                     onDismiss()
-                    onItemClick(item)
+                    onItemClick(itemId)
                 }) {
-                    Text(text = item)
+                    Text(text = stringResource(id = itemId))
                 }
             }
         }
@@ -354,8 +358,6 @@ fun AccentDialog(
                     }
                 }
             }
-
         }
     }
-
 }

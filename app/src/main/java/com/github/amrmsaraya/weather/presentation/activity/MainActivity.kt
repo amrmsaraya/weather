@@ -1,26 +1,31 @@
-package com.github.amrmsaraya.weather.presentation
+package com.github.amrmsaraya.weather.presentation.activity
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.github.amrmsaraya.weather.R
+import com.github.amrmsaraya.weather.presentation.navigation.Navigation
+import com.github.amrmsaraya.weather.presentation.navigation.Screens.*
 import com.github.amrmsaraya.weather.presentation.theme.WeatherTheme
-import com.github.amrmsaraya.weather.util.Navigation
-import com.github.amrmsaraya.weather.util.Screens.*
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -31,9 +36,12 @@ import dagger.hilt.android.AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        installSplashScreen()
+        val splash = installSplashScreen()
+        var keepSplash by mutableStateOf(true)
+        splash.setKeepVisibleCondition { keepSplash }
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         setContent {
-            App()
+            App { keepSplash = it }
         }
     }
 }
@@ -41,17 +49,25 @@ class MainActivity : ComponentActivity() {
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable
-private fun App() {
-    var isDarkTheme by remember { mutableStateOf("") }
-    var colorIndex by remember { mutableStateOf(0) }
+private fun App(
+    viewModel: MainViewModel = viewModel(),
+    onLoadSettings: (Boolean) -> Unit
+) {
+    viewModel.getIntPreference("theme")
+    viewModel.getIntPreference("accent")
 
-    val darkTheme = when (isDarkTheme) {
-        stringResource(id = R.string.light) -> false
-        stringResource(id = R.string.dark) -> true
+    onLoadSettings(viewModel.keepSplash.value)
+
+    val theme by viewModel.theme
+    val accent by viewModel.accent
+
+    val darkTheme = when (theme) {
+        R.string.light -> false
+        R.string.dark -> true
         else -> isSystemInDarkTheme()
     }
 
-    WeatherTheme(darkTheme = darkTheme, colorIndex = colorIndex) {
+    WeatherTheme(darkTheme = darkTheme, colorIndex = accent) {
         Surface(
             color = MaterialTheme.colors.surface,
         ) {
@@ -68,9 +84,7 @@ private fun App() {
             ) { innerPadding ->
                 Navigation(
                     modifier = Modifier.padding(innerPadding),
-                    navController = navController,
-                    isDarkTheme = { isDarkTheme = it },
-                    colorIndex = { colorIndex = it }
+                    navController = navController
                 )
             }
         }

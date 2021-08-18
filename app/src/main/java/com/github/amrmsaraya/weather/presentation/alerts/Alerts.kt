@@ -10,7 +10,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,26 +23,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.models.Forecast
 import com.github.amrmsaraya.weather.presentation.components.AddFAB
 import com.github.amrmsaraya.weather.presentation.components.AnimatedVisibilityFade
 import com.github.amrmsaraya.weather.presentation.components.DeleteFAB
 import com.github.amrmsaraya.weather.presentation.components.EmptyListIndicator
-import com.github.amrmsaraya.weather.presentation.theme.LightPink
 import java.text.SimpleDateFormat
 import java.util.*
 
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable
-fun Alert(modifier: Modifier = Modifier) {
+fun Alert(
+    modifier: Modifier = Modifier,
+    viewModel: AlertsViewModel = hiltViewModel()
+) {
 
     val scaffoldState = rememberScaffoldState()
     val alerts = remember { mutableStateListOf<AlertTime>() }
     val selectedItems = remember { mutableStateListOf<AlertTime>() }
     var selectMode by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
+
+    viewModel.getPreference("accent")
 
     BackHandler {
         if (selectMode) {
@@ -76,6 +80,7 @@ fun Alert(modifier: Modifier = Modifier) {
 
             if (showDialog) {
                 NewAlertDialog(
+                    accent = viewModel.accent.value,
                     onConfirm = { from, to ->
                         alerts.add(AlertTime(from.timeInMillis, to.timeInMillis))
                     },
@@ -128,10 +133,10 @@ fun AlertList(
 
             val backgroundColor by animateColorAsState(
                 targetValue = when (isSelected) {
-                    true -> if (isSystemInDarkTheme()) LightPink.copy(0.8f) else LightPink
+                    true -> MaterialTheme.colors.secondary
                     false -> MaterialTheme.colors.surface
                 },
-                animationSpec = tween(750)
+                animationSpec = tween(500)
             )
 
             Card(
@@ -175,7 +180,7 @@ fun AlertList(
 }
 
 @Composable
-fun NewAlertDialog(onConfirm: (Calendar, Calendar) -> Unit, onDismiss: () -> Unit) {
+fun NewAlertDialog(accent: Int, onConfirm: (Calendar, Calendar) -> Unit, onDismiss: () -> Unit) {
 
     val context = LocalContext.current
     var alarmState by remember { mutableStateOf(true) }
@@ -213,14 +218,14 @@ fun NewAlertDialog(onConfirm: (Calendar, Calendar) -> Unit, onDismiss: () -> Uni
                         modifier = Modifier.weight(0.5f),
                         label = stringResource(R.string.from),
                         value = millisToDate(fromDate.timeInMillis),
-                        onClick = { showDatePicker(context) { fromDate = it } }
+                        onClick = { showDatePicker(context, accent) { fromDate = it } }
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                     DateTimeOutlinedTextField(
                         modifier = Modifier.weight(0.5f),
                         label = stringResource(R.string.from),
                         value = millisToTime(fromTime.timeInMillis),
-                        onClick = { showTimePicker(context) { fromTime = it } }
+                        onClick = { showTimePicker(context, accent) { fromTime = it } }
                     )
                 }
                 Spacer(modifier = Modifier.size(16.dp))
@@ -229,14 +234,14 @@ fun NewAlertDialog(onConfirm: (Calendar, Calendar) -> Unit, onDismiss: () -> Uni
                         modifier = Modifier.weight(0.5f),
                         label = stringResource(R.string.to),
                         value = millisToDate(toDate.timeInMillis),
-                        onClick = { showDatePicker(context) { toDate = it } }
+                        onClick = { showDatePicker(context, accent) { toDate = it } }
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                     DateTimeOutlinedTextField(
                         modifier = Modifier.weight(0.5f),
                         label = stringResource(R.string.to),
                         value = millisToTime(toTime.timeInMillis),
-                        onClick = { showTimePicker(context) { toTime = it } }
+                        onClick = { showTimePicker(context, accent) { toTime = it } }
                     )
                 }
                 Spacer(modifier = Modifier.size(16.dp))
@@ -313,13 +318,12 @@ private fun DateTimeOutlinedTextField(
 }
 
 
-private fun showDatePicker(context: Context, onDateChange: (Calendar) -> Unit) {
+private fun showDatePicker(context: Context, accent: Int, onDateChange: (Calendar) -> Unit) {
     val cal = Calendar.getInstance()
-    val x = 2
     cal.timeInMillis = System.currentTimeMillis()
     val dialog = DatePickerDialog(
         context,
-        theme(0),
+        theme(accent),
         { _, year, month, dayOfMonth ->
             cal.set(year, month, dayOfMonth)
             onDateChange(cal)
@@ -329,13 +333,13 @@ private fun showDatePicker(context: Context, onDateChange: (Calendar) -> Unit) {
     dialog.show()
 }
 
-private fun showTimePicker(context: Context, onTimeChange: (Calendar) -> Unit) {
+private fun showTimePicker(context: Context, accent: Int, onTimeChange: (Calendar) -> Unit) {
     val cal = Calendar.getInstance()
     cal.timeInMillis = System.currentTimeMillis()
     val dialog =
         TimePickerDialog(
             context,
-            theme(0),
+            theme(accent),
             { _, hour, minute ->
                 cal.set(
                     cal[Calendar.YEAR],

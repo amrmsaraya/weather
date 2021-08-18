@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.models.Forecast
 import com.github.amrmsaraya.weather.presentation.components.AddFAB
@@ -34,7 +35,10 @@ import com.github.amrmsaraya.weather.presentation.theme.LightPink
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable
-fun Favorites(modifier: Modifier = Modifier) {
+fun Favorites(
+    modifier: Modifier = Modifier,
+    viewModel: FavoritesViewModel = hiltViewModel()
+) {
     val scaffoldState = rememberScaffoldState()
 
     val favorites = remember {
@@ -77,22 +81,6 @@ fun Favorites(modifier: Modifier = Modifier) {
                 .padding(innerPadding)
                 .padding(start = 16.dp, top = 16.dp, end = 16.dp)
         ) {
-
-
-//            LaunchedEffect(key1 = true) {
-//                favorites.clear()
-//                favorites.addAll(MutableList(20) {
-//                    Daily(
-//                        "32",
-//                        "16",
-//                        "Clear Sky",
-//                        "Tomorrow",
-//                        R.drawable.clear_day,
-//                        "Talkha",
-//                        id = it
-//                    )
-//                })
-//            }
 
             AnimatedVisibilityFade(favorites.isEmpty()) {
                 EmptyListIndicator(Icons.Filled.FavoriteBorder, R.string.no_favorites)
@@ -143,7 +131,7 @@ fun FavoritesList(
                     true -> if (isSystemInDarkTheme()) LightPink.copy(0.8f) else LightPink
                     false -> MaterialTheme.colors.surface
                 },
-                animationSpec = tween(750)
+                animationSpec = tween(500)
             )
 
             Card(

@@ -1,16 +1,18 @@
-package com.github.amrmsaraya.weather.util
+package com.github.amrmsaraya.weather.presentation.navigation
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.github.amrmsaraya.weather.presentation.activity.MainViewModel
 import com.github.amrmsaraya.weather.presentation.alerts.Alert
 import com.github.amrmsaraya.weather.presentation.favorites.Favorites
 import com.github.amrmsaraya.weather.presentation.home.HomeScreen
 import com.github.amrmsaraya.weather.presentation.map.Maps
+import com.github.amrmsaraya.weather.presentation.navigation.Screens.*
 import com.github.amrmsaraya.weather.presentation.settings.Settings
-import com.github.amrmsaraya.weather.util.Screens.*
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
 
@@ -20,9 +22,9 @@ import com.google.accompanist.navigation.animation.composable
 fun Navigation(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-    isDarkTheme: (String) -> Unit,
-    colorIndex: (Int) -> Unit
 ) {
+    val viewModel: MainViewModel = viewModel()
+
     AnimatedNavHost(
         navController = navController,
         startDestination = Home.route
@@ -44,9 +46,7 @@ fun Navigation(
                         popUpTo(Settings.route)
                         launchSingleTop = true
                     }
-                },
-                isDarkTheme = isDarkTheme,
-                colorIndex = colorIndex
+                }
             )
         }
         composable(Maps.route) {

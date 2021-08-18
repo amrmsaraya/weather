@@ -20,7 +20,7 @@ import org.junit.runner.RunWith
 class WeatherDaoTest {
 
     @get:Rule
-    var instantExecutorRule = InstantTaskExecutorRule()
+    var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var database: WeatherDatabase
     private lateinit var weatherDao: WeatherDao

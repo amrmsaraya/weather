@@ -19,23 +19,23 @@
     </style>
 
     <style name="Dialog1" parent="Theme.AppCompat.DayNight.Dialog">
-        <item name="colorAccent">@color/pink</item>
+        <item name="colorAccent">@color/secondary1</item>
     </style>
 
     <style name="Dialog2" parent="Theme.AppCompat.DayNight.Dialog">
-        <item name="colorAccent">@color/pink</item>
+        <item name="colorAccent">@color/secondary2</item>
     </style>
 
     <style name="Dialog3" parent="Theme.AppCompat.DayNight.Dialog">
-        <item name="colorAccent">@color/pink</item>
+        <item name="colorAccent">@color/secondary3</item>
     </style>
 
     <style name="Dialog4" parent="Theme.AppCompat.DayNight.Dialog">
-        <item name="colorAccent">@color/pink</item>
+        <item name="colorAccent">@color/secondary4</item>
     </style>
 
     <style name="Dialog5" parent="Theme.AppCompat.DayNight.Dialog">
-        <item name="colorAccent">@color/pink</item>
+        <item name="colorAccent">@color/secondary5</item>
     </style>
 
 </resources>

@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.util
+package com.github.amrmsaraya.weather.presentation.navigation
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
