@@ -1,6 +1,5 @@
 package com.github.amrmsaraya.weather.presentation.home
 
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -10,6 +9,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -32,6 +32,7 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.amrmsaraya.weather.R
+import com.github.amrmsaraya.weather.data.models.*
 import com.github.amrmsaraya.weather.presentation.theme.Spartan
 import com.github.amrmsaraya.weather.util.ForecastIcons
 import com.github.amrmsaraya.weather.util.ForecastIcons.*
@@ -41,20 +42,27 @@ import com.google.accompanist.placeholder.material.placeholder
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import kotlinx.coroutines.delay
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.math.roundToInt
 
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val isLoading by viewModel.isLoading
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isLoading)
+    val forecast by viewModel.forecast
+
+    LaunchedEffect(key1 = true) {
+        viewModel.getForecast(ForecastRequest(29.999249, 31.184951))
+    }
 
     SwipeRefresh(
         modifier = modifier,
         state = swipeRefreshState,
-        onRefresh = { viewModel.isLoading.value = true },
+        onRefresh = { viewModel.getForecast(ForecastRequest(29.999249, 31.184951)) },
         indicator = { state, trigger ->
             SwipeRefreshIndicator(
                 state = state,
@@ -64,16 +72,19 @@ fun HomeScreen(
             )
         },
     ) {
-        LaunchedEffect(key1 = isLoading) {
-            delay(2000)
-            viewModel.isLoading.value = false
+        if (forecast == null) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                viewModel.isLoading.value = false
+                CircularProgressIndicator(color = MaterialTheme.colors.secondary)
+            }
+        } else {
+            HomeContent(forecast!!)
         }
-        HomeContent()
     }
 }
 
 @Composable
-fun HomeContent() {
+fun HomeContent(forecast: Forecast) {
     val state = rememberScrollState()
     Column(
         modifier = Modifier
@@ -97,27 +108,31 @@ fun HomeContent() {
         )
         Spacer(modifier = Modifier.size(16.dp))
 
-        TemperatureBox()
+        TemperatureBox(forecast)
         Spacer(modifier = Modifier.size(26.dp))
 
-        HourlyForecast()
+        HourlyForecast(forecast.hourly.subList(0, 25))
         Spacer(modifier = Modifier.size(26.dp))
 
-        DailyForecast()
+        DailyForecast(forecast.daily.subList(1, 7))
         Spacer(modifier = Modifier.size(16.dp))
 
-        ForecastDetails()
+        ForecastDetails(forecast.current)
         Spacer(modifier = Modifier.size(8.dp))
 
     }
 }
 
 @Composable
-fun TemperatureBox() {
+fun TemperatureBox(forecast: Forecast) {
     Box(
         Modifier.wrapContentSize()
     ) {
-        TempAndDescription()
+        TempAndDescription(
+            forecast.current.temp,
+            forecast.current.weather[0].description.replaceFirstChar { it.uppercase() }
+        )
+
         Image(
             modifier = Modifier
                 .align(Alignment.TopCenter)
@@ -136,7 +151,7 @@ fun TemperatureBox() {
 }
 
 @Composable
-fun TempAndDescription() {
+fun TempAndDescription(temp: Double, description: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -160,22 +175,22 @@ fun TempAndDescription() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "Clear Sky",
+            text = description,
             color = Color.White,
             fontSize = 20.sp
         )
-        Temp()
+        Temp(temp)
     }
 }
 
 @Composable
-fun Temp(temp: Int = 39) {
+fun Temp(temp: Double) {
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         ConstraintLayout {
             val (tmp, degree) = createRefs()
             Text(
                 modifier = Modifier.constrainAs(tmp) { centerTo(parent) },
-                text = temp.toString(),
+                text = temp.roundToInt().toString(),
                 color = Color.White,
                 style = MaterialTheme.typography.h1,
                 fontFamily = Spartan
@@ -193,10 +208,9 @@ fun Temp(temp: Int = 39) {
 }
 
 @Composable
-fun HourlyForecast() {
-    val list = List(24) { Hourly("32°C", "1 AM", R.drawable.clear_day_24) }
+fun HourlyForecast(items: List<Hourly>) {
     LazyRow(verticalAlignment = Alignment.CenterVertically) {
-        items(list) {
+        items(items) { item ->
             Card(
                 modifier = Modifier
                     .padding(start = 2.dp, end = 8.dp)
@@ -211,19 +225,19 @@ fun HourlyForecast() {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         modifier = Modifier.padding(8.dp),
-                        text = it.hour,
+                        text = hourFormat(item.dt),
                         color = Color.Gray
                     )
                     Image(
                         modifier = Modifier
                             .padding(4.dp)
                             .size(24.dp),
-                        painter = painterResource(id = it.icon),
+                        painter = painterResource(id = R.drawable.clear_day),
                         contentDescription = "Weather Icon"
                     )
                     Text(
                         modifier = Modifier.padding(8.dp),
-                        text = it.temp
+                        text = "${item.temp.roundToInt().toString()}°C"
                     )
                 }
             }
@@ -232,22 +246,13 @@ fun HourlyForecast() {
 }
 
 @Composable
-fun DailyForecast() {
-    val list = MutableList(6) {
-        Daily(
-            "32",
-            "16",
-            "Clear Sky",
-            "Tomorrow",
-            R.drawable.clear_day_24
-        )
-    }
+fun DailyForecast(items: List<Daily>) {
 
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        for (item in list.indices) {
+        for (item in items.indices) {
             Card(
                 modifier = if (item == 0) Modifier
                     .fillMaxWidth()
@@ -288,7 +293,8 @@ fun DailyForecast() {
                             centerVerticallyTo(parent)
                             start.linkTo(parent.start, margin = 16.dp)
                         },
-                        text = list[item].day,
+                        text = if (item == 0) stringResource(id = R.string.tomorrow)
+                        else weekdayFormat(items[item].dt),
                         maxLines = 1,
                         color = if (item == 0) Color.White else MaterialTheme.colors.onSurface
                     )
@@ -299,7 +305,7 @@ fun DailyForecast() {
                                 end.linkTo(description.start, margin = 8.dp)
                             }
                             .size(24.dp),
-                        painter = painterResource(id = list[item].icon),
+                        painter = painterResource(id = R.drawable.clear_day),
                         contentDescription = "Weather Icon"
                     )
                     Text(
@@ -309,7 +315,7 @@ fun DailyForecast() {
                                 centerVerticallyTo(parent)
                                 end.linkTo(temp.start, margin = 8.dp)
                             },
-                        text = list[item].description,
+                        text = items[item].weather[0].description.replaceFirstChar { it.uppercase() },
                         maxLines = 1,
                         textAlign = TextAlign.End,
                         color = if (item == 0) Color.White else MaterialTheme.colors.onSurface
@@ -321,7 +327,7 @@ fun DailyForecast() {
                                 centerVerticallyTo(parent)
                                 end.linkTo(parent.end, margin = 16.dp)
                             },
-                        text = "${list[item].tempMax} / ${list[item].tempMin}°C",
+                        text = "${items[item].temp.max.roundToInt()} / ${items[item].temp.min.roundToInt()} °C",
                         textAlign = TextAlign.End,
                         color = if (item == 0) Color.White else MaterialTheme.colors.onSurface
                     )
@@ -332,15 +338,7 @@ fun DailyForecast() {
 }
 
 @Composable
-fun ForecastDetails() {
-    val details = ForecastDetails(
-        pressure = "1006 hpa",
-        humidity = "21 %",
-        wind = "3.55 m/s",
-        cloud = "0 %",
-        ultraViolet = "9.32",
-        visibility = "10000 m"
-    )
+fun ForecastDetails(current: Current) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -371,7 +369,7 @@ fun ForecastDetails() {
                 ) {
                     for (item in ForecastIcons.values()
                         .copyOfRange(range.first, range.second)) {
-                        ForecastDetailsItem(item = item, details = details)
+                        ForecastDetailsItem(item = item, current = current)
                     }
                 }
             }
@@ -380,7 +378,7 @@ fun ForecastDetails() {
 }
 
 @Composable
-fun ForecastDetailsItem(item: ForecastIcons, details: ForecastDetails) {
+fun ForecastDetailsItem(item: ForecastIcons, current: Current) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -395,12 +393,12 @@ fun ForecastDetailsItem(item: ForecastIcons, details: ForecastDetails) {
         Text(
             modifier = Modifier.padding(8.dp),
             text = when (item) {
-                Pressure -> details.pressure
-                Humidity -> details.humidity
-                Wind -> details.wind
-                Cloud -> details.cloud
-                UltraViolet -> details.ultraViolet
-                Visibility -> details.visibility
+                Pressure -> "${current.pressure}"
+                Humidity -> "${current.humidity}"
+                Wind -> "${current.windSpeed}"
+                Cloud -> "${current.clouds}"
+                UltraViolet -> "${current.uvi}"
+                Visibility -> "${current.visibility}"
             }
         )
         Text(
@@ -411,29 +409,10 @@ fun ForecastDetailsItem(item: ForecastIcons, details: ForecastDetails) {
     }
 }
 
-data class Hourly(
-    val temp: String,
-    val hour: String,
-    @DrawableRes
-    val icon: Int
-)
+private fun hourFormat(time: Int): String {
+    return SimpleDateFormat("h a", Locale.getDefault()).format(time.toLong() * 1000)
+}
 
-data class Daily(
-    val tempMax: String,
-    val tempMin: String,
-    val description: String,
-    val day: String,
-    @DrawableRes
-    val icon: Int,
-    val name: String = "Place",
-    val id: Int = 0,
-)
-
-data class ForecastDetails(
-    val pressure: String,
-    val humidity: String,
-    val wind: String,
-    val cloud: String,
-    val ultraViolet: String,
-    val visibility: String,
-)
+private fun weekdayFormat(time: Int): String {
+    return SimpleDateFormat("E", Locale.getDefault()).format(time.toLong() * 1000)
+}

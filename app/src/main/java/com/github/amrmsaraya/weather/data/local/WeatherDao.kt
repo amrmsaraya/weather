@@ -17,11 +17,11 @@ interface WeatherDao {
     @Delete
     suspend fun deleteForecast(forecast: Forecast)
 
-    @Query("SELECT * FROM forecast WHERE id = 1")
-    fun getCurrentForecast(): Flow<Forecast>
-
     @Query("SELECT * FROM forecast WHERE id = :id")
     fun getForecast(id: Int): Flow<Forecast>
+
+    @Query("SELECT * FROM forecast WHERE id = 1")
+    fun getCurrentForecast(): Flow<Forecast>
 
     @Query("SELECT * FROM forecast WHERE id != 1")
     fun getAllForecasts(): Flow<List<Forecast>>
