@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.github.amrmsaraya.weather.R
@@ -19,7 +20,10 @@ import com.google.maps.android.ktx.awaitMap
 import kotlinx.coroutines.launch
 
 @Composable
-fun Maps(modifier: Modifier) {
+fun Maps(
+    modifier: Modifier,
+    viewModel: MapViewModel = hiltViewModel()
+) {
     val map = rememberMapViewWithLifecycle()
 
     Box(modifier = modifier.fillMaxSize()) {
@@ -42,6 +46,7 @@ fun Maps(modifier: Modifier) {
                     googleMap.addMarker(
                         MarkerOptions().position(it)
                     )
+                    viewModel.savePreference("location", R.string.map)
                 }
             }
         }

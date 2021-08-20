@@ -27,9 +27,10 @@ import com.github.amrmsaraya.weather.presentation.navigation.Navigation
 import com.github.amrmsaraya.weather.presentation.navigation.Screens.*
 import com.github.amrmsaraya.weather.presentation.theme.WeatherTheme
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import dagger.hilt.android.AndroidEntryPoint
 
-
+@ExperimentalPermissionsApi
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @AndroidEntryPoint
@@ -46,6 +47,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@ExperimentalPermissionsApi
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable

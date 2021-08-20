@@ -21,7 +21,7 @@
     <string name="dismiss">Dismiss</string>
     <string name="notifications">Notifications</string>
     <string name="we_can_t_fetch_your_location">We can\'t fetch your location.</string>
-    <string name="please_allow_weather_to_access_your_location">Please allow Weather to access your location.</string>
+    <string name="please_allow_weather_to_access_your_location">Please allow Weather to access your location or choose a location from Map.</string>
     <string name="allow">Allow</string>
     <string name="location">Location</string>
     <string name="gps">GPS</string>
@@ -65,4 +65,8 @@
     <string name="default_">Default</string>
     <string name="light">Light</string>
     <string name="dark">Dark</string>
+    <string name="from_map">From Map</string>
+    <string name="celsius_unit">°C</string>
+    <string name="fahrenheit_unit">°F</string>
+    <string name="kelvin_unit">°K</string>
 </resources>

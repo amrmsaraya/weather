@@ -31,8 +31,8 @@ class Ktor {
             })
 
             engine {
-                connectTimeout = 60_000
-                socketTimeout = 60_00
+                connectTimeout = 10000
+                socketTimeout = 10000
             }
         }
 

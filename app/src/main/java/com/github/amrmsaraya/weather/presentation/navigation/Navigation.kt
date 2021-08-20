@@ -15,7 +15,9 @@ import com.github.amrmsaraya.weather.presentation.navigation.Screens.*
 import com.github.amrmsaraya.weather.presentation.settings.Settings
 import com.google.accompanist.navigation.animation.AnimatedNavHost
 import com.google.accompanist.navigation.animation.composable
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 
+@ExperimentalPermissionsApi
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable

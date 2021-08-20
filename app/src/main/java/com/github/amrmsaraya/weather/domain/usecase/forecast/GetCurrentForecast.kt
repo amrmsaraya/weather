@@ -5,6 +5,7 @@ import com.github.amrmsaraya.weather.domain.repository.ForecastRepo
 import javax.inject.Inject
 
 class GetCurrentForecast @Inject constructor(private val forecastRepo: ForecastRepo) {
+    suspend fun execute() = forecastRepo.getCurrentForecast()
     suspend fun execute(forecastRequest: ForecastRequest) =
         forecastRepo.getCurrentForecast(forecastRequest)
 }

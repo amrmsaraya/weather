@@ -107,7 +107,12 @@ fun Settings(
             onDismiss = { expandedLocation = false },
             onMapClick = onMapClick,
             selectedItemId = location,
-            onItemClick = { viewModel.savePreference("location", it) }
+            onItemClick = {
+                when (it) {
+                    R.string.gps -> viewModel.savePreference("location", it)
+                    else -> onMapClick()
+                }
+            }
         )
 
         Spacer(modifier = Modifier.size(8.dp))

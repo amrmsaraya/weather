@@ -22,7 +22,7 @@
     <string name="dismiss">إلغاء</string>
     <string name="notifications">الإشعارات</string>
     <string name="we_can_t_fetch_your_location">لم نستطع الحصول علي موقعك.</string>
-    <string name="please_allow_weather_to_access_your_location">من فضلك قم بالسماح للحصول علي الموقع.</string>
+    <string name="please_allow_weather_to_access_your_location">من فضلك قم بالسماح للحصول علي الموقع أو اختر مكانك من الخريطة.</string>
     <string name="allow">سماح</string>
     <string name="location">الموقع</string>
     <string name="gps">موقعي الحالي</string>
@@ -66,4 +66,8 @@
     <string name="dark">مظلم</string>
     <string name="accent">اﻷلوان</string>
     <string name="default_">تلقائي</string>
+    <string name="from_map">From Map</string>
+    <string name="celsius_unit">°س</string>
+    <string name="fahrenheit_unit">°ف</string>
+    <string name="kelvin_unit">°ك</string>
 </resources>
