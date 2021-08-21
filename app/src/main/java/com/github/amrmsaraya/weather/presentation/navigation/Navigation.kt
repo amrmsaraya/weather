@@ -35,7 +35,7 @@ fun Navigation(
             HomeScreen(
                 modifier = modifier,
                 onNavigateToMap = {
-                    navController.navigate("${Maps.route}/{true}") {
+                    navController.navigate("${Maps.route}/true") {
                         popUpTo(Settings.route)
                         launchSingleTop = true
                     }
@@ -46,7 +46,7 @@ fun Navigation(
             Favorites(
                 modifier = modifier,
                 onNavigateToMap = {
-                    navController.navigate("${Maps.route}/{true}") {
+                    navController.navigate("${Maps.route}/false") {
                         popUpTo(Settings.route)
                         launchSingleTop = true
                     }
@@ -64,7 +64,7 @@ fun Navigation(
             Settings(
                 modifier = modifier,
                 onMapClick = {
-                    navController.navigate("${Maps.route}/{true}") {
+                    navController.navigate("${Maps.route}/true") {
                         popUpTo(Settings.route)
                         launchSingleTop = true
                     }
@@ -72,9 +72,8 @@ fun Navigation(
             )
         }
         composable(
-            "${Maps.route}/{isCurrent}",
-            arguments = listOf(navArgument("userId") { type = NavType.BoolType })
-
+            route = "${Maps.route}/{isCurrent}",
+            arguments = listOf(navArgument("isCurrent") { type = NavType.BoolType })
         ) { backStackEntry ->
             Maps(
                 modifier = modifier,
