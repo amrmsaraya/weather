@@ -9,10 +9,7 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -24,12 +21,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.presentation.navigation.Navigation
+import com.github.amrmsaraya.weather.presentation.navigation.Screens
 import com.github.amrmsaraya.weather.presentation.navigation.Screens.*
 import com.github.amrmsaraya.weather.presentation.theme.WeatherTheme
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import dagger.hilt.android.AndroidEntryPoint
 
+@ExperimentalMaterialApi
 @ExperimentalPermissionsApi
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
@@ -47,6 +46,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@ExperimentalMaterialApi
 @ExperimentalPermissionsApi
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
@@ -55,13 +55,21 @@ private fun App(
     viewModel: MainViewModel = viewModel(),
     onLoadSettings: (Boolean) -> Unit
 ) {
+    viewModel.getBooleanPreference("firstRun")
     viewModel.getIntPreference("theme")
     viewModel.getIntPreference("accent")
 
-    onLoadSettings(viewModel.keepSplash.value)
-
+    val firstRun by viewModel.firstRun
     val theme by viewModel.theme
     val accent by viewModel.accent
+
+    SideEffect {
+        onLoadSettings(viewModel.keepSplash.value)
+        if (firstRun) {
+            viewModel.setDefaultPreferences()
+            viewModel.savePreference("firstRun", false)
+        }
+    }
 
     val darkTheme = when (theme) {
         R.string.light -> false
@@ -99,27 +107,28 @@ fun BottomNavigation(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    if (currentDestination?.route != Maps.route) {
+    val screens = listOf(Home, Favorites, Alerts, Settings)
+
+    if (currentDestination?.route in screens.map { it.route }) {
         BottomNav(
             navController = navController,
-            currentDestination = currentDestination
+            currentDestination = currentDestination,
+            screens = screens
         )
     }
-
 }
 
 @ExperimentalFoundationApi
 @Composable
 fun BottomNav(
     navController: NavHostController,
-    currentDestination: NavDestination?
+    currentDestination: NavDestination?,
+    screens: List<Screens>
 ) {
     BottomNavigation(
         backgroundColor = MaterialTheme.colors.surface,
         elevation = 0.dp
     ) {
-        val screens = listOf(Home, Favorites, Alerts, Settings)
-
         for (screen in screens) {
             BottomNavigationItem(
                 selected = currentDestination?.route == screen.route,

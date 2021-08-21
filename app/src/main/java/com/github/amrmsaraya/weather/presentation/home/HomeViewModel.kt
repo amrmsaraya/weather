@@ -38,13 +38,14 @@ class HomeViewModel @Inject constructor(
             is Response.Error -> {
                 isLoading.value = false
                 when (forecastResponse.result) {
-                    null -> error.value = forecastResponse.message
-                    else -> forecastResponse.result.collect {
-                        forecast.value = it
+                    null -> Unit
+                    else -> {
+                        forecast.value = forecastResponse.result.first()
                         error.value = forecastResponse.message
                     }
                 }
             }
+            else -> Unit
         }
     }
 
@@ -60,7 +61,7 @@ class HomeViewModel @Inject constructor(
             is Response.Error -> {
                 isLoading.value = false
                 when (forecastResponse.result) {
-                    null -> error.value = forecastResponse.message
+                    null -> Unit
                     else -> forecastResponse.result.collect {
                         forecast.value = it
                         error.value = forecastResponse.message
@@ -71,6 +72,8 @@ class HomeViewModel @Inject constructor(
     }
 
     fun restorePreferences() = viewModelScope.launch {
-        settings.value = restorePreferences.execute().first()
+        restorePreferences.execute().collect {
+            settings.value = it
+        }
     }
 }

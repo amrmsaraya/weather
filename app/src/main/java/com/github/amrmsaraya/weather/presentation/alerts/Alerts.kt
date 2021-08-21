@@ -38,7 +38,8 @@ import java.util.*
 @Composable
 fun Alert(
     modifier: Modifier = Modifier,
-    viewModel: AlertsViewModel = hiltViewModel()
+    viewModel: AlertsViewModel = hiltViewModel(),
+    onBackPress: () -> Unit
 ) {
 
     val scaffoldState = rememberScaffoldState()
@@ -53,6 +54,8 @@ fun Alert(
         if (selectMode) {
             selectMode = false
             selectedItems.clear()
+        } else {
+            onBackPress()
         }
     }
 

@@ -2,8 +2,6 @@ package com.github.amrmsaraya.weather.presentation.home
 
 import android.Manifest
 import android.app.Activity
-import android.content.Context
-import android.location.Geocoder
 import androidx.annotation.StringRes
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
@@ -13,7 +11,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -31,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.models.*
@@ -41,6 +39,7 @@ import com.github.amrmsaraya.weather.presentation.components.RequestPermission
 import com.github.amrmsaraya.weather.presentation.theme.Spartan
 import com.github.amrmsaraya.weather.util.ForecastIcons
 import com.github.amrmsaraya.weather.util.ForecastIcons.*
+import com.github.amrmsaraya.weather.util.GeocoderHelper
 import com.github.amrmsaraya.weather.util.LocationHelper
 import com.github.amrmsaraya.weather.util.WeatherIcons
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -63,27 +62,26 @@ import kotlin.math.roundToInt
 fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: HomeViewModel = hiltViewModel(),
+    onNavigateToMap: () -> Unit
 ) {
     val isLoading by viewModel.isLoading
     val error by viewModel.error
     val forecast by viewModel.forecast
     val settings by viewModel.settings
-    var forecastRequested by rememberSaveable { mutableStateOf(false) }
+    var forecastRequested by remember { mutableStateOf(false) }
+    viewModel.restorePreferences()
 
     var latLng by rememberSaveable { mutableStateOf(LatLng(0.0, 0.0)) }
     val location = LocationHelper(
         LocalContext.current as Activity,
         onLocationChange = {
             latLng = LatLng(it.latitude, it.longitude)
-            println("Location -> lat = ${it.latitude} long = ${it.longitude}")
             viewModel.getForecast(ForecastRequest(it.latitude, it.longitude))
         }
     )
     val locationPermissionState = rememberPermissionState(
         Manifest.permission.ACCESS_FINE_LOCATION
     )
-
-    viewModel.restorePreferences()
 
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isLoading)
     val scaffoldState = rememberScaffoldState()
@@ -101,10 +99,7 @@ fun HomeScreen(
         }
         SwipeRefresh(
             state = swipeRefreshState,
-            onRefresh = {
-                if (latLng.latitude != 0.0)
-                    viewModel.getForecast(ForecastRequest(latLng.latitude, latLng.longitude))
-            },
+            onRefresh = { refresh(settings, latLng, location, viewModel) },
             indicator = { state, trigger ->
                 SwipeRefreshIndicator(
                     state = state,
@@ -114,23 +109,37 @@ fun HomeScreen(
                 )
             },
         ) {
-            LocationPermission(
-                permissionState = locationPermissionState,
-                requestPermission = { RequestPermission(locationPermissionState) },
-                noPermission = { NoPermission() },
-                hasPermission = {
-                    if (!forecastRequested) {
-                        when (settings.location) {
-                            R.string.gps -> location.startLocationUpdates()
-                            R.string.map -> viewModel.getForecast()
+            when (settings.location) {
+                R.string.gps -> LocationPermission(
+                    permissionState = locationPermissionState,
+                    requestPermission = {
+                        RequestPermission(
+                            locationPermissionState,
+                            onNavigateToMap
+                        )
+                    },
+                    noPermission = { NoPermission() },
+                    hasPermission = {
+                        if (!forecastRequested) {
+                            location.startLocationUpdates()
+                            forecastRequested = true
                         }
+                        when (forecast.lat) {
+                            0.0 -> LoadingIndicator { viewModel.isLoading.value = false }
+                            else -> HomeContent(forecast, settings)
+                        }
+                    })
+                else -> {
+                    if (!forecastRequested) {
+                        viewModel.getForecast()
                         forecastRequested = true
                     }
                     when (forecast.lat) {
                         0.0 -> LoadingIndicator { viewModel.isLoading.value = false }
                         else -> HomeContent(forecast, settings)
                     }
-                })
+                }
+            }
         }
     }
 }
@@ -152,8 +161,7 @@ fun HomeContent(forecast: Forecast, settings: Settings) {
                     color = Color.LightGray,
                     highlight = PlaceholderHighlight.fade()
                 ),
-            text = getAddress(LocalContext.current, forecast.lat, forecast.lon)
-                ?: stringResource(id = R.string.unknown),
+            text = GeocoderHelper.getCity(LocalContext.current, forecast.lat, forecast.lon),
             maxLines = 1,
             fontSize = 18.sp,
             textAlign = TextAlign.Center
@@ -171,7 +179,6 @@ fun HomeContent(forecast: Forecast, settings: Settings) {
 
         ForecastDetails(forecast.current, settings)
         Spacer(modifier = Modifier.size(8.dp))
-
     }
 }
 
@@ -185,13 +192,11 @@ fun TemperatureBox(current: Current, settings: Settings) {
             current.weather[0].description.replaceFirstChar { it.uppercase() },
             settings
         )
-
         Image(
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .padding(top = (250 - (130 / 2)).dp)
-                .size(130.dp)
-                .clip(CircleShape),
+                .size(130.dp),
             painter = painterResource(
                 id = WeatherIcons.getCurrentIcon(
                     current.weather[0].main,
@@ -267,7 +272,7 @@ fun HourlyForecast(items: List<Hourly>, daily: List<Daily>, settings: Settings) 
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        modifier = Modifier.padding(8.dp),
+                        modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
                         text = hourFormat(item.dt),
                         color = Color.Gray
                     )
@@ -334,9 +339,14 @@ fun DailyForecast(items: List<Daily>, settings: Settings) {
                         modifier = Modifier.constrainAs(day) {
                             centerVerticallyTo(parent)
                             start.linkTo(parent.start, margin = 16.dp)
+                            end.linkTo(icon.start, 8.dp)
+                            width = Dimension.fillToConstraints
                         },
-                        text = if (index == 0) stringResource(id = R.string.tomorrow)
-                        else weekdayFormat(items[index].dt),
+                        text = when (index == 0) {
+                            true -> stringResource(id = R.string.tomorrow)
+                            false -> weekdayFormat(items[index].dt)
+                        },
+                        textAlign = TextAlign.Start,
                         maxLines = 1,
                         color = if (index == 0) Color.White else MaterialTheme.colors.onSurface
                     )
@@ -352,19 +362,18 @@ fun DailyForecast(items: List<Daily>, settings: Settings) {
                     )
                     Text(
                         modifier = Modifier
-                            .requiredWidth(90.dp)
+                            .requiredWidth(80.dp)
                             .constrainAs(description) {
                                 centerVerticallyTo(parent)
                                 end.linkTo(temp.start, margin = 8.dp)
                             },
                         text = items[index].weather[0].description.replaceFirstChar { it.uppercase() },
                         maxLines = 1,
-                        textAlign = TextAlign.End,
+                        textAlign = TextAlign.Center,
                         color = if (index == 0) Color.White else MaterialTheme.colors.onSurface
                     )
                     Text(
                         modifier = Modifier
-                            .requiredWidth(100.dp)
                             .constrainAs(temp) {
                                 centerVerticallyTo(parent)
                                 end.linkTo(parent.end, margin = 16.dp)
@@ -442,9 +451,9 @@ fun ForecastDetailsItem(item: ForecastIcons, current: Current, settings: Setting
                 Pressure -> "${current.pressure.localize()} ${stringResource(id = R.string.hpa)}"
                 Humidity -> "${current.humidity.localize()} %"
                 Wind -> when (settings.windSpeed) {
-                    R.string.meter_sec -> current.windSpeed.localize()
-                    else -> (current.windSpeed * 2.236936).localize()
-                } + stringResource(id = settings.windSpeed)
+                    R.string.meter_sec -> "${current.windSpeed.localize()} ${stringResource(id = R.string.m_s)}"
+                    else -> "${(current.windSpeed * 2.236936).localize()} ${stringResource(id = R.string.mph)}"
+                }
                 Cloud -> "${current.clouds.localize()} %"
                 UltraViolet -> current.uvi.localize()
                 Visibility -> "${current.visibility.localize()} ${stringResource(id = R.string.meter)}"
@@ -458,20 +467,26 @@ fun ForecastDetailsItem(item: ForecastIcons, current: Current, settings: Setting
     }
 }
 
-
-private fun getAddress(context: Context, lat: Double, lon: Double): String? {
-    val geocoder = Geocoder(context, Locale.getDefault())
-    return try {
-        val address = geocoder.getFromLocation(lat, lon, 1).firstOrNull()
-        address?.let {
-            return if (it.locality.isNullOrEmpty()) {
-                it.adminArea
+private fun refresh(
+    settings: Settings,
+    latLng: LatLng,
+    location: LocationHelper,
+    viewModel: HomeViewModel
+) {
+    when (settings.location) {
+        R.string.gps -> {
+            if (latLng.latitude != 0.0 && location.isStarted) {
+                viewModel.getForecast(
+                    ForecastRequest(
+                        latLng.latitude,
+                        latLng.longitude
+                    )
+                )
             } else {
-                it.locality
+                location.startLocationUpdates()
             }
         }
-    } catch (exception: Exception) {
-        null
+        R.string.map -> viewModel.getForecast()
     }
 }
 

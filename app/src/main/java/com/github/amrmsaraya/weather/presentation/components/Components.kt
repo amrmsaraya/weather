@@ -13,7 +13,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -98,35 +97,20 @@ fun LocationPermission(
     requestPermission: @Composable () -> Unit
 ) {
     // Track if the user doesn't want to see the rationale any more.
-    var doNotShowRationale by rememberSaveable { mutableStateOf(false) }
+//    var doNotShowRationale by rememberSaveable { mutableStateOf(false) }
 
     when {
-        // If the location permission is granted, then show screen with the feature enabled
-        permissionState.hasPermission -> {
-            hasPermission()
+        permissionState.hasPermission -> hasPermission()
+        permissionState.shouldShowRationale || !permissionState.permissionRequested -> {
+            requestPermission()
         }
-        // If the user denied the permission but a rationale should be shown, or the user sees
-        // the permission for the first time, explain why the feature is needed by the app and allow
-        // the user to be presented with the permission again or to not see the rationale any more.
-        permissionState.shouldShowRationale || !permissionState.permissionRequested-> {
-            if (doNotShowRationale) {
-                Text("Feature not available")
-            } else {
-                requestPermission()
-            }
-        }
-        // If the criteria above hasn't been met, the user denied the permission. Let's present
-        // the user with a FAQ in case they want to know more and send them to the Settings screen
-        // to enable it the future there if they want to.
-        else -> {
-            noPermission()
-        }
+        else -> noPermission()
     }
 }
 
 @ExperimentalPermissionsApi
 @Composable
-fun RequestPermission(permissionState: PermissionState) {
+fun RequestPermission(permissionState: PermissionState, onNavigateToMap: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -163,7 +147,7 @@ fun RequestPermission(permissionState: PermissionState) {
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth(),
-                        onClick = { /*TODO*/ }
+                        onClick = { onNavigateToMap() }
                     ) {
                         Text(text = stringResource(R.string.from_map))
                     }
@@ -175,9 +159,7 @@ fun RequestPermission(permissionState: PermissionState) {
 
 @Composable
 fun NoPermission() {
-    var showSettings by remember {
-        mutableStateOf(false)
-    }
+    var showSettings by remember { mutableStateOf(false) }
     if (showSettings) {
         LaunchAppSettingsScreen()
         showSettings = false

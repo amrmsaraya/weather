@@ -1,7 +1,6 @@
 package com.github.amrmsaraya.weather.util
 
 import android.app.Activity
-import android.content.Context
 import android.location.Location
 import android.os.Looper
 import android.util.Log
@@ -15,6 +14,9 @@ class LocationHelper(activity: Activity, private val onLocationChange: (Location
 
     private lateinit var locationCallback: LocationCallback
     private lateinit var locationRequest: LocationRequest
+
+    var isStarted = false
+        private set
 
     init {
         buildLocationRequest()
@@ -46,6 +48,7 @@ class LocationHelper(activity: Activity, private val onLocationChange: (Location
                 locationCallback,
                 Looper.getMainLooper()
             )
+            isStarted = true
         } catch (exception: SecurityException) {
             Log.e(TAG, "Lost location permissions. Couldn't remove updates. $exception")
         }

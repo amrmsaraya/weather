@@ -2,15 +2,14 @@ package com.github.amrmsaraya.weather.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Pink = Color(0xFFFF00E4)
-val Blue = Color(0xFF1976D2)
-val LightPink = Color(0xFFFF7FF2)
+val Primary = Color(0xFF1976D2)
+val Secondary = Color(0xFFFF00E4)
 
-val Primary1 = Color(0xFFFF5F6D)
-val Secondary1 = Color(0xFFFFC371)
+val Primary1 = Color(0xFFFF6B6B)
+val Secondary1 = Color(0xFF4BC0C8)
 
-val Primary2 = Color(0xFFFF6B6B)
-val Secondary2 = Color(0xFF4BC0C8)
+val Primary2 = Color(0xFFFF5F6D)
+val Secondary2 = Color(0xFFFFC371)
 
 val Primary3 = Color(0xFF4BC0C8)
 val Secondary3 = Color(0xFFFEAC5A)

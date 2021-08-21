@@ -80,7 +80,7 @@ class WeatherDaoTest {
         weatherDao.insertForecast(forecast3)
 
         // When
-        val resultList = weatherDao.getAllForecasts().first()
+        val resultList = weatherDao.getFavoriteForecasts().first()
 
         // Then
         assertThat(resultList).isEqualTo(listOf(forecast2, forecast3))

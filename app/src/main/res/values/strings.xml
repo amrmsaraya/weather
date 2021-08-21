@@ -61,7 +61,7 @@
     <string name="to_time">To Time</string>
     <string name="new_alert">New alert</string>
     <string name="theme">Theme</string>
-    <string name="accent">Accent</string>
+    <string name="accent">Color</string>
     <string name="default_">Default</string>
     <string name="light">Light</string>
     <string name="dark">Dark</string>

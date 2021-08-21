@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.amrmsaraya.weather.R
+import com.github.amrmsaraya.weather.domain.usecase.preferences.GetBooleanPreference
 import com.github.amrmsaraya.weather.domain.usecase.preferences.GetIntPreference
 import com.github.amrmsaraya.weather.domain.usecase.preferences.SavePreference
 import com.github.amrmsaraya.weather.domain.usecase.preferences.SetDefaultPreferences
@@ -16,26 +17,28 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val savePreference: SavePreference,
     private val getIntPreference: GetIntPreference,
+    private val getBooleanPreference: GetBooleanPreference,
     private val setDefaultPreferences: SetDefaultPreferences
 ) : ViewModel() {
 
     val theme = mutableStateOf(R.string.default_)
     val accent = mutableStateOf(0)
     val keepSplash = mutableStateOf(true)
+    val firstRun = mutableStateOf(false)
 
     fun getIntPreference(key: String) = viewModelScope.launch {
         getIntPreference.execute(key).collect {
             when (key) {
-                "theme" -> {
-                    if (it == 0) {
-                        setDefaultPreferences()
-                    } else {
-                        theme.value = it
-                    }
-                }
+                "theme" -> theme.value = it
                 "accent" -> accent.value = it
             }
             keepSplash.value = false
+        }
+    }
+
+    fun getBooleanPreference(key: String) = viewModelScope.launch {
+        getBooleanPreference.execute(key).collect {
+            firstRun.value = it
         }
     }
 
@@ -43,7 +46,11 @@ class MainViewModel @Inject constructor(
         savePreference.execute(key, value)
     }
 
-    private fun setDefaultPreferences() = viewModelScope.launch {
+    fun savePreference(key: String, value: Boolean) = viewModelScope.launch {
+        savePreference.execute(key, value)
+    }
+
+    fun setDefaultPreferences() = viewModelScope.launch {
         setDefaultPreferences.execute()
     }
 }

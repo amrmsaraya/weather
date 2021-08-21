@@ -1,6 +1,5 @@
 package com.github.amrmsaraya.weather.presentation.theme
 
-import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
@@ -11,19 +10,18 @@ import androidx.compose.runtime.SideEffect
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 private val DarkColorPalette = darkColors(
-    primary = Blue,
-    primaryVariant = Blue,
-    secondary = Pink,
-    secondaryVariant = Pink
+    primary = Primary,
+    primaryVariant = Primary,
+    secondary = Secondary,
+    secondaryVariant = Secondary
 )
 
 private val LightColorPalette = lightColors(
-    primary = Blue,
-    primaryVariant = Blue,
-    secondary = Pink,
-    secondaryVariant = Pink
+    primary = Primary,
+    primaryVariant = Primary,
+    secondary = Secondary,
+    secondaryVariant = Secondary
 )
-
 
 private val DarkColorPalette1 = darkColors(
     primary = Primary1,
@@ -95,7 +93,6 @@ private val LightColorPalette5 = lightColors(
     secondaryVariant = Secondary5
 )
 
-
 val colorsList = listOf(
     ColorPalette(LightColorPalette, DarkColorPalette),
     ColorPalette(LightColorPalette1, DarkColorPalette1),
@@ -119,11 +116,6 @@ fun WeatherTheme(
         systemUiController.setSystemBarsColor(color = colors.surface)
     }
 
-    when (darkTheme) {
-        true -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
-        false -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-    }
-
     MaterialTheme(
         colors = colors,
         typography = Typography,
@@ -131,7 +123,6 @@ fun WeatherTheme(
         content = content
     )
 }
-
 
 data class ColorPalette(
     val lightPalette: Colors,

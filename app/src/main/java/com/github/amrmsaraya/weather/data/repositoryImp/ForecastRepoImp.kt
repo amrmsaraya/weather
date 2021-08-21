@@ -1,5 +1,6 @@
 package com.github.amrmsaraya.weather.data.repositoryImp
 
+import android.util.Log
 import com.github.amrmsaraya.weather.data.models.Forecast
 import com.github.amrmsaraya.weather.data.models.ForecastRequest
 import com.github.amrmsaraya.weather.data.source.LocalDataSource
@@ -14,7 +15,7 @@ class ForecastRepoImp(
     private val localDataSource: LocalDataSource,
     private val remoteDataSource: RemoteDataSource
 ) : ForecastRepo {
-    override suspend fun getForecast(id: Int): Response<Flow<Forecast>> {
+    override suspend fun getForecast(id: Long): Response<Flow<Forecast>> {
         return try {
             val cachedForecast = localDataSource.getForecast(id).first()
             val forecast =
@@ -61,7 +62,8 @@ class ForecastRepoImp(
         return try {
             val forecast = remoteDataSource.getForecast(forecastRequest)
             localDataSource.insertForecast(forecast.copy(id = 1))
-            Response.Success(localDataSource.getCurrentForecast())
+            Log.e("REFRESH", "SUCCESS")
+            return Response.Success(localDataSource.getCurrentForecast())
         } catch (exception: Exception) {
             val localForecast = localDataSource.getCurrentForecast()
             when (localForecast.firstOrNull()) {
@@ -84,6 +86,7 @@ class ForecastRepoImp(
             localDataSource.insertForecast(forecast.copy(id = 1))
             Response.Success(localDataSource.getCurrentForecast())
         } catch (exception: Exception) {
+            exception.printStackTrace()
             val localForecast = localDataSource.getCurrentForecast()
             when (localForecast.firstOrNull()) {
                 null -> Response.Error("No cached data, please check your connection", null)
@@ -92,7 +95,7 @@ class ForecastRepoImp(
         }
     }
 
-    override suspend fun getAllForecasts(): Response<Flow<Forecast>> {
-        TODO("Not yet implemented")
+    override suspend fun getFavoriteForecasts(): Response<Flow<List<Forecast>>> {
+        return Response.Success(localDataSource.getFavoriteForecasts())
     }
 }
