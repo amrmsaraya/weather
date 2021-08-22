@@ -103,7 +103,11 @@ private fun App(
         else -> isSystemInDarkTheme()
     }
 
-    WeatherTheme(darkTheme = darkTheme, colorIndex = settings.accent) {
+    WeatherTheme(
+        darkTheme = darkTheme,
+        colorIndex = settings.accent,
+        language = settings.language
+    ) {
         Surface(
             color = MaterialTheme.colors.surface,
         ) {

@@ -36,6 +36,7 @@ import com.github.amrmsaraya.weather.presentation.components.LoadingIndicator
 import com.github.amrmsaraya.weather.presentation.components.LocationPermission
 import com.github.amrmsaraya.weather.presentation.components.NoPermission
 import com.github.amrmsaraya.weather.presentation.components.RequestPermission
+import com.github.amrmsaraya.weather.presentation.theme.Cairo
 import com.github.amrmsaraya.weather.presentation.theme.Spartan
 import com.github.amrmsaraya.weather.util.ForecastIcons
 import com.github.amrmsaraya.weather.util.ForecastIcons.*
@@ -212,7 +213,7 @@ fun TemperatureBox(current: Current, settings: Settings) {
 
 @Composable
 fun TempAndDescription(temp: Double, description: String, settings: Settings) {
-    Column(
+    ConstraintLayout(
         modifier = Modifier
             .fillMaxWidth()
             .height(250.dp)
@@ -224,29 +225,35 @@ fun TempAndDescription(temp: Double, description: String, settings: Settings) {
                         MaterialTheme.colors.primary
                     )
                 )
-            )
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            ),
     ) {
+        val (tmp, desc) = createRefs()
         Text(
+            modifier = Modifier.constrainAs(desc) {
+                centerHorizontallyTo(parent)
+                top.linkTo(parent.top, margin = 16.dp)
+            },
             text = description,
             color = Color.White,
             fontSize = 20.sp
         )
-        Temp(temp, settings)
+        Temp(modifier = Modifier
+            .constrainAs(tmp) {
+                centerTo(parent)
+            }.padding(bottom = 16.dp), temp, settings)
     }
 }
 
 @Composable
-fun Temp(temp: Double, settings: Settings) {
-    ConstraintLayout {
+fun Temp(modifier: Modifier = Modifier, temp: Double, settings: Settings) {
+    ConstraintLayout(modifier = modifier) {
         val (tmp, degree) = createRefs()
         Text(
             modifier = Modifier.constrainAs(tmp) { centerTo(parent) },
             text = getTemp(temp, settings.temperature),
             color = Color.White,
             style = MaterialTheme.typography.h1,
-            fontFamily = Spartan
+            fontFamily = if (settings.language == R.string.arabic) Cairo else Spartan
         )
         Text(
             modifier = Modifier
@@ -370,11 +377,12 @@ fun DailyForecast(items: List<Daily>, settings: Settings) {
                             },
                         text = items[index].weather[0].description.replaceFirstChar { it.uppercase() },
                         maxLines = 1,
-                        textAlign = TextAlign.Center,
+                        textAlign = TextAlign.End,
                         color = if (index == 0) Color.White else MaterialTheme.colors.onSurface
                     )
                     Text(
                         modifier = Modifier
+                            .requiredWidth(90.dp)
                             .constrainAs(temp) {
                                 centerVerticallyTo(parent)
                                 end.linkTo(parent.end, margin = 16.dp)

@@ -12,6 +12,11 @@ val Spartan = FontFamily(
     Font(R.font.spartan_bold)
 )
 
+val Cairo = FontFamily(
+    Font(R.font.cairo_regular, FontWeight.Normal),
+    Font(R.font.cairo_bold, FontWeight.Bold)
+)
+
 
 // Set of Material typography styles to start with
 val Typography = Typography(
@@ -33,3 +38,5 @@ val Typography = Typography(
     )
     */
 )
+
+val ArabicTypography = Typography(defaultFontFamily = Cairo)
