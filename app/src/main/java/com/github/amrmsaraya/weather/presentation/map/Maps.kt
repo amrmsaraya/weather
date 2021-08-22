@@ -101,7 +101,7 @@ fun Maps(
                             viewModel.insertForecast(
                                 Forecast(lat = location.latitude, lon = location.longitude)
                             )
-                            viewModel.getCurrentForecast(
+                            viewModel.getForecast(
                                 ForecastRequest(lat = location.latitude, lon = location.longitude)
                             )
                         }

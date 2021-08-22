@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import com.github.amrmsaraya.weather.data.models.Forecast
 import com.github.amrmsaraya.weather.data.models.ForecastRequest
 import com.github.amrmsaraya.weather.domain.usecase.forecast.GetCurrentForecast
+import com.github.amrmsaraya.weather.domain.usecase.forecast.GetForecast
 import com.github.amrmsaraya.weather.domain.usecase.forecast.InsertForecast
 import com.github.amrmsaraya.weather.domain.usecase.preferences.SavePreference
 import com.github.amrmsaraya.weather.util.Response
@@ -18,6 +19,7 @@ import javax.inject.Inject
 class MapViewModel @Inject constructor(
     private val savePreference: SavePreference,
     private val insertForecast: InsertForecast,
+    private val getForecast: GetForecast,
     private val getCurrentForecast: GetCurrentForecast,
 ) : ViewModel() {
 
@@ -29,6 +31,10 @@ class MapViewModel @Inject constructor(
 
     fun insertForecast(forecast: Forecast) = viewModelScope.launch {
         insertForecast.execute(forecast)
+    }
+
+    fun getForecast(forecastRequest: ForecastRequest) = viewModelScope.launch {
+        getForecast.execute(forecastRequest)
     }
 
     fun getCurrentForecast(forecastRequest: ForecastRequest) = viewModelScope.launch {

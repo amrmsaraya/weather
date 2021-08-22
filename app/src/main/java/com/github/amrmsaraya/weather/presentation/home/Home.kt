@@ -124,9 +124,9 @@ fun HomeScreen(
                             location.startLocationUpdates()
                             forecastRequested = true
                         }
-                        when (forecast.lat) {
-                            0.0 -> LoadingIndicator { viewModel.isLoading.value = false }
-                            else -> HomeContent(forecast, settings)
+                        when (forecast.current.weather.isEmpty()) {
+                            true -> LoadingIndicator { viewModel.isLoading.value = false }
+                            false -> HomeContent(forecast, settings)
                         }
                     })
                 else -> {

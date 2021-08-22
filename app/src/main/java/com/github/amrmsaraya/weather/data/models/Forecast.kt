@@ -1,6 +1,5 @@
 package com.github.amrmsaraya.weather.data.models
 
-
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -12,7 +11,7 @@ import kotlinx.serialization.Serializable
 data class Forecast(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    var id: Long = 0,
+    var id: Long = 2,
 
     @SerialName("lat")
     @ColumnInfo(name = "lat")
