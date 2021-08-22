@@ -11,6 +11,8 @@ class LocalDataSourceImp(private val weatherDao: WeatherDao) : LocalDataSource {
 
     override suspend fun deleteForecast(forecast: Forecast) = weatherDao.deleteForecast(forecast)
 
+    override suspend fun deleteForecast(list: List<Forecast>) = weatherDao.deleteForecast(list)
+
     override suspend fun getForecast(id: Long): Flow<Forecast> = weatherDao.getForecast(id)
 
     override suspend fun getCurrentForecast(): Flow<Forecast> = weatherDao.getCurrentForecast()

@@ -11,7 +11,7 @@ import kotlinx.serialization.Serializable
 data class Forecast(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
-    var id: Long = 2,
+    var id: Long = 0,
 
     @SerialName("lat")
     @ColumnInfo(name = "lat")

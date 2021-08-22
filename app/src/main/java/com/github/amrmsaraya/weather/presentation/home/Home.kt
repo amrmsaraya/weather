@@ -68,7 +68,7 @@ fun HomeScreen(
     val error by viewModel.error
     val forecast by viewModel.forecast
     val settings by viewModel.settings
-    var forecastRequested by remember { mutableStateOf(false) }
+
     viewModel.restorePreferences()
 
     var latLng by rememberSaveable { mutableStateOf(LatLng(0.0, 0.0)) }
@@ -99,7 +99,10 @@ fun HomeScreen(
         }
         SwipeRefresh(
             state = swipeRefreshState,
-            onRefresh = { refresh(settings, latLng, location, viewModel) },
+            onRefresh = {
+                viewModel.isLoading.value = true
+                refresh(settings, latLng, location, viewModel)
+            },
             indicator = { state, trigger ->
                 SwipeRefreshIndicator(
                     state = state,
@@ -120,23 +123,21 @@ fun HomeScreen(
                     },
                     noPermission = { NoPermission() },
                     hasPermission = {
-                        if (!forecastRequested) {
+                        LaunchedEffect(key1 = true) {
                             location.startLocationUpdates()
-                            forecastRequested = true
                         }
                         when (forecast.current.weather.isEmpty()) {
-                            true -> LoadingIndicator { viewModel.isLoading.value = false }
+                            true -> LoadingIndicator()
                             false -> HomeContent(forecast, settings)
                         }
                     })
                 else -> {
-                    if (!forecastRequested) {
+                    LaunchedEffect(key1 = true) {
                         viewModel.getForecast()
-                        forecastRequested = true
                     }
-                    when (forecast.lat) {
-                        0.0 -> LoadingIndicator { viewModel.isLoading.value = false }
-                        else -> HomeContent(forecast, settings)
+                    when (forecast.current.weather.isEmpty()) {
+                        true -> LoadingIndicator()
+                        false -> HomeContent(forecast, settings)
                     }
                 }
             }
@@ -498,7 +499,7 @@ private fun weekdayFormat(time: Int): String {
     return SimpleDateFormat("E", Locale.getDefault()).format(time.toLong() * 1000)
 }
 
-private fun getTemp(temp: Double, @StringRes unit: Int): String {
+fun getTemp(temp: Double, @StringRes unit: Int): String {
     return when (unit) {
         R.string.celsius -> temp.roundToInt()
         R.string.kelvin -> (temp + 273.15).roundToInt()
@@ -507,7 +508,7 @@ private fun getTemp(temp: Double, @StringRes unit: Int): String {
 
 }
 
-private fun getTempUnit(@StringRes unit: Int): Int {
+fun getTempUnit(@StringRes unit: Int): Int {
     return when (unit) {
         R.string.celsius -> R.string.celsius_unit
         R.string.kelvin -> R.string.kelvin_unit

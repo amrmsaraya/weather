@@ -7,4 +7,7 @@ import javax.inject.Inject
 class DeleteForecast @Inject constructor(private val forecastRepo: ForecastRepo) {
     suspend fun execute(forecast: Forecast) =
         forecastRepo.deleteForecast(forecast)
+
+    suspend fun execute(list: List<Forecast>) =
+        forecastRepo.deleteForecast(list)
 }

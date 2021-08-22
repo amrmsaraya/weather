@@ -15,6 +15,19 @@ class ForecastRepoImp(
     private val localDataSource: LocalDataSource,
     private val remoteDataSource: RemoteDataSource
 ) : ForecastRepo {
+
+    override suspend fun insertForecast(forecast: Forecast) {
+        localDataSource.insertForecast(forecast)
+    }
+
+    override suspend fun deleteForecast(forecast: Forecast) {
+        localDataSource.deleteForecast(forecast)
+    }
+
+    override suspend fun deleteForecast(list: List<Forecast>) {
+        localDataSource.deleteForecast(list)
+    }
+
     override suspend fun getForecast(id: Long): Response<Flow<Forecast>> {
         return try {
             val cachedForecast = localDataSource.getForecast(id).first()
@@ -25,9 +38,10 @@ class ForecastRepoImp(
                         cachedForecast.lon
                     )
                 )
-            localDataSource.insertForecast(forecast.copy(id = 1))
+            localDataSource.insertForecast(forecast.copy(id = cachedForecast.id))
             Response.Success(localDataSource.getForecast(id))
         } catch (exception: Exception) {
+            Log.e("FAVORITE", exception.stackTraceToString())
             val localForecast = localDataSource.getForecast(id)
             when (localForecast.firstOrNull()) {
                 null -> Response.Error("No cached data, please check your connection", null)
@@ -36,25 +50,17 @@ class ForecastRepoImp(
         }
     }
 
-    override suspend fun insertForecast(forecast: Forecast) {
-        localDataSource.insertForecast(forecast)
-    }
-
-    override suspend fun deleteForecast(forecast: Forecast) {
-        localDataSource.deleteForecast(forecast)
-    }
-
-    override suspend fun getForecast(forecastRequest: ForecastRequest): Response<Flow<Forecast>> {
-        return try {
+    override suspend fun getForecast(forecastRequest: ForecastRequest) {
+        try {
             val forecast = remoteDataSource.getForecast(forecastRequest)
             localDataSource.insertForecast(forecast)
-            Response.Success(localDataSource.getCurrentForecast())
         } catch (exception: Exception) {
-            val localForecast = localDataSource.getCurrentForecast()
-            when (localForecast.firstOrNull()) {
-                null -> Response.Error("No cached data, please check your connection", null)
-                else -> Response.Error("Please check your connection", localForecast)
-            }
+            localDataSource.insertForecast(
+                Forecast(
+                    lat = forecastRequest.lat,
+                    lon = forecastRequest.lon
+                )
+            )
         }
     }
 
@@ -62,7 +68,6 @@ class ForecastRepoImp(
         return try {
             val forecast = remoteDataSource.getForecast(forecastRequest)
             localDataSource.insertForecast(forecast.copy(id = 1))
-            Log.e("REFRESH", "SUCCESS")
             return Response.Success(localDataSource.getCurrentForecast())
         } catch (exception: Exception) {
             val localForecast = localDataSource.getCurrentForecast()
@@ -86,7 +91,6 @@ class ForecastRepoImp(
             localDataSource.insertForecast(forecast.copy(id = 1))
             Response.Success(localDataSource.getCurrentForecast())
         } catch (exception: Exception) {
-            exception.printStackTrace()
             val localForecast = localDataSource.getCurrentForecast()
             when (localForecast.firstOrNull()) {
                 null -> Response.Error("No cached data, please check your connection", null)

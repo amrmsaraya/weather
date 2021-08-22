@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,7 +20,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.github.amrmsaraya.weather.R
-import com.github.amrmsaraya.weather.data.models.Forecast
 import com.github.amrmsaraya.weather.data.models.ForecastRequest
 import com.github.amrmsaraya.weather.util.GeocoderHelper
 import com.google.android.libraries.maps.CameraUpdateFactory
@@ -47,6 +47,7 @@ fun Maps(
     var location by remember { mutableStateOf(LatLng(0.0, 0.0)) }
     var city by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
+    var isLoading by remember { mutableStateOf(false) }
 
     if (isCurrent) {
         viewModel.getCurrentForecast()
@@ -85,34 +86,46 @@ fun Maps(
                     style = MaterialTheme.typography.subtitle1
                 )
                 Spacer(modifier = Modifier.size(16.dp))
-                Button(
-                    modifier = Modifier
-                        .align(CenterHorizontally),
-                    onClick = {
-                        if (isCurrent) {
-                            viewModel.insertForecast(
-                                currentForecast.copy(
-                                    lat = location.latitude,
-                                    lon = location.longitude
-                                )
-                            )
-                            viewModel.savePreference("location", R.string.map)
-                        } else {
-                            viewModel.insertForecast(
-                                Forecast(lat = location.latitude, lon = location.longitude)
-                            )
-                            viewModel.getForecast(
-                                ForecastRequest(lat = location.latitude, lon = location.longitude)
-                            )
-                        }
-                        scope.launch { bottomSheetState.hide() }
-                        onBackPress()
-                    }
+                Row(
+                    modifier = Modifier.align(CenterHorizontally),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        modifier = Modifier.padding(start = 32.dp, end = 32.dp),
-                        text = stringResource(id = R.string.save)
-                    )
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(24.dp),
+                            color = MaterialTheme.colors.secondary
+                        )
+                        Spacer(modifier = Modifier.size(16.dp))
+                    }
+                    Button(
+                        onClick = {
+                            isLoading = true
+                            scope.launch {
+                                if (isCurrent) {
+                                    viewModel.insertForecast(
+                                        currentForecast.copy(
+                                            lat = location.latitude,
+                                            lon = location.longitude
+                                        )
+                                    ).join()
+                                    viewModel.savePreference("location", R.string.map)
+                                } else {
+                                    viewModel.getForecast(
+                                        ForecastRequest(
+                                            lat = location.latitude,
+                                            lon = location.longitude
+                                        )
+                                    ).join()
+                                }
+                                onBackPress()
+                            }
+                        }
+                    ) {
+                        Text(
+                            modifier = Modifier.padding(start = 32.dp, end = 32.dp),
+                            text = stringResource(id = R.string.save)
+                        )
+                    }
                 }
             }
         }

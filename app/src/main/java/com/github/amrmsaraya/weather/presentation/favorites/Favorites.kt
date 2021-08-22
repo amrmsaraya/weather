@@ -26,19 +26,22 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.models.Forecast
+import com.github.amrmsaraya.weather.data.models.Settings
 import com.github.amrmsaraya.weather.presentation.components.AddFAB
 import com.github.amrmsaraya.weather.presentation.components.AnimatedVisibilityFade
 import com.github.amrmsaraya.weather.presentation.components.DeleteFAB
 import com.github.amrmsaraya.weather.presentation.components.EmptyListIndicator
+import com.github.amrmsaraya.weather.presentation.home.getTemp
+import com.github.amrmsaraya.weather.presentation.home.getTempUnit
 import com.github.amrmsaraya.weather.util.GeocoderHelper
 import com.github.amrmsaraya.weather.util.WeatherIcons
-import kotlin.math.roundToInt
 
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable
 fun Favorites(
     modifier: Modifier = Modifier,
+    onItemClick: (Long) -> Unit,
     onNavigateToMap: () -> Unit,
     onBackPress: () -> Unit,
     viewModel: FavoritesViewModel = hiltViewModel()
@@ -46,9 +49,11 @@ fun Favorites(
     val scaffoldState = rememberScaffoldState()
     val selectedItems = remember { mutableStateListOf<Forecast>() }
     var selectMode by remember { mutableStateOf(false) }
-    val favorites = viewModel.forecasts
+    val favorites = viewModel.favorites
+    val settings by viewModel.settings
 
     viewModel.getFavoriteForecasts()
+    viewModel.restorePreferences()
 
     BackHandler {
         if (selectMode) {
@@ -65,9 +70,7 @@ fun Favorites(
         floatingActionButton = {
             when (selectMode) {
                 true -> DeleteFAB {
-                    selectedItems.forEach {
-                        viewModel.deleteForecast(it)
-                    }
+                    viewModel.deleteForecast(selectedItems.toList())
                     selectedItems.clear()
                     selectMode = false
                 }
@@ -92,8 +95,12 @@ fun Favorites(
                     items = favorites,
                     selectedItems = selectedItems,
                     selectMode = selectMode,
+                    settings = settings,
                     onSelectMode = { selectMode = it },
-                    onClick = { },
+                    onClick = {
+                        onItemClick(it.id)
+                        println("id = ${it.id}")
+                    },
                     onSelect = { selectedItems.add(it) },
                     onUnselect = {
                         selectedItems.remove(it)
@@ -113,6 +120,7 @@ fun FavoritesList(
     items: List<Forecast>,
     selectedItems: List<Forecast>,
     selectMode: Boolean,
+    settings: Settings,
     onSelectMode: (Boolean) -> Unit,
     onClick: (Forecast) -> Unit,
     onSelect: (Forecast) -> Unit,
@@ -141,12 +149,13 @@ fun FavoritesList(
                     .padding(top = 8.dp, bottom = 8.dp)
                     .combinedClickable(
                         onClick = {
-                            onClick(Forecast(id = 4))
                             if (selectMode) {
                                 when (isSelected) {
                                     true -> onUnselect(item)
                                     false -> onSelect(item)
                                 }
+                            } else {
+                                onClick(Forecast(id = item.id))
                             }
                         },
                         onLongClick = {
@@ -186,11 +195,16 @@ fun FavoritesList(
                             horizontalAlignment = Alignment.End
                         ) {
                             val unknown = stringResource(id = R.string.unknown)
-                            Text(text = "${item.current.temp.roundToInt()} °C")
+                            Text(
+                                text = getTemp(
+                                    item.current.temp,
+                                    settings.temperature
+                                ) + " " + stringResource(id = getTempUnit(settings.temperature))
+                            )
                             Text(
                                 text = when (item.current.weather.isEmpty()) {
                                     true -> unknown
-                                    false -> item.current.weather[0].description
+                                    false -> item.current.weather[0].description.replaceFirstChar { it.uppercase() }
                                 },
                                 color = if (isSelected) MaterialTheme.colors.onSurface else Color.Gray,
                                 maxLines = 1,

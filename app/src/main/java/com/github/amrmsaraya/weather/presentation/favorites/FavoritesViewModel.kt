@@ -1,12 +1,14 @@
 package com.github.amrmsaraya.weather.presentation.favorites
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.amrmsaraya.weather.data.models.Forecast
+import com.github.amrmsaraya.weather.data.models.Settings
 import com.github.amrmsaraya.weather.domain.usecase.forecast.DeleteForecast
 import com.github.amrmsaraya.weather.domain.usecase.forecast.GetFavoriteForecasts
-import com.github.amrmsaraya.weather.domain.usecase.forecast.GetForecast
+import com.github.amrmsaraya.weather.domain.usecase.preferences.RestorePreferences
 import com.github.amrmsaraya.weather.util.Response
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collect
@@ -16,17 +18,18 @@ import javax.inject.Inject
 @HiltViewModel
 class FavoritesViewModel @Inject constructor(
     private val getFavoriteForecasts: GetFavoriteForecasts,
-    private val getForecast: GetForecast,
     private val deleteForecast: DeleteForecast,
+    private val restorePreferences: RestorePreferences,
 ) : ViewModel() {
 
-    val forecasts = mutableStateListOf<Forecast>()
+    val favorites = mutableStateListOf<Forecast>()
+    val settings = mutableStateOf(Settings())
 
     fun getFavoriteForecasts() = viewModelScope.launch {
         when (val response = getFavoriteForecasts.execute()) {
             is Response.Success -> response.result.collect {
-                forecasts.clear()
-                forecasts.addAll(it)
+                favorites.clear()
+                favorites.addAll(it)
             }
         }
     }
@@ -35,5 +38,14 @@ class FavoritesViewModel @Inject constructor(
         deleteForecast.execute(forecast)
     }
 
+    fun deleteForecast(list: List<Forecast>) = viewModelScope.launch {
+        deleteForecast.execute(list)
+    }
+
+    fun restorePreferences() = viewModelScope.launch {
+        restorePreferences.execute().collect {
+            settings.value = it
+        }
+    }
 
 }

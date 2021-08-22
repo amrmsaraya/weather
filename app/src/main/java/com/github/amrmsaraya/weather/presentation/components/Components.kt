@@ -63,9 +63,8 @@ fun AnimatedVisibilityFade(
 }
 
 @Composable
-fun LoadingIndicator(onDismiss: () -> Unit) {
+fun LoadingIndicator() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        onDismiss()
         CircularProgressIndicator(color = MaterialTheme.colors.secondary)
     }
 }

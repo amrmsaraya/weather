@@ -17,6 +17,9 @@ interface WeatherDao {
     @Delete
     suspend fun deleteForecast(forecast: Forecast)
 
+    @Delete
+    suspend fun deleteForecast(list: List<Forecast>)
+
     @Query("SELECT * FROM forecast WHERE id = :id")
     fun getForecast(id: Long): Flow<Forecast>
 

@@ -1,5 +1,6 @@
 package com.github.amrmsaraya.weather.presentation.activity
 
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,6 +13,7 @@ import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -24,9 +26,11 @@ import com.github.amrmsaraya.weather.presentation.navigation.Navigation
 import com.github.amrmsaraya.weather.presentation.navigation.Screens
 import com.github.amrmsaraya.weather.presentation.navigation.Screens.*
 import com.github.amrmsaraya.weather.presentation.theme.WeatherTheme
+import com.github.amrmsaraya.weather.util.LocaleHelper
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.*
 
 @ExperimentalMaterialApi
 @ExperimentalPermissionsApi
@@ -41,8 +45,16 @@ class MainActivity : ComponentActivity() {
         splash.setKeepVisibleCondition { keepSplash }
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         setContent {
-            App { keepSplash = it }
+            App(
+                onLoadSettings = { keepSplash = it },
+                onLocaleChange = { recreate() }
+            )
         }
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        val context: Context = LocaleHelper.setLocale(newBase, Locale.getDefault())
+        super.attachBaseContext(context)
     }
 }
 
@@ -53,15 +65,14 @@ class MainActivity : ComponentActivity() {
 @Composable
 private fun App(
     viewModel: MainViewModel = viewModel(),
+    onLocaleChange: () -> Unit,
     onLoadSettings: (Boolean) -> Unit
 ) {
     viewModel.getBooleanPreference("firstRun")
-    viewModel.getIntPreference("theme")
-    viewModel.getIntPreference("accent")
+    viewModel.restorePreferences()
 
     val firstRun by viewModel.firstRun
-    val theme by viewModel.theme
-    val accent by viewModel.accent
+    val settings by viewModel.settings
 
     SideEffect {
         onLoadSettings(viewModel.keepSplash.value)
@@ -71,13 +82,28 @@ private fun App(
         }
     }
 
-    val darkTheme = when (theme) {
+    when (settings.language) {
+        R.string.arabic -> {
+            if (Locale.getDefault().language != "ar") {
+                LocaleHelper.setLocale(LocalContext.current, Locale("ar"))
+                onLocaleChange()
+            }
+        }
+        else -> {
+            if (Locale.getDefault().language != "en") {
+                LocaleHelper.setLocale(LocalContext.current, Locale("en"))
+                onLocaleChange()
+            }
+        }
+    }
+
+    val darkTheme = when (settings.theme) {
         R.string.light -> false
         R.string.dark -> true
         else -> isSystemInDarkTheme()
     }
 
-    WeatherTheme(darkTheme = darkTheme, colorIndex = accent) {
+    WeatherTheme(darkTheme = darkTheme, colorIndex = settings.accent) {
         Surface(
             color = MaterialTheme.colors.surface,
         ) {

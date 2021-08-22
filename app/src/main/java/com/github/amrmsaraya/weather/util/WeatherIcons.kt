@@ -33,43 +33,43 @@ object WeatherIcons {
         return when (weather) {
             "Clear" -> {
                 if (System.currentTimeMillis() / 1000 in sunrise until sunset) {
-                    R.drawable.clear_day_24
+                    R.drawable.clear_day
                 } else {
-                    R.drawable.clear_night_24
+                    R.drawable.clear_night
                 }
             }
             "Clouds" -> {
                 if (System.currentTimeMillis() / 1000 in sunrise until sunset) {
-                    R.drawable.cloudy_day_24
+                    R.drawable.cloudy_day
                 } else {
-                    R.drawable.cloudy_night_24
+                    R.drawable.cloudy_night
                 }
             }
             "Drizzle" -> {
                 if (System.currentTimeMillis() / 1000 in sunrise until sunset) {
-                    R.drawable.rainy_day_24
+                    R.drawable.rainy_day
                 } else {
-                    R.drawable.rainy_night_24
+                    R.drawable.rainy_night
                 }
             }
             "Rain" -> {
                 if (System.currentTimeMillis() / 1000 in sunrise until sunset) {
-                    R.drawable.rainy_day_24
+                    R.drawable.rainy_day
                 } else {
-                    R.drawable.rainy_night_24
+                    R.drawable.rainy_night
                 }
             }
             "Snow" -> {
-                R.drawable.snow_24
+                R.drawable.snow
             }
             "Thunderstorm" -> {
-                R.drawable.storm_24
+                R.drawable.storm
             }
             else -> {
                 if (System.currentTimeMillis() / 1000 in sunrise until sunset) {
-                    R.drawable.foggy_day_24
+                    R.drawable.foggy_day
                 } else {
-                    R.drawable.foggy_night_24
+                    R.drawable.foggy_night
                 }
             }
         }

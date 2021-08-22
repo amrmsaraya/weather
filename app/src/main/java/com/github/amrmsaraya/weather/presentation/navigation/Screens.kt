@@ -41,6 +41,13 @@ sealed class Screens(
         inactiveIcon = Icons.Outlined.Settings
     )
 
+    object FavoriteDetails : Screens(
+        route = "favoriteDetails",
+        stringId = R.string.favorites,
+        activeIcon = Icons.Filled.Favorite,
+        inactiveIcon = Icons.Outlined.FavoriteBorder
+    )
+
     object Maps : Screens(
         route = "map",
         stringId = R.string.map,

@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.navArgument
 import com.github.amrmsaraya.weather.presentation.alerts.Alert
+import com.github.amrmsaraya.weather.presentation.favorite_details.FavoriteDetailsScreen
 import com.github.amrmsaraya.weather.presentation.favorites.Favorites
 import com.github.amrmsaraya.weather.presentation.home.HomeScreen
 import com.github.amrmsaraya.weather.presentation.map.Maps
@@ -45,9 +46,15 @@ fun Navigation(
         composable(Favorites.route) {
             Favorites(
                 modifier = modifier,
+                onItemClick = { id ->
+                    navController.navigate("${FavoriteDetails.route}/$id") {
+                        popUpTo(Favorites.route)
+                        launchSingleTop = true
+                    }
+                },
                 onNavigateToMap = {
                     navController.navigate("${Maps.route}/false") {
-                        popUpTo(Settings.route)
+                        popUpTo(Favorites.route)
                         launchSingleTop = true
                     }
                 },
@@ -72,12 +79,21 @@ fun Navigation(
             )
         }
         composable(
+            route = "${FavoriteDetails.route}/{id}",
+            arguments = listOf(navArgument("id") { type = NavType.LongType })
+        ) { backStackEntry ->
+            FavoriteDetailsScreen(
+                modifier = modifier,
+                id = backStackEntry.arguments?.getLong("id") ?: 1,
+            )
+        }
+        composable(
             route = "${Maps.route}/{isCurrent}",
             arguments = listOf(navArgument("isCurrent") { type = NavType.BoolType })
         ) { backStackEntry ->
             Maps(
                 modifier = modifier,
-                isCurrent = backStackEntry.arguments?.getBoolean("isCurrent") == true,
+                isCurrent = backStackEntry.arguments?.getBoolean("isCurrent") ?: true,
                 onBackPress = { navController.popBackStack() }
             )
         }
