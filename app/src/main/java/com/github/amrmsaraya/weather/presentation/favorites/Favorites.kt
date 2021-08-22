@@ -85,11 +85,6 @@ fun Favorites(
                 .padding(innerPadding)
                 .padding(start = 16.dp, top = 16.dp, end = 16.dp)
         ) {
-
-            AnimatedVisibilityFade(favorites.isEmpty()) {
-                EmptyListIndicator(Icons.Filled.FavoriteBorder, R.string.no_favorites)
-            }
-
             AnimatedVisibilityFade(favorites.isNotEmpty()) {
                 FavoritesList(
                     items = favorites,
@@ -109,6 +104,9 @@ fun Favorites(
                         }
                     }
                 )
+            }
+            AnimatedVisibilityFade(favorites.isEmpty()) {
+                EmptyListIndicator(Icons.Filled.FavoriteBorder, R.string.no_favorites)
             }
         }
     }
@@ -142,93 +140,118 @@ fun FavoritesList(
                 },
                 animationSpec = tween(500)
             )
+            FavoriteItem(
+                item = item,
+                settings = settings,
+                backgroundColor = backgroundColor,
+                isSelected = isSelected,
+                selectMode = selectMode,
+                onSelect = onSelect,
+                onUnselect = onUnselect,
+                onClick = onClick,
+                onSelectMode = onSelectMode,
+            )
+        }
+    }
+}
 
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp, bottom = 8.dp)
-                    .combinedClickable(
-                        onClick = {
-                            if (selectMode) {
-                                when (isSelected) {
-                                    true -> onUnselect(item)
-                                    false -> onSelect(item)
-                                }
-                            } else {
-                                onClick(Forecast(id = item.id))
-                            }
-                        },
-                        onLongClick = {
-                            if (!selectMode) {
-                                onSelectMode(true)
-                                onSelect(item)
-                            }
+@ExperimentalFoundationApi
+@Composable
+private fun FavoriteItem(
+    item: Forecast,
+    settings: Settings,
+    backgroundColor: Color,
+    isSelected: Boolean,
+    selectMode: Boolean,
+    onSelect: (Forecast) -> Unit,
+    onUnselect: (Forecast) -> Unit,
+    onClick: (Forecast) -> Unit,
+    onSelectMode: (Boolean) -> Unit,
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp, bottom = 8.dp)
+            .combinedClickable(
+                onClick = {
+                    if (selectMode) {
+                        when (isSelected) {
+                            true -> onUnselect(item)
+                            false -> onSelect(item)
                         }
-                    ),
-                elevation = if (isSelected) 0.dp else 2.dp,
-                backgroundColor = backgroundColor
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        modifier = Modifier
-                            .weight(0.5f)
-                            .padding(end = 16.dp),
-                        text = GeocoderHelper.getCity(LocalContext.current, item.lat, item.lon),
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis
-                    )
-                    Row(
-                        modifier = Modifier.weight(0.5f),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Column(
-                            Modifier
-                                .weight(0.5f)
-                                .padding(end = 16.dp),
-                            horizontalAlignment = Alignment.End
-                        ) {
-                            val unknown = stringResource(id = R.string.unknown)
-                            Text(
-                                text = getTemp(
-                                    item.current.temp,
-                                    settings.temperature
-                                ) + " " + stringResource(id = getTempUnit(settings.temperature))
-                            )
-                            Text(
-                                text = when (item.current.weather.isEmpty()) {
-                                    true -> unknown
-                                    false -> item.current.weather[0].description.replaceFirstChar { it.uppercase() }
-                                },
-                                color = if (isSelected) MaterialTheme.colors.onSurface else Color.Gray,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                        Image(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .wrapContentSize(),
-                            painter = painterResource(
-                                id = when (item.current.weather.isEmpty()) {
-                                    true -> R.drawable.clear_day
-                                    false -> WeatherIcons.getCurrentIcon(
-                                        item.current.weather[0].main,
-                                        item.current.sunrise,
-                                        item.current.sunset
-                                    )
-                                }
-                            ),
-                            contentDescription = null
-                        )
+                    } else {
+                        onClick(Forecast(id = item.id))
+                    }
+                },
+                onLongClick = {
+                    if (!selectMode) {
+                        onSelectMode(true)
+                        onSelect(item)
                     }
                 }
+            ),
+        elevation = if (isSelected) 0.dp else 2.dp,
+        backgroundColor = backgroundColor
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(
+                modifier = Modifier
+                    .weight(0.5f)
+                    .padding(end = 16.dp),
+                text = GeocoderHelper.getCity(LocalContext.current, item.lat, item.lon),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Row(
+                modifier = Modifier.weight(0.5f),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column(
+                    Modifier
+                        .weight(0.5f)
+                        .padding(end = 16.dp),
+                    horizontalAlignment = Alignment.End
+                ) {
+                    val unknown = stringResource(id = R.string.unknown)
+                    Text(
+                        text = getTemp(
+                            item.current.temp,
+                            settings.temperature
+                        ) + " " + stringResource(id = getTempUnit(settings.temperature))
+                    )
+                    Text(
+                        text = when (item.current.weather.isEmpty()) {
+                            true -> unknown
+                            false -> item.current.weather[0].description.replaceFirstChar { it.uppercase() }
+                        },
+                        color = if (isSelected) MaterialTheme.colors.onSurface else Color.Gray,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+                Image(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .wrapContentSize(),
+                    painter = painterResource(
+                        id = when (item.current.weather.isEmpty()) {
+                            true -> R.drawable.clear_day
+                            false -> WeatherIcons.getCurrentIcon(
+                                item.current.weather[0].main,
+                                item.current.sunrise,
+                                item.current.sunset
+                            )
+                        }
+                    ),
+                    contentDescription = null
+                )
             }
         }
     }

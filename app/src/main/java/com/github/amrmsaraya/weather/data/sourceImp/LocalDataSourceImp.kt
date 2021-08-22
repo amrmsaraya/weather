@@ -17,5 +17,6 @@ class LocalDataSourceImp(private val weatherDao: WeatherDao) : LocalDataSource {
 
     override suspend fun getCurrentForecast(): Flow<Forecast> = weatherDao.getCurrentForecast()
 
-    override suspend fun getFavoriteForecasts(): Flow<List<Forecast>> = weatherDao.getFavoriteForecasts()
+    override suspend fun getFavoriteForecasts(): Flow<List<Forecast>> =
+        weatherDao.getFavoriteForecasts()
 }

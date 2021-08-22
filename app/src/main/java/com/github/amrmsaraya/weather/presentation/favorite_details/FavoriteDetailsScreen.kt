@@ -44,7 +44,10 @@ fun FavoriteDetailsScreen(
         }
         SwipeRefresh(
             state = swipeRefreshState,
-            onRefresh = { viewModel.getForecast(id) },
+            onRefresh = {
+                viewModel.isLoading.value = true
+                viewModel.getForecast(id)
+            },
             indicator = { state, trigger ->
                 SwipeRefreshIndicator(
                     state = state,

@@ -20,6 +20,7 @@ import androidx.compose.material.icons.outlined.NotificationsOff
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -142,42 +143,66 @@ fun AlertList(
                 animationSpec = tween(500)
             )
 
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 8.dp, bottom = 8.dp)
-                    .combinedClickable(
-                        onClick = {
-                            onClick(Forecast(id = 4))
-                            if (selectMode) {
-                                when (isSelected) {
-                                    true -> onUnselect(item)
-                                    false -> onSelect(item)
-                                }
-                            }
-                        },
-                        onLongClick = {
-                            if (!selectMode) {
-                                onSelectMode(true)
-                                onSelect(item)
-                            }
+            AlertItem(
+                item = item,
+                backgroundColor = backgroundColor,
+                isSelected = isSelected,
+                selectMode = selectMode,
+                onClick = onClick,
+                onSelect = onSelect,
+                onUnselect = onUnselect,
+                onSelectMode = onSelectMode,
+            )
+        }
+    }
+}
+
+@ExperimentalFoundationApi
+@Composable
+private fun AlertItem(
+    item: AlertTime,
+    backgroundColor: Color,
+    isSelected: Boolean,
+    selectMode: Boolean,
+    onClick: (Forecast) -> Unit,
+    onSelect: (AlertTime) -> Unit,
+    onUnselect: (AlertTime) -> Unit,
+    onSelectMode: (Boolean) -> Unit,
+) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp, bottom = 8.dp)
+            .combinedClickable(
+                onClick = {
+                    onClick(Forecast(id = 4))
+                    if (selectMode) {
+                        when (isSelected) {
+                            true -> onUnselect(item)
+                            false -> onSelect(item)
                         }
-                    ),
-                elevation = if (isSelected) 0.dp else 2.dp,
-                backgroundColor = backgroundColor
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(text = millisToFullDate(item.from), maxLines = 1)
-                    Text(text = "-", maxLines = 1)
-                    Text(text = millisToFullDate(item.to), maxLines = 1)
+                    }
+                },
+                onLongClick = {
+                    if (!selectMode) {
+                        onSelectMode(true)
+                        onSelect(item)
+                    }
                 }
-            }
+            ),
+        elevation = if (isSelected) 0.dp else 2.dp,
+        backgroundColor = backgroundColor
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
+        ) {
+            Text(text = millisToFullDate(item.from), maxLines = 1)
+            Text(text = "-", maxLines = 1)
+            Text(text = millisToFullDate(item.to), maxLines = 1)
         }
     }
 }

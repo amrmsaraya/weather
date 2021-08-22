@@ -26,7 +26,6 @@ class FavoriteDetailsViewModel @Inject constructor(
     val settings = mutableStateOf(Settings())
 
     fun getForecast(id: Long) = viewModelScope.launch {
-        println("EXECUTING")
         when (val response = getForecast.execute(id)) {
             is Response.Success -> {
                 isLoading.value = false
