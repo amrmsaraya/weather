@@ -3,6 +3,10 @@ package com.github.amrmsaraya.weather.presentation.alerts
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
@@ -25,14 +29,19 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.models.Forecast
 import com.github.amrmsaraya.weather.presentation.components.AddFAB
 import com.github.amrmsaraya.weather.presentation.components.AnimatedVisibilityFade
 import com.github.amrmsaraya.weather.presentation.components.DeleteFAB
 import com.github.amrmsaraya.weather.presentation.components.EmptyListIndicator
+import com.github.amrmsaraya.weather.service.AlertService
+import com.github.amrmsaraya.weather.service.AlertWorker
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
@@ -42,7 +51,7 @@ fun Alert(
     viewModel: AlertsViewModel = hiltViewModel(),
     onBackPress: () -> Unit
 ) {
-
+    val context = LocalContext.current
     val scaffoldState = rememberScaffoldState()
     val alerts = remember { mutableStateListOf<AlertTime>() }
     val selectedItems = remember { mutableStateListOf<AlertTime>() }
@@ -87,6 +96,15 @@ fun Alert(
                     accent = viewModel.accent.value,
                     onConfirm = { from, to ->
                         alerts.add(AlertTime(from.timeInMillis, to.timeInMillis))
+                        if (!Settings.canDrawOverlays(context)) {
+                            val permissionIntent = Intent(
+                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                Uri.parse("package:" + context.packageName)
+                            )
+                            permissionIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            context.startActivity(permissionIntent)
+                        }
+                        scheduleAlert(context = context, triggerAt = from.timeInMillis)
                     },
                     onDismiss = { showDialog = false })
             }
@@ -306,14 +324,6 @@ fun NewAlertDialog(accent: Int, onConfirm: (Calendar, Calendar) -> Unit, onDismi
                     onClick = {
                         onConfirm(from, to)
                         onDismiss()
-                        println(
-                            "DATETIME -> ${millisToDate(from.timeInMillis)}, ${
-                                millisToTime(
-                                    from.timeInMillis
-                                )
-                            }"
-                        )
-                        println("DATETIME -> ${millisToDate(to.timeInMillis)}, ${millisToTime(to.timeInMillis)}")
                     }
                 ) {
                     Text(text = stringResource(id = R.string.ok))
@@ -358,6 +368,7 @@ private fun showDatePicker(context: Context, accent: Int, onDateChange: (Calenda
 
         }, cal[Calendar.YEAR], cal[Calendar.MONTH], cal[Calendar.DAY_OF_MONTH]
     )
+    dialog.datePicker.minDate = System.currentTimeMillis()
     dialog.show()
 }
 
@@ -394,6 +405,15 @@ private fun millisToTime(timeMillis: Long): String {
 
 private fun millisToFullDate(timeMillis: Long): String {
     return SimpleDateFormat("dd MMM  hh:mm a", Locale.getDefault()).format(timeMillis)
+}
+
+private fun scheduleAlert(context: Context, triggerAt: Long) {
+
+    val alertWorkRequest = OneTimeWorkRequestBuilder<AlertWorker>()
+        .setInitialDelay(triggerAt - System.currentTimeMillis(), TimeUnit.MILLISECONDS)
+        .build()
+
+    WorkManager.getInstance(context).enqueue(alertWorkRequest)
 }
 
 private fun theme(color: Int): Int {

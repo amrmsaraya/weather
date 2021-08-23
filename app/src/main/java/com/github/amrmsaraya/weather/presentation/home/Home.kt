@@ -240,7 +240,9 @@ fun TempAndDescription(temp: Double, description: String, settings: Settings) {
         Temp(modifier = Modifier
             .constrainAs(tmp) {
                 centerTo(parent)
-            }.padding(bottom = 16.dp), temp, settings)
+            }
+            .padding(bottom = 16.dp), temp, settings
+        )
     }
 }
 
