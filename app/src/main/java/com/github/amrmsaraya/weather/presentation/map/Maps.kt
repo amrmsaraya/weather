@@ -22,10 +22,10 @@ import androidx.lifecycle.LifecycleEventObserver
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.models.ForecastRequest
 import com.github.amrmsaraya.weather.util.GeocoderHelper
-import com.google.android.libraries.maps.CameraUpdateFactory
-import com.google.android.libraries.maps.MapView
-import com.google.android.libraries.maps.model.LatLng
-import com.google.android.libraries.maps.model.MarkerOptions
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.MapView
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.maps.android.ktx.awaitMap
 import kotlinx.coroutines.launch
 
@@ -137,7 +137,7 @@ fun Maps(
         Box(modifier = modifier.fillMaxSize()) {
             LaunchedEffect(map) {
                 val googleMap = map.awaitMap()
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location,4f))
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 4f))
             }
             AndroidView({ map }) { mapView ->
                 scope.launch {

@@ -55,7 +55,7 @@ import com.google.accompanist.placeholder.material.placeholder
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import com.google.android.libraries.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*

@@ -34,7 +34,7 @@ class LocationHelper(activity: Activity, private val onLocationChange: (Location
 
     private fun buildLocationRequest() {
         locationRequest = LocationRequest.create().apply {
-            interval = 10 * 60 * 1000
+            interval = 600_000
             smallestDisplacement = 500f
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
         }
