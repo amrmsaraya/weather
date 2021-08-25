@@ -1,12 +1,20 @@
 package com.github.amrmsaraya.weather.data.models
 
-import com.google.gson.annotations.SerializedName
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 
+@Entity(tableName = "alerts")
 data class Alerts(
-
-    @SerializedName("sender_name") val sender_name: String = "",
-    @SerializedName("event") val event: String = "",
-    @SerializedName("start") val start: Int = 0,
-    @SerializedName("end") val end: Int = 0,
-    @SerializedName("description") val description: String = ""
+    @PrimaryKey(autoGenerate = true)
+    @ColumnInfo(name = "id")
+    val id: Long = 0,
+    @ColumnInfo(name = "start")
+    val from: Long,
+    @ColumnInfo(name = "end")
+    val to: Long,
+    @ColumnInfo(name = "type")
+    val isAlarm: Boolean,
+    @ColumnInfo(name = "work_id")
+    var workId: String,
 )

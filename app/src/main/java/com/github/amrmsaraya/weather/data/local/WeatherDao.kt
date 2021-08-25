@@ -1,25 +1,30 @@
 package com.github.amrmsaraya.weather.data.local
 
-import androidx.room.*
-import com.github.amrmsaraya.weather.data.models.WeatherResponse
+import androidx.room.Dao
+import androidx.room.Delete
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy.REPLACE
+import androidx.room.Query
+import com.github.amrmsaraya.weather.data.models.forecast.Forecast
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WeatherDao {
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertWeather(weatherResponse: WeatherResponse)
+    @Insert(onConflict = REPLACE)
+    suspend fun insertForecast(forecast: Forecast)
 
     @Delete
-    suspend fun deleteWeather(weatherResponse: WeatherResponse)
+    suspend fun deleteForecast(forecast: Forecast)
 
-    @Query("DELETE FROM weather WHERE isCurrent = 1")
-    suspend fun deleteCurrent()
+    @Delete
+    suspend fun deleteForecast(list: List<Forecast>)
 
-    @Query("SELECT * From weather WHERE lat = :lat AND lon = :lon ")
-    suspend fun getLocationWeather(lat: Double, lon: Double): WeatherResponse
+    @Query("SELECT * FROM forecast WHERE id = :id")
+    fun getForecast(id: Long): Flow<Forecast>
 
-    @Query("SELECT * From weather")
-    fun getAllWeather(): Flow<List<WeatherResponse>>
+    @Query("SELECT * FROM forecast WHERE id = 1")
+    fun getCurrentForecast(): Flow<Forecast>
 
+    @Query("SELECT * FROM forecast WHERE id != 1")
+    fun getFavoriteForecasts(): Flow<List<Forecast>>
 }

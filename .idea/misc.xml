@@ -1,6 +1,48 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="../../../../../../layout/compose-model-1629100053549.xml" value="0.18201013513513514" />
+        <entry key="app/src/main/res/drawable-v24/ic_launcher_background.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1814814814814815" />
+        <entry key="app/src/main/res/drawable/add.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/cloud.xml" value="0.18518518518518517" />
+        <entry key="app/src/main/res/drawable/foggy_day.xml" value="0.18518518518518517" />
+        <entry key="app/src/main/res/drawable/foggy_day_24.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/foggy_night_24.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/gradiant_square.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/gradient_square.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/humidity.xml" value="0.1685185185185185" />
+        <entry key="app/src/main/res/drawable/ic_baseline_3p_24.xml" value="0.1527777777777778" />
+        <entry key="app/src/main/res/drawable/ic_foreground.xml" value="0.3175925925925926" />
+        <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.1814814814814815" />
+        <entry key="app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/location_light.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/logo.xml" value="0.3175925925925926" />
+        <entry key="app/src/main/res/drawable/rainy_24.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/rainy_night.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/rainy_night_24.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/snow.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/snow_24.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/speedometer.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/splash_background.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/splash_foreground.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/splash_image.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/storm.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/ultraviolet.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/visibility.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/wind_speed.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/layout/alert.xml" value="0.75" />
+        <entry key="app/src/main/res/layout/fragment_maps.xml" value="0.16869300911854104" />
+        <entry key="app/src/main/res/layout/layout_maps.xml" value="0.16869300911854104" />
+        <entry key="app/src/main/res/mipmap-anydpi-v24/ic_launcher.xml" value="0.2078125" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.30185185185185187" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

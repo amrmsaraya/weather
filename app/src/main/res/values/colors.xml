@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="darker_gray">#FF212121</color>
-    <color name="dark_gray">#FF2E2E2E</color>
+    <color name="dark_gray">#FF121212</color>
     <color name="light_gray">#FF9E9E9E</color>
-    <color name="pink">#FFFF00e4</color>
-    <color name="blue">#FF6011F4</color>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+    <color name="primary">#FF1976D2</color>
+    <color name="secondary">#FFFF00E4</color>
+    <color name="secondary1">#FF4BC0C8</color>
+    <color name="secondary2">#FFFFC371</color>
+    <color name="secondary3">#FFFEAC5A</color>
+    <color name="secondary4">#FFE29587</color>
+    <color name="secondary5">#FFE7BFE8</color>
 </resources>

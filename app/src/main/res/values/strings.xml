@@ -12,7 +12,6 @@
     <string name="alerts">Alerts</string>
     <string name="favorites">Favorites</string>
     <string name="visibility">Visibility</string>
-    <string name="open_weather_map_app_id">22efb44963e22ae7005aac70558c7464</string>
     <string name="save">Save</string>
     <string name="tomorrow">Tomorrow</string>
     <string name="from">From</string>
@@ -22,7 +21,7 @@
     <string name="dismiss">Dismiss</string>
     <string name="notifications">Notifications</string>
     <string name="we_can_t_fetch_your_location">We can\'t fetch your location.</string>
-    <string name="please_allow_weather_to_access_your_location">Please allow Weather to access your location.</string>
+    <string name="please_allow_weather_to_access_your_location">Please allow Weather to access your location or choose a location from Map.</string>
     <string name="allow">Allow</string>
     <string name="location">Location</string>
     <string name="gps">GPS</string>
@@ -43,7 +42,8 @@
     <string name="hpa">hpa</string>
     <string name="meter">m</string>
     <string name="no_internet_connection">No Internet Connection</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
     <string name="unknown">Unknown</string>
     <string name="invalid_time">Invalid Time</string>
     <string name="weather_alert">Weather Alert</string>
@@ -52,6 +52,21 @@
     <string name="enable">Enable</string>
     <string name="disable">Disable</string>
     <string name="no_alerts">No Alerts</string>
-    <string name="no_places">No Places</string>
-
+    <string name="no_favorites">No Favorites</string>
+    <string name="general">General</string>
+    <string name="units">Units</string>
+    <string name="from_date">From Date</string>
+    <string name="from_time">From Time</string>
+    <string name="to_date">To Date</string>
+    <string name="to_time">To Time</string>
+    <string name="new_alert">New alert</string>
+    <string name="theme">Theme</string>
+    <string name="accent">Color</string>
+    <string name="default_">Default</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
+    <string name="from_map">From Map</string>
+    <string name="celsius_unit">°C</string>
+    <string name="fahrenheit_unit">°F</string>
+    <string name="kelvin_unit">°K</string>
 </resources>

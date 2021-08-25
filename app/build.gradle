@@ -2,49 +2,33 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
+    id 'kotlinx-serialization'
+    id 'dagger.hilt.android.plugin'
 }
 
 android {
-    signingConfigs {
-        config {
-            storeFile file('/var/home/amr/development/Android Keys/weather/weather_key.jks')
-            storePassword 'mrbeancant'
-            keyAlias 'weather'
-            keyPassword 'mrbeancant'
-        }
-    }
-    compileSdkVersion 30
-    buildToolsVersion "30.0.3"
+    compileSdk 31
 
     defaultConfig {
         applicationId "com.github.amrmsaraya.weather"
-        minSdkVersion 23
-        targetSdkVersion 30
-        versionCode 4
-        versionName "1.3"
+        minSdk 24
+        targetSdk 31
+        versionCode 6
+        versionName '2.0'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        signingConfig signingConfigs.config
-
-        // ...
-        // Set the properties within `local.properties` into a `Properties` class so that values
-        // within `local.properties` (e.g. Maps API key) are accessible in this file.
-        Properties properties = new Properties()
-        if (rootProject.file("local.properties").exists()) {
-            properties.load(rootProject.file("local.properties").newDataInputStream())
+        vectorDrawables {
+            useSupportLibrary true
         }
 
-        // Inject the Maps API key into the manifest
-        manifestPlaceholders = [mapsApiKey: properties.getProperty("MAPS_API_KEY", "")]
-
+        buildConfigField("String", "API_KEY", API_KEY)
+        buildConfigField("String", "BASE_URL", BASE_URL)
     }
 
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            debuggable false
-            signingConfig signingConfigs.config
         }
     }
     compileOptions {
@@ -53,71 +37,124 @@ android {
     }
     kotlinOptions {
         jvmTarget = '1.8'
+        useIR = true
     }
     buildFeatures {
-        dataBinding = true
+        compose true
     }
+    composeOptions {
+        kotlinCompilerExtensionVersion compose_version
+    }
+    packagingOptions {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+        }
+    }
+    compileSdkVersion 31
+    buildToolsVersion '31.0.0'
 }
 
 dependencies {
-    def lifecycle_version = "2.3.0"
-    def room_version = "2.2.6"
-    def retrofit_version = "2.9.0"
-    def navigation_version = "2.3.3"
-    def coroutines_version = "1.4.2"
-    def work_version = "2.5.0"
+    def lifecycle_version = '2.4.0-alpha03'
+    def coroutines_version = '1.5.1'
+    def ktor_version = '1.6.2'
+    def room_version = '2.3.0'
+    def workManager_version = "2.5.0"
+    def hilt_version = '2.38.1'
+    def dataStore_version = '1.0.0'
+    def accompanist_version = '0.17.0'
 
-    implementation 'androidx.core:core-ktx:1.3.2'
-    implementation 'androidx.appcompat:appcompat:1.2.0'
-    implementation 'com.google.android.material:material:1.3.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    // Core
+    implementation 'androidx.core:core-ktx:1.6.0'
+    implementation 'androidx.appcompat:appcompat:1.3.1'
+    implementation 'com.google.android.material:material:1.4.0'
+    implementation "androidx.compose.ui:ui:$compose_version"
+    implementation "androidx.compose.material:material:$compose_version"
+    implementation "androidx.compose.ui:ui-tooling-preview:$compose_version"
+    implementation 'androidx.activity:activity-compose:1.3.1'
+    implementation "androidx.compose.material:material-icons-core:$compose_version"
+    implementation "androidx.compose.material:material-icons-extended:$compose_version"
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.0'
 
+    // Test
     testImplementation 'junit:junit:4.13.2'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
+    testImplementation "com.google.truth:truth:1.1.3"
+    testImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
+    kaptTest "com.google.dagger:hilt-android-compiler:$hilt_version"
+    testImplementation "org.robolectric:robolectric:4.6.1"
 
-    // ViewModel Lifecycle
-    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    // Android Test
+    androidTestImplementation 'androidx.test.ext:junit:1.1.3'
+    androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
+    debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
+    androidTestImplementation "androidx.arch.core:core-testing:2.1.0"
+    androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
+    androidTestImplementation "com.google.truth:truth:1.1.3"
+    androidTestImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
+    kaptAndroidTest "com.google.dagger:hilt-android-compiler:$hilt_version"
+    androidTestImplementation "org.robolectric:robolectric:4.6.1"
+
+    // Splash Screen
+    implementation 'androidx.core:core-splashscreen:1.0.0-alpha01'
+
+    // Constraint Layout
+    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.0-beta02"
+
+    // Lifecycle runtime
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
 
-    // LiveData
-    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+    // ViewModel
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07"
+
+    // Navigation
+    implementation "com.google.accompanist:accompanist-navigation-animation:$accompanist_version"
 
     // Coroutines
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
 
     // WorkManager
-    implementation "androidx.work:work-runtime-ktx:$work_version"
+    implementation "androidx.work:work-runtime-ktx:$workManager_version"
 
-    // Navigation
-    implementation "androidx.navigation:navigation-fragment-ktx:$navigation_version"
-    implementation "androidx.navigation:navigation-ui-ktx:$navigation_version"
+    // Kotlin Serialization
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.2'
 
-    // Retrofit
-    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
-    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
-    implementation 'com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.2'
+    // Ktor
+    implementation "io.ktor:ktor-client-android:$ktor_version"
+    implementation "io.ktor:ktor-client-serialization:$ktor_version"
+    implementation "io.ktor:ktor-client-logging-jvm:$ktor_version"
 
     // Room
     implementation "androidx.room:room-runtime:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
 
+    // Hilt
+    implementation "com.google.dagger:hilt-android:$hilt_version"
+    kapt "com.google.dagger:hilt-compiler:$hilt_version"
+    implementation 'androidx.hilt:hilt-navigation-compose:1.0.0-alpha03'
+    implementation 'androidx.hilt:hilt-work:1.0.0'
+    kapt 'androidx.hilt:hilt-compiler:1.0.0'
+
     // Preferences DataStore
-    implementation "androidx.datastore:datastore-preferences:1.0.0-alpha06"
+    implementation "androidx.datastore:datastore-preferences:$dataStore_version"
 
-    // Gson
-    implementation 'com.google.code.gson:gson:2.8.6'
+    // SystemUiController
+    implementation "com.google.accompanist:accompanist-systemuicontroller:$accompanist_version"
 
-    // Maps
-    implementation 'com.google.android.gms:play-services-maps:17.0.0'
+    // Permission
+    implementation "com.google.accompanist:accompanist-permissions:$accompanist_version"
+
+    // Placeholder
+    implementation "com.google.accompanist:accompanist-placeholder-material:$accompanist_version"
+
+    // Swipe Refresh
+    implementation "com.google.accompanist:accompanist-swiperefresh:$accompanist_version"
+
+    // Google Maps
     implementation 'com.google.android.gms:play-services-location:18.0.0'
-
-    // Weather Animation
-    implementation 'com.github.MatteoBattilana:WeatherView:3.0.0'
-
-    // Swipe to refresh
-    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+    implementation 'com.google.android.gms:play-services-maps:17.0.1'
+    implementation "com.google.maps.android:maps-ktx:3.1.0"
 }
