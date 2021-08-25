@@ -1,7 +1,7 @@
 package com.github.amrmsaraya.weather.data.sourceImp
 
 import com.github.amrmsaraya.weather.data.local.WeatherDao
-import com.github.amrmsaraya.weather.data.models.Forecast
+import com.github.amrmsaraya.weather.data.models.forecast.Forecast
 import com.github.amrmsaraya.weather.data.source.LocalDataSource
 import kotlinx.coroutines.flow.Flow
 

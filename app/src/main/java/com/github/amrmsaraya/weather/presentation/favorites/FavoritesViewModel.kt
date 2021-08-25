@@ -4,7 +4,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.amrmsaraya.weather.data.models.Forecast
+import com.github.amrmsaraya.weather.data.models.forecast.Forecast
 import com.github.amrmsaraya.weather.data.models.Settings
 import com.github.amrmsaraya.weather.domain.usecase.forecast.DeleteForecast
 import com.github.amrmsaraya.weather.domain.usecase.forecast.GetFavoriteForecasts

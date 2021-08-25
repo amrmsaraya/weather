@@ -13,9 +13,11 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
-import androidx.annotation.RequiresApi
-import androidx.core.app.NotificationCompat
 import com.github.amrmsaraya.weather.R
+import com.github.amrmsaraya.weather.domain.repository.ForecastRepo
+import com.github.amrmsaraya.weather.util.NotificationHelper
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 class AlertService : Service() {
 
@@ -23,29 +25,27 @@ class AlertService : Service() {
     private lateinit var windowManager: WindowManager
     private lateinit var params: WindowManager.LayoutParams
     private lateinit var mediaPlayer: MediaPlayer
+    private lateinit var notificationHelper: NotificationHelper
 
     override fun onBind(intent: Intent?): IBinder? {
         throw  UnsupportedOperationException("Not yet implemented")
     }
 
-    @RequiresApi(Build.VERSION_CODES.R)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
+        notificationHelper = NotificationHelper(this)
+
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
-        val width = windowManager.maximumWindowMetrics.bounds.width()
+        val screenWidth = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            windowManager.maximumWindowMetrics.bounds.width()
+        } else {
+            windowManager.defaultDisplay.width
+        }
 
         val event = intent?.getStringExtra("event") ?: "Unknown"
         val description = intent?.getStringExtra("description") ?: "Unknown"
 
-        val notification =
-            NotificationCompat.Builder(this, this.packageName).apply {
-                setContentTitle(event)
-                setContentText(description)
-                setSilent(true)
-                priority = NotificationCompat.PRIORITY_HIGH
-                setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                setSmallIcon(R.drawable.cloud)
-            }.build()
+        val notification = notificationHelper.getNotification(event, description)
 
         startForeground(1, notification)
 
@@ -89,8 +89,8 @@ class AlertService : Service() {
         params.x = 0
         params.y = 25
 
-        view.minimumWidth = width - 100
-        title.width = view.minimumWidth - 50
+        view.minimumWidth = screenWidth - screenWidth / 10
+        title.width = view.minimumWidth - screenWidth / 20
 
         windowManager.addView(view, params)
 

@@ -7,6 +7,7 @@ import com.github.amrmsaraya.weather.data.models.Settings
 import com.github.amrmsaraya.weather.domain.repository.PreferencesRepo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.util.*
 
 class PreferencesRepoImp(private val dataStore: DataStore<Preferences>) : PreferencesRepo {
 
@@ -53,13 +54,14 @@ class PreferencesRepoImp(private val dataStore: DataStore<Preferences>) : Prefer
     }
 
     override suspend fun setDefaultPreferences() {
-        savePreference("location", R.string.gps)
-        savePreference("language", R.string.english)
-        savePreference("theme", R.string.default_)
-        savePreference("accent", 0)
-        savePreference("notifications", true)
-        savePreference("temperature", R.string.celsius)
-        savePreference("windSpeed", R.string.meter_sec)
+        val settings = Settings()
+        savePreference("location",settings.location)
+        savePreference("language", settings.language)
+        savePreference("theme", settings.theme)
+        savePreference("accent", settings.accent)
+        savePreference("notifications",settings.notifications)
+        savePreference("temperature", settings.temperature)
+        savePreference("windSpeed", settings.windSpeed)
     }
 
     override suspend fun restorePreferences(): Flow<Settings> {

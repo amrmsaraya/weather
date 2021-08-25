@@ -38,6 +38,7 @@ import java.util.*
 @ExperimentalAnimationApi
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val splash = installSplashScreen()
@@ -85,12 +86,14 @@ private fun App(
     when (settings.language) {
         R.string.arabic -> {
             if (Locale.getDefault().language != "ar") {
+                println("Language = Changed to Arabic")
                 LocaleHelper.setLocale(LocalContext.current, Locale("ar"))
                 onLocaleChange()
             }
         }
-        else -> {
+        R.string.english -> {
             if (Locale.getDefault().language != "en") {
+                println("Language = Changed to English")
                 LocaleHelper.setLocale(LocalContext.current, Locale("en"))
                 onLocaleChange()
             }

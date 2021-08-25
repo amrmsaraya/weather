@@ -1,7 +1,7 @@
 package com.github.amrmsaraya.weather.util
 
 import com.github.amrmsaraya.weather.R
-import com.github.amrmsaraya.weather.data.models.Daily
+import com.github.amrmsaraya.weather.data.models.forecast.Daily
 
 object WeatherIcons {
 

@@ -1,17 +1,13 @@
-package com.github.amrmsaraya.weather.data.models
+package com.github.amrmsaraya.weather.data.models.forecast
 
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Current(
+data class Hourly(
     @SerialName("dt")
     val dt: Int = 0,
-    @SerialName("sunrise")
-    val sunrise: Int = 0,
-    @SerialName("sunset")
-    val sunset: Int = 0,
     @SerialName("temp")
     val temp: Double = 0.0,
     @SerialName("feels_like")
@@ -32,6 +28,10 @@ data class Current(
     val windSpeed: Double = 0.0,
     @SerialName("wind_deg")
     val windDeg: Int = 0,
+    @SerialName("wind_gust")
+    val windGust: Double = 0.0,
     @SerialName("weather")
-    val weather: List<Weather> = listOf()
+    val weather: List<Weather> = listOf(),
+    @SerialName("pop")
+    val pop: Double = 0.0,
 )

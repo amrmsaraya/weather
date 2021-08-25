@@ -5,7 +5,6 @@ import android.app.TimePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -32,12 +31,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.github.amrmsaraya.weather.R
-import com.github.amrmsaraya.weather.data.models.Forecast
+import com.github.amrmsaraya.weather.data.models.Alerts
+import com.github.amrmsaraya.weather.data.models.forecast.Forecast
 import com.github.amrmsaraya.weather.presentation.components.AddFAB
-import com.github.amrmsaraya.weather.presentation.components.AnimatedVisibilityFade
 import com.github.amrmsaraya.weather.presentation.components.DeleteFAB
 import com.github.amrmsaraya.weather.presentation.components.EmptyListIndicator
-import com.github.amrmsaraya.weather.service.AlertService
 import com.github.amrmsaraya.weather.service.AlertWorker
 import java.text.SimpleDateFormat
 import java.util.*
@@ -53,12 +51,13 @@ fun Alert(
 ) {
     val context = LocalContext.current
     val scaffoldState = rememberScaffoldState()
-    val alerts = remember { mutableStateListOf<AlertTime>() }
-    val selectedItems = remember { mutableStateListOf<AlertTime>() }
+    val alerts = viewModel.alerts
+    val selectedItems = remember { mutableStateListOf<Alerts>() }
     var selectMode by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
 
     viewModel.getPreference("accent")
+    viewModel.getAlerts()
 
     BackHandler {
         if (selectMode) {
@@ -75,8 +74,10 @@ fun Alert(
         floatingActionButton = {
             when (selectMode) {
                 true -> DeleteFAB {
-                    alerts.removeAll(selectedItems)
-                    selectedItems.clear()
+                    viewModel.deleteAlerts(selectedItems.toList())
+                    selectedItems.forEach {
+                        WorkManager.getInstance(context).cancelWorkById(UUID.fromString(it.workId))
+                    }
                     selectMode = false
                 }
                 false -> AddFAB { showDialog = true }
@@ -94,8 +95,7 @@ fun Alert(
             if (showDialog) {
                 NewAlertDialog(
                     accent = viewModel.accent.value,
-                    onConfirm = { from, to ->
-                        alerts.add(AlertTime(from.timeInMillis, to.timeInMillis))
+                    onConfirm = { from, to, alarm ->
                         if (!Settings.canDrawOverlays(context)) {
                             val permissionIntent = Intent(
                                 Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
@@ -104,16 +104,25 @@ fun Alert(
                             permissionIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                             context.startActivity(permissionIntent)
                         }
-                        scheduleAlert(context = context, triggerAt = from.timeInMillis)
+
+                        viewModel.insetAlert(
+                            Alerts(
+                                from = from,
+                                to = to,
+                                isAlarm = alarm,
+                                workId = scheduleAlert(
+                                    context = context,
+                                    triggerAt = from
+                                ).toString()
+                            )
+                        )
                     },
                     onDismiss = { showDialog = false })
             }
 
-            AnimatedVisibilityFade(alerts.isEmpty()) {
+            if (alerts.isEmpty()) {
                 EmptyListIndicator(Icons.Outlined.NotificationsOff, R.string.no_alerts)
-            }
-
-            AnimatedVisibilityFade(alerts.isNotEmpty()) {
+            } else {
                 AlertList(
                     items = alerts,
                     selectedItems = selectedItems,
@@ -136,13 +145,13 @@ fun Alert(
 @ExperimentalFoundationApi
 @Composable
 fun AlertList(
-    items: List<AlertTime>,
-    selectedItems: List<AlertTime>,
+    items: List<Alerts>,
+    selectedItems: List<Alerts>,
     selectMode: Boolean,
     onSelectMode: (Boolean) -> Unit,
     onClick: (Forecast) -> Unit,
-    onSelect: (AlertTime) -> Unit,
-    onUnselect: (AlertTime) -> Unit
+    onSelect: (Alerts) -> Unit,
+    onUnselect: (Alerts) -> Unit
 ) {
     val state = rememberLazyListState()
 
@@ -178,13 +187,13 @@ fun AlertList(
 @ExperimentalFoundationApi
 @Composable
 private fun AlertItem(
-    item: AlertTime,
+    item: Alerts,
     backgroundColor: Color,
     isSelected: Boolean,
     selectMode: Boolean,
     onClick: (Forecast) -> Unit,
-    onSelect: (AlertTime) -> Unit,
-    onUnselect: (AlertTime) -> Unit,
+    onSelect: (Alerts) -> Unit,
+    onUnselect: (Alerts) -> Unit,
     onSelectMode: (Boolean) -> Unit,
 ) {
     Card(
@@ -226,7 +235,7 @@ private fun AlertItem(
 }
 
 @Composable
-fun NewAlertDialog(accent: Int, onConfirm: (Calendar, Calendar) -> Unit, onDismiss: () -> Unit) {
+fun NewAlertDialog(accent: Int, onConfirm: (Long, Long, Boolean) -> Unit, onDismiss: () -> Unit) {
 
     val context = LocalContext.current
     var alarmState by remember { mutableStateOf(true) }
@@ -322,7 +331,7 @@ fun NewAlertDialog(accent: Int, onConfirm: (Calendar, Calendar) -> Unit, onDismi
                 Button(
                     modifier = Modifier.weight(1f),
                     onClick = {
-                        onConfirm(from, to)
+                        onConfirm(from.timeInMillis, to.timeInMillis, alarmState)
                         onDismiss()
                     }
                 ) {
@@ -407,13 +416,15 @@ private fun millisToFullDate(timeMillis: Long): String {
     return SimpleDateFormat("dd MMM  hh:mm a", Locale.getDefault()).format(timeMillis)
 }
 
-private fun scheduleAlert(context: Context, triggerAt: Long) {
+private fun scheduleAlert(context: Context, triggerAt: Long): UUID {
 
     val alertWorkRequest = OneTimeWorkRequestBuilder<AlertWorker>()
         .setInitialDelay(triggerAt - System.currentTimeMillis(), TimeUnit.MILLISECONDS)
         .build()
 
     WorkManager.getInstance(context).enqueue(alertWorkRequest)
+
+    return alertWorkRequest.id
 }
 
 private fun theme(color: Int): Int {
@@ -426,8 +437,3 @@ private fun theme(color: Int): Int {
         else -> R.style.Dialog
     }
 }
-
-data class AlertTime(
-    val from: Long,
-    val to: Long
-)

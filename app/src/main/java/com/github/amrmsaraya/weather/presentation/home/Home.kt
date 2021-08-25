@@ -32,6 +32,10 @@ import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.data.models.*
+import com.github.amrmsaraya.weather.data.models.forecast.Current
+import com.github.amrmsaraya.weather.data.models.forecast.Daily
+import com.github.amrmsaraya.weather.data.models.forecast.Forecast
+import com.github.amrmsaraya.weather.data.models.forecast.Hourly
 import com.github.amrmsaraya.weather.presentation.components.LoadingIndicator
 import com.github.amrmsaraya.weather.presentation.components.LocationPermission
 import com.github.amrmsaraya.weather.presentation.components.NoPermission

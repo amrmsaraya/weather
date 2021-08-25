@@ -1,15 +1,17 @@
 package com.github.amrmsaraya.weather.util
 
 import androidx.room.TypeConverter
-import com.github.amrmsaraya.weather.data.models.Alert
-import com.github.amrmsaraya.weather.data.models.Current
-import com.github.amrmsaraya.weather.data.models.Daily
-import com.github.amrmsaraya.weather.data.models.Hourly
+import com.github.amrmsaraya.weather.data.models.forecast.Alert
+import com.github.amrmsaraya.weather.data.models.forecast.Current
+import com.github.amrmsaraya.weather.data.models.forecast.Daily
+import com.github.amrmsaraya.weather.data.models.forecast.Hourly
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import java.util.*
 
+@ExperimentalSerializationApi
 class Converter {
 
     @TypeConverter
@@ -49,16 +51,6 @@ class Converter {
 
     @TypeConverter
     fun toAlerts(string: String): List<Alert> {
-        return Json.decodeFromString(string)
-    }
-
-    @TypeConverter
-    fun fromUUID(uuid: UUID): String {
-        return Json.encodeToString(uuid)
-    }
-
-    @TypeConverter
-    fun toUUID(string: String): UUID {
         return Json.decodeFromString(string)
     }
 }

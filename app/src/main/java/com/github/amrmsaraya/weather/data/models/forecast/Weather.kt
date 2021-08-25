@@ -1,4 +1,4 @@
-package com.github.amrmsaraya.weather.data.models
+package com.github.amrmsaraya.weather.data.models.forecast
 
 
 import kotlinx.serialization.SerialName

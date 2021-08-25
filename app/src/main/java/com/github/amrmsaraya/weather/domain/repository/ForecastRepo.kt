@@ -1,6 +1,6 @@
 package com.github.amrmsaraya.weather.domain.repository
 
-import com.github.amrmsaraya.weather.data.models.Forecast
+import com.github.amrmsaraya.weather.data.models.forecast.Forecast
 import com.github.amrmsaraya.weather.data.models.ForecastRequest
 import com.github.amrmsaraya.weather.util.Response
 import kotlinx.coroutines.flow.Flow

@@ -1,7 +1,7 @@
 package com.github.amrmsaraya.weather.data.repositoryImp
 
 import android.util.Log
-import com.github.amrmsaraya.weather.data.models.Forecast
+import com.github.amrmsaraya.weather.data.models.forecast.Forecast
 import com.github.amrmsaraya.weather.data.models.ForecastRequest
 import com.github.amrmsaraya.weather.data.source.LocalDataSource
 import com.github.amrmsaraya.weather.data.source.RemoteDataSource

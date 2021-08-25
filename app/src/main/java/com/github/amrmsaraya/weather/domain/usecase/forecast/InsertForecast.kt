@@ -1,6 +1,6 @@
 package com.github.amrmsaraya.weather.domain.usecase.forecast
 
-import com.github.amrmsaraya.weather.data.models.Forecast
+import com.github.amrmsaraya.weather.data.models.forecast.Forecast
 import com.github.amrmsaraya.weather.domain.repository.ForecastRepo
 import javax.inject.Inject
 

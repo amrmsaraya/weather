@@ -25,7 +25,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.amrmsaraya.weather.R
-import com.github.amrmsaraya.weather.data.models.Forecast
+import com.github.amrmsaraya.weather.data.models.forecast.Forecast
 import com.github.amrmsaraya.weather.data.models.Settings
 import com.github.amrmsaraya.weather.presentation.components.AddFAB
 import com.github.amrmsaraya.weather.presentation.components.AnimatedVisibilityFade
@@ -85,7 +85,10 @@ fun Favorites(
                 .padding(innerPadding)
                 .padding(start = 16.dp, top = 16.dp, end = 16.dp)
         ) {
-            AnimatedVisibilityFade(favorites.isNotEmpty()) {
+
+            if(favorites.isEmpty()) {
+                EmptyListIndicator(Icons.Filled.FavoriteBorder, R.string.no_favorites)
+            }else {
                 FavoritesList(
                     items = favorites,
                     selectedItems = selectedItems,
@@ -104,9 +107,6 @@ fun Favorites(
                         }
                     }
                 )
-            }
-            AnimatedVisibilityFade(favorites.isEmpty()) {
-                EmptyListIndicator(Icons.Filled.FavoriteBorder, R.string.no_favorites)
             }
         }
     }

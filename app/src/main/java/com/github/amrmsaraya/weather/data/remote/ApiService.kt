@@ -1,6 +1,6 @@
 package com.github.amrmsaraya.weather.data.remote
 
-import com.github.amrmsaraya.weather.data.models.Forecast
+import com.github.amrmsaraya.weather.data.models.forecast.Forecast
 import com.github.amrmsaraya.weather.data.models.ForecastRequest
 import io.ktor.client.*
 import io.ktor.client.request.*

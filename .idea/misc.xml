@@ -15,9 +15,11 @@
         <entry key="app/src/main/res/drawable/gradient_square.xml" value="0.30185185185185187" />
         <entry key="app/src/main/res/drawable/humidity.xml" value="0.1685185185185185" />
         <entry key="app/src/main/res/drawable/ic_baseline_3p_24.xml" value="0.1527777777777778" />
+        <entry key="app/src/main/res/drawable/ic_foreground.xml" value="0.3175925925925926" />
         <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.1814814814814815" />
         <entry key="app/src/main/res/drawable/ic_launcher_foreground.xml" value="0.30185185185185187" />
         <entry key="app/src/main/res/drawable/location_light.xml" value="0.30185185185185187" />
+        <entry key="app/src/main/res/drawable/logo.xml" value="0.3175925925925926" />
         <entry key="app/src/main/res/drawable/rainy_24.xml" value="0.30185185185185187" />
         <entry key="app/src/main/res/drawable/rainy_night.xml" value="0.30185185185185187" />
         <entry key="app/src/main/res/drawable/rainy_night_24.xml" value="0.30185185185185187" />
@@ -34,6 +36,7 @@
         <entry key="app/src/main/res/layout/alert.xml" value="0.75" />
         <entry key="app/src/main/res/layout/fragment_maps.xml" value="0.16869300911854104" />
         <entry key="app/src/main/res/layout/layout_maps.xml" value="0.16869300911854104" />
+        <entry key="app/src/main/res/mipmap-anydpi-v24/ic_launcher.xml" value="0.2078125" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher.xml" value="0.30185185185185187" />
         <entry key="app/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml" value="0.30185185185185187" />
       </map>

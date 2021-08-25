@@ -5,12 +5,11 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Query
-import com.github.amrmsaraya.weather.data.models.Forecast
+import com.github.amrmsaraya.weather.data.models.forecast.Forecast
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface WeatherDao {
-
     @Insert(onConflict = REPLACE)
     suspend fun insertForecast(forecast: Forecast)
 
@@ -28,5 +27,4 @@ interface WeatherDao {
 
     @Query("SELECT * FROM forecast WHERE id != 1")
     fun getFavoriteForecasts(): Flow<List<Forecast>>
-
 }

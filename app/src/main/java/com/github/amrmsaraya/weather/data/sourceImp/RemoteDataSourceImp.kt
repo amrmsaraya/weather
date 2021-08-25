@@ -1,6 +1,6 @@
 package com.github.amrmsaraya.weather.data.sourceImp
 
-import com.github.amrmsaraya.weather.data.models.Forecast
+import com.github.amrmsaraya.weather.data.models.forecast.Forecast
 import com.github.amrmsaraya.weather.data.models.ForecastRequest
 import com.github.amrmsaraya.weather.data.remote.ApiService
 import com.github.amrmsaraya.weather.data.source.RemoteDataSource
