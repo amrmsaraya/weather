@@ -11,6 +11,8 @@ Android Mobile Application that inform user about the current weather condition 
 - Automatic notifications about weather alerts
 - Custom alarms in a specific time range to be informed if there is any alerts within this time period
 - Change location provider (GPS, Google-Maps Location)
+- Light / Dark theme support
+- 6 Colorful palettes to choose from
 - Change application language (English, Arabic)
 - Change temperature unit (Celsius, Kelvin, Fahrenheit)
 - Change wind speed unit (m/s, mph)
