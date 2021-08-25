@@ -44,14 +44,12 @@ fun Maps(
         rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     var showBottomSheet by remember { mutableStateOf(false) }
     val currentForecast by viewModel.currentForecast
-    var location by remember { mutableStateOf(LatLng(0.0, 0.0)) }
+    var location by remember { mutableStateOf(LatLng(currentForecast.lat, currentForecast.lon)) }
     var city by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
 
-    if (isCurrent) {
-        viewModel.getCurrentForecast()
-    }
+    viewModel.getCurrentForecast()
 
     BackHandler {
         if (bottomSheetState.isVisible) {
@@ -139,10 +137,7 @@ fun Maps(
         Box(modifier = modifier.fillMaxSize()) {
             LaunchedEffect(map) {
                 val googleMap = map.awaitMap()
-                googleMap.animateCamera(CameraUpdateFactory.newLatLng(LatLng(-35.016, 143.321)))
-                googleMap.addMarker(
-                    MarkerOptions().position(LatLng(-35.016, 143.321))
-                )
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location,4f))
             }
             AndroidView({ map }) { mapView ->
                 scope.launch {
