@@ -8,6 +8,7 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -143,11 +144,14 @@ fun BottomNavigation(navController: NavHostController) {
     val screens = listOf(Home, Favorites, Alerts, Settings)
 
     if (currentDestination?.route in screens.map { it.route }) {
-        BottomNav(
-            navController = navController,
-            currentDestination = currentDestination,
-            screens = screens
-        )
+        Column {
+            Divider(thickness = (0.5).dp)
+            BottomNav(
+                navController = navController,
+                currentDestination = currentDestination,
+                screens = screens
+            )
+        }
     }
 }
 
