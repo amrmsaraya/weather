@@ -28,7 +28,6 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 fun Navigation(
     modifier: Modifier = Modifier,
     navController: NavHostController,
-//    workManager: WorkManager
 ) {
     AnimatedNavHost(
         navController = navController,
@@ -39,7 +38,7 @@ fun Navigation(
                 modifier = modifier,
                 onNavigateToMap = {
                     navController.navigate("${Maps.route}/true") {
-                        popUpTo(Settings.route)
+                        popUpTo(Home.route)
                         launchSingleTop = true
                     }
                 }

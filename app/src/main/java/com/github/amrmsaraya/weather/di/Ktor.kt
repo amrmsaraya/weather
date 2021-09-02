@@ -29,11 +29,12 @@ class Ktor {
                 isLenient = true
                 ignoreUnknownKeys = true
             })
+        }
 
-            engine {
-                connectTimeout = 10000
-                socketTimeout = 10000
-            }
+        install(HttpTimeout){
+            connectTimeoutMillis = 5000
+            requestTimeoutMillis = 5000
+            socketTimeoutMillis = 5000
         }
 
         install(Logging) {

@@ -13,10 +13,10 @@ android {
         applicationId "com.github.amrmsaraya.weather"
         minSdk 24
         targetSdk 31
-        versionCode 6
-        versionName '2.0'
+        versionCode 7
+        versionName '2.1'
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "com.github.amrmsaraya.weather.MyTestRunner"
         vectorDrawables {
             useSupportLibrary true
         }
@@ -55,6 +55,7 @@ android {
 }
 
 dependencies {
+    implementation 'androidx.test:runner:1.4.0'
     def lifecycle_version = '2.4.0-alpha03'
     def coroutines_version = '1.5.1'
     def ktor_version = '1.6.2'
