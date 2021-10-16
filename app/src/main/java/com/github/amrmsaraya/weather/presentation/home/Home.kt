@@ -49,9 +49,6 @@ import com.github.amrmsaraya.weather.util.LocationHelper
 import com.github.amrmsaraya.weather.util.WeatherIcons
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberPermissionState
-import com.google.accompanist.placeholder.PlaceholderHighlight
-import com.google.accompanist.placeholder.material.fade
-import com.google.accompanist.placeholder.material.placeholder
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -161,12 +158,7 @@ fun HomeContent(forecast: Forecast, settings: Settings) {
         Text(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp)
-                .placeholder(
-                    visible = forecast.lat == 0.0,
-                    color = Color.LightGray,
-                    highlight = PlaceholderHighlight.fade()
-                ),
+                .padding(start = 16.dp, end = 16.dp),
             text = GeocoderHelper.getCity(LocalContext.current, forecast.lat, forecast.lon),
             maxLines = 1,
             fontSize = 18.sp,
