@@ -20,7 +20,7 @@ import dagger.assisted.AssistedInject
 @HiltWorker
 class AlertWorker @AssistedInject constructor(
     @Assisted private val context: Context,
-    @Assisted private val params: WorkerParameters,
+    @Assisted params: WorkerParameters,
     private val getCurrentForecast: GetCurrentForecast,
     private val getAlert: GetAlert,
     private val deleteAlert: DeleteAlert,
