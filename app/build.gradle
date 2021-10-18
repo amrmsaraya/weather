@@ -56,6 +56,9 @@ android {
 
 dependencies {
     implementation 'androidx.test:runner:1.4.0'
+    implementation project(path: ':domain')
+    implementation project(path: ':data')
+
     def lifecycle_version = '2.4.0-rc01'
     def coroutines_version = '1.5.2'
     def ktor_version = '1.6.4'

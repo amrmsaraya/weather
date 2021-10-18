@@ -1,7 +1,8 @@
 package com.github.amrmsaraya.weather.data.sourceImp
 
 import com.github.amrmsaraya.weather.data.local.WeatherDao
-import com.github.amrmsaraya.weather.data.models.forecast.Forecast
+import com.github.amrmsaraya.weather.data.model.forecast.Forecast
+import com.github.amrmsaraya.weather.domain.model.forecast.Forecast
 import com.google.common.truth.Truth
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest

@@ -2,6 +2,7 @@ package com.github.amrmsaraya.weather.di
 
 import android.util.Log
 import com.github.amrmsaraya.weather.BuildConfig
+import com.github.amrmsaraya.weather.data.remote.ApiService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -31,7 +32,7 @@ class Ktor {
             })
         }
 
-        install(HttpTimeout){
+        install(HttpTimeout) {
             connectTimeoutMillis = 5000
             requestTimeoutMillis = 5000
             socketTimeoutMillis = 5000
@@ -70,5 +71,11 @@ class Ktor {
     @Provides
     fun provideKtorClient(): HttpClient {
         return client
+    }
+
+    @Singleton
+    @Provides
+    fun provideApiService(client: HttpClient): ApiService {
+        return ApiService(client)
     }
 }

@@ -3,15 +3,13 @@ package com.github.amrmsaraya.weather.presentation.map
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.amrmsaraya.weather.data.models.forecast.Forecast
-import com.github.amrmsaraya.weather.data.models.ForecastRequest
+import com.github.amrmsaraya.weather.domain.model.forecast.Forecast
 import com.github.amrmsaraya.weather.domain.usecase.forecast.GetCurrentForecast
 import com.github.amrmsaraya.weather.domain.usecase.forecast.GetForecast
 import com.github.amrmsaraya.weather.domain.usecase.forecast.InsertForecast
 import com.github.amrmsaraya.weather.domain.usecase.preferences.SavePreference
-import com.github.amrmsaraya.weather.util.Response
+import com.github.amrmsaraya.weather.domain.util.Response
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -33,22 +31,22 @@ class MapViewModel @Inject constructor(
         insertForecast.execute(forecast)
     }
 
-    fun getForecast(forecastRequest: ForecastRequest) = viewModelScope.launch {
-        getForecast.execute(forecastRequest)
+    fun getForecast(lat: Double, lon: Double) = viewModelScope.launch {
+        getForecast.execute(lat, lon)
     }
 
-    fun getCurrentForecast(forecastRequest: ForecastRequest) = viewModelScope.launch {
-        getCurrentForecast.execute(forecastRequest)
+    fun getCurrentForecast(lat: Double, lon: Double) = viewModelScope.launch {
+        getCurrentForecast.execute(lat, lon)
     }
 
     fun getCurrentForecast() = viewModelScope.launch {
         when (val forecastResponse = getCurrentForecast.execute()) {
             is Response.Success -> {
-                currentForecast.value = forecastResponse.result.first()
+                currentForecast.value = forecastResponse.result
             }
             is Response.Error -> {
                 forecastResponse.result?.let {
-                    currentForecast.value = it.first()
+                    currentForecast.value = it
                 }
             }
         }

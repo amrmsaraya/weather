@@ -31,11 +31,11 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.amrmsaraya.weather.R
-import com.github.amrmsaraya.weather.data.models.*
-import com.github.amrmsaraya.weather.data.models.forecast.Current
-import com.github.amrmsaraya.weather.data.models.forecast.Daily
-import com.github.amrmsaraya.weather.data.models.forecast.Forecast
-import com.github.amrmsaraya.weather.data.models.forecast.Hourly
+import com.github.amrmsaraya.weather.domain.model.Settings
+import com.github.amrmsaraya.weather.domain.model.forecast.Current
+import com.github.amrmsaraya.weather.domain.model.forecast.Daily
+import com.github.amrmsaraya.weather.domain.model.forecast.Forecast
+import com.github.amrmsaraya.weather.domain.model.forecast.Hourly
 import com.github.amrmsaraya.weather.presentation.components.LoadingIndicator
 import com.github.amrmsaraya.weather.presentation.components.LocationPermission
 import com.github.amrmsaraya.weather.presentation.components.NoPermission
@@ -78,7 +78,7 @@ fun HomeScreen(
         LocalContext.current as Activity,
         onLocationChange = {
             latLng = LatLng(it.latitude, it.longitude)
-            viewModel.getForecast(ForecastRequest(it.latitude, it.longitude))
+            viewModel.getForecast(it.latitude, it.longitude)
         }
     )
     val locationPermissionState = rememberPermissionState(
@@ -89,62 +89,65 @@ fun HomeScreen(
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
 
-    Scaffold(
-        modifier = modifier,
-        scaffoldState = scaffoldState
-    ) {
-        if (error.isNotEmpty()) {
-            scope.launch {
-                scaffoldState.snackbarHostState.showSnackbar(message = error)
-                viewModel.error.value = ""
-            }
-        }
-        SwipeRefresh(
-            state = swipeRefreshState,
-            onRefresh = {
-                viewModel.isLoading.value = true
-                refresh(settings, latLng, location, viewModel)
-            },
-            indicator = { state, trigger ->
-                SwipeRefreshIndicator(
-                    state = state,
-                    refreshTriggerDistance = trigger,
-                    scale = true,
-                    contentColor = MaterialTheme.colors.secondary
-                )
-            },
+    settings?.let { setting ->
+        Scaffold(
+            modifier = modifier,
+            scaffoldState = scaffoldState
         ) {
-            when (settings.location) {
-                R.string.gps -> LocationPermission(
-                    permissionState = locationPermissionState,
-                    requestPermission = {
-                        RequestPermission(
-                            locationPermissionState,
-                            onNavigateToMap
-                        )
-                    },
-                    noPermission = { NoPermission() },
-                    hasPermission = {
+            if (error.isNotEmpty()) {
+                scope.launch {
+                    scaffoldState.snackbarHostState.showSnackbar(message = error)
+                    viewModel.error.value = ""
+                }
+            }
+            SwipeRefresh(
+                state = swipeRefreshState,
+                onRefresh = {
+                    viewModel.isLoading.value = true
+                    refresh(setting, latLng, location, viewModel)
+                },
+                indicator = { state, trigger ->
+                    SwipeRefreshIndicator(
+                        state = state,
+                        refreshTriggerDistance = trigger,
+                        scale = true,
+                        contentColor = MaterialTheme.colors.secondary
+                    )
+                },
+            ) {
+                when (setting.location) {
+                    R.string.gps -> LocationPermission(
+                        permissionState = locationPermissionState,
+                        requestPermission = {
+                            RequestPermission(
+                                locationPermissionState,
+                                onNavigateToMap
+                            )
+                        },
+                        noPermission = { NoPermission() },
+                        hasPermission = {
+                            LaunchedEffect(key1 = true) {
+                                location.startLocationUpdates()
+                            }
+                            when (forecast.current.weather.isEmpty()) {
+                                true -> LoadingIndicator()
+                                false -> HomeContent(forecast, setting)
+                            }
+                        })
+                    else -> {
                         LaunchedEffect(key1 = true) {
-                            location.startLocationUpdates()
+                            viewModel.getForecast()
                         }
                         when (forecast.current.weather.isEmpty()) {
                             true -> LoadingIndicator()
-                            false -> HomeContent(forecast, settings)
+                            false -> HomeContent(forecast, setting)
                         }
-                    })
-                else -> {
-                    LaunchedEffect(key1 = true) {
-                        viewModel.getForecast()
-                    }
-                    when (forecast.current.weather.isEmpty()) {
-                        true -> LoadingIndicator()
-                        false -> HomeContent(forecast, settings)
                     }
                 }
             }
         }
     }
+
 }
 
 @Composable
@@ -483,12 +486,7 @@ private fun refresh(
     when (settings.location) {
         R.string.gps -> {
             if (latLng.latitude != 0.0 && location.isStarted) {
-                viewModel.getForecast(
-                    ForecastRequest(
-                        latLng.latitude,
-                        latLng.longitude
-                    )
-                )
+                viewModel.getForecast(latLng.latitude, latLng.longitude)
             } else {
                 location.startLocationUpdates()
             }

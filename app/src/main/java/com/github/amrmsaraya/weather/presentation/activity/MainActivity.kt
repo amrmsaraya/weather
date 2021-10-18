@@ -84,7 +84,7 @@ private fun App(
         }
     }
 
-    when (settings.language) {
+    when (settings?.language) {
         R.string.arabic -> {
             if (Locale.getDefault().language != "ar") {
                 println("Language = Changed to Arabic")
@@ -101,7 +101,7 @@ private fun App(
         }
     }
 
-    val darkTheme = when (settings.theme) {
+    val darkTheme = when (settings?.theme) {
         R.string.light -> false
         R.string.dark -> true
         else -> isSystemInDarkTheme()
@@ -109,8 +109,8 @@ private fun App(
 
     WeatherTheme(
         darkTheme = darkTheme,
-        colorIndex = settings.accent,
-        language = settings.language
+        colorIndex = settings?.accent ?: 0,
+        language = settings?.language ?: R.string.english
     ) {
         Surface(
             color = MaterialTheme.colors.surface,

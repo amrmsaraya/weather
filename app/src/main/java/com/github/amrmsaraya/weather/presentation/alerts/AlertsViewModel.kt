@@ -4,7 +4,7 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.amrmsaraya.weather.data.models.Alerts
+import com.github.amrmsaraya.weather.domain.model.Alerts
 import com.github.amrmsaraya.weather.domain.usecase.alert.DeleteAlert
 import com.github.amrmsaraya.weather.domain.usecase.alert.GetAlerts
 import com.github.amrmsaraya.weather.domain.usecase.alert.InsertAlert

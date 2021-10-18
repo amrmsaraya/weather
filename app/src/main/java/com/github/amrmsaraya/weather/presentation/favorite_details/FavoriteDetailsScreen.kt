@@ -16,17 +16,18 @@ import kotlinx.coroutines.launch
 @Composable
 fun FavoriteDetailsScreen(
     modifier: Modifier,
-    id: Long,
+    lat: Double,
+    lon: Double,
     viewModel: FavoriteDetailsViewModel = hiltViewModel()
 ) {
+
+    viewModel.restorePreferences()
 
     val isLoading by viewModel.isLoading
     val error by viewModel.error
     val forecast by viewModel.forecast
     val settings by viewModel.settings
     var forecastRequested by remember { mutableStateOf(false) }
-
-    viewModel.restorePreferences()
 
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isLoading)
     val scaffoldState = rememberScaffoldState()
@@ -46,7 +47,7 @@ fun FavoriteDetailsScreen(
             state = swipeRefreshState,
             onRefresh = {
                 viewModel.isLoading.value = true
-                viewModel.getForecast(id)
+                viewModel.getForecast(lat, lon)
             },
             indicator = { state, trigger ->
                 SwipeRefreshIndicator(
@@ -58,12 +59,12 @@ fun FavoriteDetailsScreen(
             },
         ) {
             if (!forecastRequested) {
-                viewModel.getForecast(id)
+                viewModel.getForecast(lat, lon)
                 forecastRequested = true
             }
-            when (forecast.current.weather.isEmpty()) {
+            when (forecast.current.weather.isEmpty() && settings == null) {
                 true -> LoadingIndicator()
-                false -> HomeContent(forecast, settings)
+                false -> HomeContent(forecast, settings!!)
             }
         }
     }

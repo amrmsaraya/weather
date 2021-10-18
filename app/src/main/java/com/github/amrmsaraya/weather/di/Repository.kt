@@ -5,7 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import com.github.amrmsaraya.weather.data.repositoryImp.AlertRepoImp
 import com.github.amrmsaraya.weather.data.repositoryImp.ForecastRepoImp
 import com.github.amrmsaraya.weather.data.repositoryImp.PreferencesRepoImp
-import com.github.amrmsaraya.weather.data.source.AlertLocalDataSource
+import com.github.amrmsaraya.weather.data.source.AlertDataSource
 import com.github.amrmsaraya.weather.data.source.LocalDataSource
 import com.github.amrmsaraya.weather.data.source.RemoteDataSource
 import com.github.amrmsaraya.weather.domain.repository.AlertRepo
@@ -40,8 +40,8 @@ class Repository {
     @Provides
     @Singleton
     fun provideAlertRepo(
-        alertLocalDataSource: AlertLocalDataSource,
+        alertDataSource: AlertDataSource,
     ): AlertRepo {
-        return AlertRepoImp(alertLocalDataSource)
+        return AlertRepoImp(alertDataSource)
     }
 }

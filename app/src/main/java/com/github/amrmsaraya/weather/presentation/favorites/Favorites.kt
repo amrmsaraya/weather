@@ -25,10 +25,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.amrmsaraya.weather.R
-import com.github.amrmsaraya.weather.data.models.forecast.Forecast
-import com.github.amrmsaraya.weather.data.models.Settings
+import com.github.amrmsaraya.weather.domain.model.Settings
+import com.github.amrmsaraya.weather.domain.model.forecast.Forecast
 import com.github.amrmsaraya.weather.presentation.components.AddFAB
-import com.github.amrmsaraya.weather.presentation.components.AnimatedVisibilityFade
 import com.github.amrmsaraya.weather.presentation.components.DeleteFAB
 import com.github.amrmsaraya.weather.presentation.components.EmptyListIndicator
 import com.github.amrmsaraya.weather.presentation.home.getTemp
@@ -41,19 +40,20 @@ import com.github.amrmsaraya.weather.util.WeatherIcons
 @Composable
 fun Favorites(
     modifier: Modifier = Modifier,
-    onItemClick: (Long) -> Unit,
+    onItemClick: (Double, Double) -> Unit,
     onNavigateToMap: () -> Unit,
     onBackPress: () -> Unit,
     viewModel: FavoritesViewModel = hiltViewModel()
 ) {
+
+    viewModel.getFavoriteForecasts()
+    viewModel.restorePreferences()
+
     val scaffoldState = rememberScaffoldState()
     val selectedItems = remember { mutableStateListOf<Forecast>() }
     var selectMode by remember { mutableStateOf(false) }
     val favorites = viewModel.favorites
     val settings by viewModel.settings
-
-    viewModel.getFavoriteForecasts()
-    viewModel.restorePreferences()
 
     BackHandler {
         if (selectMode) {
@@ -64,52 +64,55 @@ fun Favorites(
         }
     }
 
-    Scaffold(
-        scaffoldState = scaffoldState,
-        modifier = modifier,
-        floatingActionButton = {
-            when (selectMode) {
-                true -> DeleteFAB {
-                    viewModel.deleteForecast(selectedItems.toList())
-                    selectedItems.clear()
-                    selectMode = false
-                }
-                false -> AddFAB { onNavigateToMap() }
-            }
-        },
-        floatingActionButtonPosition = if (selectMode) FabPosition.Center else FabPosition.End
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(start = 16.dp, top = 16.dp, end = 16.dp)
-        ) {
-
-            if(favorites.isEmpty()) {
-                EmptyListIndicator(Icons.Filled.FavoriteBorder, R.string.no_favorites)
-            }else {
-                FavoritesList(
-                    items = favorites,
-                    selectedItems = selectedItems,
-                    selectMode = selectMode,
-                    settings = settings,
-                    onSelectMode = { selectMode = it },
-                    onClick = {
-                        onItemClick(it.id)
-                        println("id = ${it.id}")
-                    },
-                    onSelect = { selectedItems.add(it) },
-                    onUnselect = {
-                        selectedItems.remove(it)
-                        if (selectedItems.isEmpty()) {
-                            selectMode = false
-                        }
+    settings?.let { setting ->
+        Scaffold(
+            scaffoldState = scaffoldState,
+            modifier = modifier,
+            floatingActionButton = {
+                when (selectMode) {
+                    true -> DeleteFAB {
+                        viewModel.deleteForecast(selectedItems.toList())
+                        selectedItems.clear()
+                        selectMode = false
                     }
-                )
+                    false -> AddFAB { onNavigateToMap() }
+                }
+            },
+            floatingActionButtonPosition = if (selectMode) FabPosition.Center else FabPosition.End
+        ) { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(start = 16.dp, top = 16.dp, end = 16.dp)
+            ) {
+
+                if (favorites.isEmpty()) {
+                    EmptyListIndicator(Icons.Filled.FavoriteBorder, R.string.no_favorites)
+                } else {
+                    FavoritesList(
+                        items = favorites,
+                        selectedItems = selectedItems,
+                        selectMode = selectMode,
+                        settings = setting,
+                        onSelectMode = { selectMode = it },
+                        onClick = {
+                            onItemClick(it.lat, it.lon)
+                            println("id = ${it.id}")
+                        },
+                        onSelect = { selectedItems.add(it) },
+                        onUnselect = {
+                            selectedItems.remove(it)
+                            if (selectedItems.isEmpty()) {
+                                selectMode = false
+                            }
+                        }
+                    )
+                }
             }
         }
     }
+
 }
 
 @ExperimentalFoundationApi

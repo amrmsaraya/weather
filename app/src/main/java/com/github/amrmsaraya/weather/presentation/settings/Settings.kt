@@ -38,177 +38,175 @@ fun Settings(
 ) {
     val scrollState = rememberScrollState()
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(16.dp)
-    ) {
-        val locationItems = listOf(
-            R.string.gps,
-            R.string.map
-        )
-        val languageItems = listOf(
-            R.string.english,
-            R.string.arabic
-        )
-        val temperatureItems = listOf(
-            R.string.celsius,
-            R.string.kelvin,
-            R.string.fahrenheit
-        )
-        val windSpeedItems = listOf(
-            R.string.meter_sec,
-            R.string.mile_hour
-        )
-        val themeItems = listOf(
-            R.string.default_,
-            R.string.light,
-            R.string.dark
-        )
+    val settings by remember { viewModel.settings }
 
-        var expandedLocation by remember { mutableStateOf(false) }
-        var expandedLanguage by remember { mutableStateOf(false) }
-        var expandedTemperature by remember { mutableStateOf(false) }
-        var expandedWindSpeed by remember { mutableStateOf(false) }
-        var expandedTheme by remember { mutableStateOf(false) }
+    viewModel.restorePreferences()
 
-        viewModel.restorePreferences()
+    settings?.let { setting ->
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(16.dp)
+        ) {
+            val locationItems = listOf(
+                R.string.gps,
+                R.string.map
+            )
+            val languageItems = listOf(
+                R.string.english,
+                R.string.arabic
+            )
+            val temperatureItems = listOf(
+                R.string.celsius,
+                R.string.kelvin,
+                R.string.fahrenheit
+            )
+            val windSpeedItems = listOf(
+                R.string.meter_sec,
+                R.string.mile_hour
+            )
+            val themeItems = listOf(
+                R.string.default_,
+                R.string.light,
+                R.string.dark
+            )
 
-        val location by viewModel.location
-        val language by viewModel.language
-        val theme by viewModel.theme
-        val accent by viewModel.accent
-        val notifications by viewModel.notifications
-        val temperature by viewModel.temperature
-        val windSpeed by viewModel.windSpeed
+            var expandedLocation by remember { mutableStateOf(false) }
+            var expandedLanguage by remember { mutableStateOf(false) }
+            var expandedTemperature by remember { mutableStateOf(false) }
+            var expandedWindSpeed by remember { mutableStateOf(false) }
+            var expandedTheme by remember { mutableStateOf(false) }
 
-        var showAccentDialog by remember { mutableStateOf(false) }
 
-        AccentDialog(
-            visible = showAccentDialog,
-            onDismiss = { showAccentDialog = false },
-            onClick = { viewModel.savePreference("accent", it) },
-            selectedColor = accent
-        )
+            var showAccentDialog by remember { mutableStateOf(false) }
 
-        Text(
-            text = stringResource(R.string.general),
-            style = MaterialTheme.typography.h6,
-            color = MaterialTheme.colors.primary
-        )
+            AccentDialog(
+                visible = showAccentDialog,
+                onDismiss = { showAccentDialog = false },
+                onClick = { viewModel.savePreference("accent", it) },
+                selectedColor = setting.accent
+            )
 
-        Spacer(modifier = Modifier.size(16.dp))
-        DropdownRow(
-            title = stringResource(id = R.string.location),
-            itemsIds = locationItems,
-            expanded = expandedLocation,
-            onClick = { expandedLocation = true },
-            onDismiss = { expandedLocation = false },
-            onMapClick = onMapClick,
-            selectedItemId = location,
-            onItemClick = {
-                when (it) {
-                    R.string.gps -> viewModel.savePreference("location", it)
-                    else -> onMapClick()
+            Text(
+                text = stringResource(R.string.general),
+                style = MaterialTheme.typography.h6,
+                color = MaterialTheme.colors.primary
+            )
+
+            Spacer(modifier = Modifier.size(16.dp))
+            DropdownRow(
+                title = stringResource(id = R.string.location),
+                itemsIds = locationItems,
+                expanded = expandedLocation,
+                onClick = { expandedLocation = true },
+                onDismiss = { expandedLocation = false },
+                onMapClick = onMapClick,
+                selectedItemId = setting.location,
+                onItemClick = {
+                    when (it) {
+                        R.string.gps -> viewModel.savePreference("location", it)
+                        else -> onMapClick()
+                    }
                 }
+            )
+
+            Spacer(modifier = Modifier.size(8.dp))
+            DropdownRow(
+                title = stringResource(id = R.string.language),
+                itemsIds = languageItems,
+                expanded = expandedLanguage,
+                onClick = { expandedLanguage = true },
+                onDismiss = { expandedLanguage = false },
+                onMapClick = { },
+                selectedItemId = setting.language,
+                onItemClick = { viewModel.savePreference("language", it) }
+            )
+
+            Spacer(modifier = Modifier.size(8.dp))
+            DropdownRow(
+                title = stringResource(R.string.theme),
+                itemsIds = themeItems,
+                expanded = expandedTheme,
+                onClick = { expandedTheme = true },
+                onDismiss = { expandedTheme = false },
+                onMapClick = { },
+                selectedItemId = setting.theme,
+                onItemClick = { viewModel.savePreference("theme", it) }
+            )
+
+            Spacer(modifier = Modifier.size(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(stringResource(id = R.string.accent))
+                Box(
+                    modifier = Modifier
+                        .size(60.dp, 40.dp)
+                        .background(
+                            Brush.linearGradient(
+                                listOf(
+                                    MaterialTheme.colors.secondary,
+                                    MaterialTheme.colors.primary
+                                )
+                            ),
+                            shape = MaterialTheme.shapes.small
+                        )
+                        .clickable { showAccentDialog = true }
+                )
             }
-        )
 
-        Spacer(modifier = Modifier.size(8.dp))
-        DropdownRow(
-            title = stringResource(id = R.string.language),
-            itemsIds = languageItems,
-            expanded = expandedLanguage,
-            onClick = { expandedLanguage = true },
-            onDismiss = { expandedLanguage = false },
-            onMapClick = { },
-            selectedItemId = language,
-            onItemClick = { viewModel.savePreference("language", it) }
-        )
+            Spacer(modifier = Modifier.size(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = stringResource(id = R.string.notifications))
+                Switch(
+                    checked = setting.notifications,
+                    onCheckedChange = { viewModel.savePreference("notifications", it) }
+                )
+            }
 
-        Spacer(modifier = Modifier.size(8.dp))
-        DropdownRow(
-            title = stringResource(R.string.theme),
-            itemsIds = themeItems,
-            expanded = expandedTheme,
-            onClick = { expandedTheme = true },
-            onDismiss = { expandedTheme = false },
-            onMapClick = { },
-            selectedItemId = theme,
-            onItemClick = { viewModel.savePreference("theme", it) }
-        )
+            Spacer(modifier = Modifier.size(16.dp))
+            Divider(thickness = 0.5.dp)
+            Spacer(modifier = Modifier.size(16.dp))
 
-        Spacer(modifier = Modifier.size(8.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(stringResource(id = R.string.accent))
-            Box(
-                modifier = Modifier
-                    .size(60.dp, 40.dp)
-                    .background(
-                        Brush.linearGradient(
-                            listOf(
-                                MaterialTheme.colors.secondary,
-                                MaterialTheme.colors.primary
-                            )
-                        ),
-                        shape = MaterialTheme.shapes.small
-                    )
-                    .clickable { showAccentDialog = true }
+            Text(
+                text = stringResource(R.string.units),
+                style = MaterialTheme.typography.h6,
+                color = MaterialTheme.colors.primary
+            )
+
+            Spacer(modifier = Modifier.size(16.dp))
+            DropdownRow(
+                title = stringResource(id = R.string.temperature),
+                itemsIds = temperatureItems,
+                expanded = expandedTemperature,
+                onClick = { expandedTemperature = true },
+                onDismiss = { expandedTemperature = false },
+                onMapClick = { },
+                selectedItemId = setting.temperature,
+                onItemClick = { viewModel.savePreference("temperature", it) }
+            )
+
+            Spacer(modifier = Modifier.size(8.dp))
+            DropdownRow(
+                title = stringResource(id = R.string.wind_speed),
+                itemsIds = windSpeedItems,
+                expanded = expandedWindSpeed,
+                onClick = { expandedWindSpeed = true },
+                onMapClick = { },
+                onDismiss = { expandedWindSpeed = false },
+                selectedItemId = setting.windSpeed,
+                onItemClick = { viewModel.savePreference("windSpeed", it) }
             )
         }
-
-        Spacer(modifier = Modifier.size(16.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(text = stringResource(id = R.string.notifications))
-            Switch(
-                checked = notifications,
-                onCheckedChange = { viewModel.savePreference("notifications", it) }
-            )
-        }
-
-        Spacer(modifier = Modifier.size(16.dp))
-        Divider(thickness = 0.5.dp)
-        Spacer(modifier = Modifier.size(16.dp))
-
-        Text(
-            text = stringResource(R.string.units),
-            style = MaterialTheme.typography.h6,
-            color = MaterialTheme.colors.primary
-        )
-
-        Spacer(modifier = Modifier.size(16.dp))
-        DropdownRow(
-            title = stringResource(id = R.string.temperature),
-            itemsIds = temperatureItems,
-            expanded = expandedTemperature,
-            onClick = { expandedTemperature = true },
-            onDismiss = { expandedTemperature = false },
-            onMapClick = { },
-            selectedItemId = temperature,
-            onItemClick = { viewModel.savePreference("temperature", it) }
-        )
-
-        Spacer(modifier = Modifier.size(8.dp))
-        DropdownRow(
-            title = stringResource(id = R.string.wind_speed),
-            itemsIds = windSpeedItems,
-            expanded = expandedWindSpeed,
-            onClick = { expandedWindSpeed = true },
-            onMapClick = { },
-            onDismiss = { expandedWindSpeed = false },
-            selectedItemId = windSpeed,
-            onItemClick = { viewModel.savePreference("windSpeed", it) }
-        )
     }
+
 }
 
 @ExperimentalAnimationApi

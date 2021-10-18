@@ -4,8 +4,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.amrmsaraya.weather.R
-import com.github.amrmsaraya.weather.data.models.Settings
-import com.github.amrmsaraya.weather.data.models.forecast.Forecast
+import com.github.amrmsaraya.weather.domain.model.Settings
+import com.github.amrmsaraya.weather.domain.model.forecast.Forecast
 import com.github.amrmsaraya.weather.domain.usecase.forecast.InsertForecast
 import com.github.amrmsaraya.weather.domain.usecase.preferences.GetBooleanPreference
 import com.github.amrmsaraya.weather.domain.usecase.preferences.RestorePreferences
@@ -26,7 +26,7 @@ class MainViewModel @Inject constructor(
     private val insertForecast: InsertForecast,
 ) : ViewModel() {
 
-    val settings = mutableStateOf(Settings())
+    val settings = mutableStateOf<Settings?>(null)
     val keepSplash = mutableStateOf(true)
     val firstRun = mutableStateOf(false)
 
@@ -52,7 +52,17 @@ class MainViewModel @Inject constructor(
     }
 
     fun setDefaultPreferences() = viewModelScope.launch {
-        setDefaultPreferences.execute()
+        setDefaultPreferences.execute(
+            Settings(
+                location = R.string.gps,
+                language = if (Locale.getDefault().language == "ar") R.string.arabic else R.string.english,
+                theme = R.string.default_,
+                accent = 0,
+                notifications = true,
+                temperature = R.string.celsius,
+                windSpeed = R.string.meter_sec,
+            )
+        )
         insertForecast.execute(Forecast(id = 1))
     }
 }

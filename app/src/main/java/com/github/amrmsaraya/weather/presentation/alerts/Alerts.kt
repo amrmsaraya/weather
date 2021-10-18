@@ -31,8 +31,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.github.amrmsaraya.weather.R
-import com.github.amrmsaraya.weather.data.models.Alerts
-import com.github.amrmsaraya.weather.data.models.forecast.Forecast
+import com.github.amrmsaraya.weather.domain.model.Alerts
+import com.github.amrmsaraya.weather.domain.model.forecast.Forecast
 import com.github.amrmsaraya.weather.presentation.components.AddFAB
 import com.github.amrmsaraya.weather.presentation.components.DeleteFAB
 import com.github.amrmsaraya.weather.presentation.components.EmptyListIndicator

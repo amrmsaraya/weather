@@ -20,7 +20,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.github.amrmsaraya.weather.R
-import com.github.amrmsaraya.weather.data.models.ForecastRequest
+import com.github.amrmsaraya.weather.domain.model.ForecastRequest
 import com.github.amrmsaraya.weather.util.GeocoderHelper
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.MapView
@@ -108,12 +108,7 @@ fun Maps(
                                     ).join()
                                     viewModel.savePreference("location", R.string.map)
                                 } else {
-                                    viewModel.getForecast(
-                                        ForecastRequest(
-                                            lat = location.latitude,
-                                            lon = location.longitude
-                                        )
-                                    ).join()
+                                    viewModel.getForecast(location.latitude, location.longitude).join()
                                 }
                                 onBackPress()
                             }

@@ -8,7 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.navArgument
-import androidx.work.WorkManager
 import com.github.amrmsaraya.weather.presentation.alerts.Alert
 import com.github.amrmsaraya.weather.presentation.favorite_details.FavoriteDetailsScreen
 import com.github.amrmsaraya.weather.presentation.favorites.Favorites
@@ -47,8 +46,8 @@ fun Navigation(
         composable(Favorites.route) {
             Favorites(
                 modifier = modifier,
-                onItemClick = { id ->
-                    navController.navigate("${FavoriteDetails.route}/$id") {
+                onItemClick = { lat, lon ->
+                    navController.navigate("${FavoriteDetails.route}/${lat.toFloat()}/${lon.toFloat()}") {
                         popUpTo(Favorites.route)
                         launchSingleTop = true
                     }
@@ -80,12 +79,16 @@ fun Navigation(
             )
         }
         composable(
-            route = "${FavoriteDetails.route}/{id}",
-            arguments = listOf(navArgument("id") { type = NavType.LongType })
+            route = "${FavoriteDetails.route}/{lat}/{lon}",
+            arguments = listOf(
+                navArgument("lat") { type = NavType.FloatType },
+                navArgument("lon") { type = NavType.FloatType }
+            )
         ) { backStackEntry ->
             FavoriteDetailsScreen(
                 modifier = modifier,
-                id = backStackEntry.arguments?.getLong("id") ?: 1,
+                lat = backStackEntry.arguments?.getFloat("lat")?.toDouble() ?: 0.0,
+                lon = backStackEntry.arguments?.getFloat("lon")?.toDouble() ?: 0.0,
             )
         }
         composable(

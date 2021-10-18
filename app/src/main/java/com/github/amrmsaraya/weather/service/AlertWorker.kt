@@ -8,36 +8,37 @@ import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.github.amrmsaraya.weather.R
-import com.github.amrmsaraya.weather.data.models.forecast.Alert
-import com.github.amrmsaraya.weather.domain.repository.AlertRepo
-import com.github.amrmsaraya.weather.domain.repository.ForecastRepo
+import com.github.amrmsaraya.weather.domain.model.forecast.Alert
+import com.github.amrmsaraya.weather.domain.usecase.alert.DeleteAlert
+import com.github.amrmsaraya.weather.domain.usecase.alert.GetAlert
+import com.github.amrmsaraya.weather.domain.usecase.forecast.GetCurrentForecast
+import com.github.amrmsaraya.weather.domain.util.Response
 import com.github.amrmsaraya.weather.util.NotificationHelper
-import com.github.amrmsaraya.weather.util.Response
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.flow.first
 
 @HiltWorker
 class AlertWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted private val params: WorkerParameters,
-    private val forecastRepo: ForecastRepo,
-    private val alertRepo: AlertRepo
+    private val getCurrentForecast: GetCurrentForecast,
+    private val getAlert: GetAlert,
+    private val deleteAlert: DeleteAlert,
 ) : CoroutineWorker(context, params) {
 
-    val notificationHelper = NotificationHelper(context)
+    private val notificationHelper = NotificationHelper(context)
 
     override suspend fun doWork(): Result {
 
         var alerts = listOf<Alert>()
         val bundle = Bundle()
         val intent = Intent(context, AlertService::class.java)
-        val alert = alertRepo.getAlert(id.toString())
+        val alert = getAlert.execute(id.toString())
 
-        when (val response = forecastRepo.getCurrentForecast()) {
-            is Response.Success -> alerts = response.result.first().alerts
+        when (val response = getCurrentForecast.execute()) {
+            is Response.Success -> alerts = response.result.alerts
             is Response.Error -> response.result?.let {
-                alerts = it.first().alerts
+                alerts = it.alerts
             }
         }
 
@@ -74,8 +75,7 @@ class AlertWorker @AssistedInject constructor(
             }
         }
 
-
-        alertRepo.delete(id.toString())
+        deleteAlert.execute(id.toString())
         return Result.success()
     }
 }
