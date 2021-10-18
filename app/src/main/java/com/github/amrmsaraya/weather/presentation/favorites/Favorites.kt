@@ -96,10 +96,7 @@ fun Favorites(
                         selectMode = selectMode,
                         settings = setting,
                         onSelectMode = { selectMode = it },
-                        onClick = {
-                            onItemClick(it.lat, it.lon)
-                            println("id = ${it.id}")
-                        },
+                        onClick = { onItemClick(it.lat, it.lon) },
                         onSelect = { selectedItems.add(it) },
                         onUnselect = {
                             selectedItems.remove(it)
@@ -182,9 +179,7 @@ private fun FavoriteItem(
                             true -> onUnselect(item)
                             false -> onSelect(item)
                         }
-                    } else {
-                        onClick(Forecast(id = item.id))
-                    }
+                    } else { onClick(item) }
                 },
                 onLongClick = {
                     if (!selectMode) {

@@ -36,7 +36,7 @@ class LocalDataSourceImpTest {
 
         // When
         weatherDao.insertForecast(forecast)
-        val result = weatherDao.getForecast(35).first()
+        val result = weatherDao.getForecast(35).fi100rst()
 
         // Then
         Truth.assertThat(result).isEqualTo(forecast)

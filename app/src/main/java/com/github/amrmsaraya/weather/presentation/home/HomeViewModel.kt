@@ -43,7 +43,7 @@ class HomeViewModel @Inject constructor(
                     }
                 }
             }
-            else -> Unit
+            else -> isLoading.value = false
         }
     }
 

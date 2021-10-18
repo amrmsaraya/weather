@@ -47,7 +47,7 @@ fun Navigation(
             Favorites(
                 modifier = modifier,
                 onItemClick = { lat, lon ->
-                    navController.navigate("${FavoriteDetails.route}/${lat.toFloat()}/${lon.toFloat()}") {
+                    navController.navigate("${FavoriteDetails.route}/${lat}/${lon}") {
                         popUpTo(Favorites.route)
                         launchSingleTop = true
                     }
@@ -81,14 +81,14 @@ fun Navigation(
         composable(
             route = "${FavoriteDetails.route}/{lat}/{lon}",
             arguments = listOf(
-                navArgument("lat") { type = NavType.FloatType },
-                navArgument("lon") { type = NavType.FloatType }
+                navArgument("lat") { type = NavType.StringType },
+                navArgument("lon") { type = NavType.StringType }
             )
         ) { backStackEntry ->
             FavoriteDetailsScreen(
                 modifier = modifier,
-                lat = backStackEntry.arguments?.getFloat("lat")?.toDouble() ?: 0.0,
-                lon = backStackEntry.arguments?.getFloat("lon")?.toDouble() ?: 0.0,
+                lat = backStackEntry.arguments?.getString("lat")?.toDouble() ?: 0.0,
+                lon = backStackEntry.arguments?.getString("lon")?.toDouble() ?: 0.0,
             )
         }
         composable(

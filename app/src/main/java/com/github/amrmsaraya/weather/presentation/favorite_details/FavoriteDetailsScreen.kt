@@ -62,7 +62,8 @@ fun FavoriteDetailsScreen(
                 viewModel.getForecast(lat, lon)
                 forecastRequested = true
             }
-            when (forecast.current.weather.isEmpty() && settings == null) {
+            if (settings == null) LoadingIndicator()
+            when (forecast.current.weather.isEmpty()) {
                 true -> LoadingIndicator()
                 false -> HomeContent(forecast, settings!!)
             }

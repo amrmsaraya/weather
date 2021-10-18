@@ -41,4 +41,10 @@ class Forecast {
     fun provideInsertForecast(forecastRepo: ForecastRepo): InsertForecast {
         return InsertForecast(forecastRepo)
     }
+
+    @Singleton
+    @Provides
+    fun provideGetForecastFromMap(forecastRepo: ForecastRepo): GetForecastFromMap {
+        return GetForecastFromMap(forecastRepo)
+    }
 }

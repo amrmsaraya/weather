@@ -104,7 +104,7 @@ fun HomeScreen(
                 state = swipeRefreshState,
                 onRefresh = {
                     viewModel.isLoading.value = true
-                    refresh(setting, latLng, location, viewModel)
+                    refresh(setting, latLng, viewModel) { location.startLocationUpdates() }
                 },
                 indicator = { state, trigger ->
                     SwipeRefreshIndicator(
@@ -480,15 +480,15 @@ fun ForecastDetailsItem(item: ForecastIcons, current: Current, settings: Setting
 private fun refresh(
     settings: Settings,
     latLng: LatLng,
-    location: LocationHelper,
-    viewModel: HomeViewModel
+    viewModel: HomeViewModel,
+    onStartLocation: () -> Unit
 ) {
     when (settings.location) {
         R.string.gps -> {
-            if (latLng.latitude != 0.0 && location.isStarted) {
+            if (latLng.latitude != 0.0) {
                 viewModel.getForecast(latLng.latitude, latLng.longitude)
             } else {
-                location.startLocationUpdates()
+                onStartLocation()
             }
         }
         R.string.map -> viewModel.getForecast()

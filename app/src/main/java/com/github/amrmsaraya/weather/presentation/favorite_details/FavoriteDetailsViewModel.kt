@@ -10,6 +10,7 @@ import com.github.amrmsaraya.weather.domain.usecase.forecast.GetForecast
 import com.github.amrmsaraya.weather.domain.usecase.preferences.RestorePreferences
 import com.github.amrmsaraya.weather.domain.util.Response
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,7 +26,7 @@ class FavoriteDetailsViewModel @Inject constructor(
     val error = mutableStateOf("")
     val settings = mutableStateOf<Settings?>(null)
 
-    fun getForecast(lat: Double, lon: Double) = viewModelScope.launch {
+    fun getForecast(lat: Double, lon: Double) = viewModelScope.launch(Dispatchers.Default) {
         when (val response = getForecast.execute(lat, lon)) {
             is Response.Success -> {
                 isLoading.value = false

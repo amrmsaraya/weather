@@ -20,7 +20,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.github.amrmsaraya.weather.R
-import com.github.amrmsaraya.weather.domain.model.ForecastRequest
 import com.github.amrmsaraya.weather.util.GeocoderHelper
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.MapView
@@ -33,7 +32,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun Maps(
     modifier: Modifier,
-    isCurrent: Boolean = true,
+    isCurrent: Boolean,
     onBackPress: () -> Unit,
     viewModel: MapViewModel = hiltViewModel(),
 ) {
@@ -50,6 +49,8 @@ fun Maps(
     var isLoading by remember { mutableStateOf(false) }
 
     viewModel.getCurrentForecast()
+
+    println("current forecast: $currentForecast")
 
     BackHandler {
         if (bottomSheetState.isVisible) {
@@ -108,7 +109,8 @@ fun Maps(
                                     ).join()
                                     viewModel.savePreference("location", R.string.map)
                                 } else {
-                                    viewModel.getForecast(location.latitude, location.longitude).join()
+                                    viewModel.getForecast(location.latitude, location.longitude)
+                                        .join()
                                 }
                                 onBackPress()
                             }
