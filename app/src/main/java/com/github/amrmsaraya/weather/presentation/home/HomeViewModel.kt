@@ -14,12 +14,14 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getCurrentForecast: GetCurrentForecast,
     private val restorePreferences: RestorePreferences,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : ViewModel() {
 
     val isLoading = mutableStateOf(false)
@@ -27,7 +29,7 @@ class HomeViewModel @Inject constructor(
     val error = mutableStateOf("")
     val settings = mutableStateOf<Settings?>(null)
 
-    fun getForecast(lat: Double, lon: Double) = viewModelScope.launch(Dispatchers.Default) {
+    fun getForecast(lat: Double, lon: Double) = viewModelScope.launch(dispatcher) {
         when (val forecastResponse = getCurrentForecast.execute(lat, lon)) {
             is Response.Success -> {
                 isLoading.value = false
@@ -47,7 +49,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun getForecast() = viewModelScope.launch(Dispatchers.Default) {
+    fun getForecast() = viewModelScope.launch(dispatcher) {
         when (val response = getCurrentForecast.execute()) {
             is Response.Success -> {
                 isLoading.value = false
@@ -66,9 +68,11 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun restorePreferences() = viewModelScope.launch {
+    fun restorePreferences() = viewModelScope.launch(dispatcher) {
         restorePreferences.execute().collect {
-            settings.value = it
+            withContext(Dispatchers.Main) {
+                settings.value = it
+            }
         }
     }
 }

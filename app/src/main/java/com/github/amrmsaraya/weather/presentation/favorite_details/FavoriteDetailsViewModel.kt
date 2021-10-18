@@ -10,15 +10,18 @@ import com.github.amrmsaraya.weather.domain.usecase.forecast.GetForecast
 import com.github.amrmsaraya.weather.domain.usecase.preferences.RestorePreferences
 import com.github.amrmsaraya.weather.domain.util.Response
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class FavoriteDetailsViewModel @Inject constructor(
     private val getForecast: GetForecast,
     private val restorePreferences: RestorePreferences,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : ViewModel() {
 
     val isLoading = mutableStateOf(false)
@@ -26,7 +29,7 @@ class FavoriteDetailsViewModel @Inject constructor(
     val error = mutableStateOf("")
     val settings = mutableStateOf<Settings?>(null)
 
-    fun getForecast(lat: Double, lon: Double) = viewModelScope.launch(Dispatchers.Default) {
+    fun getForecast(lat: Double, lon: Double) = viewModelScope.launch(dispatcher) {
         when (val response = getForecast.execute(lat, lon)) {
             is Response.Success -> {
                 isLoading.value = false
@@ -45,9 +48,11 @@ class FavoriteDetailsViewModel @Inject constructor(
         }
     }
 
-    fun restorePreferences() = viewModelScope.launch {
+    fun restorePreferences() = viewModelScope.launch(dispatcher) {
         restorePreferences.execute().collect {
-            settings.value = it
+            withContext(Dispatchers.Main) {
+                settings.value = it
+            }
         }
     }
 }

@@ -10,8 +10,11 @@ import com.github.amrmsaraya.weather.domain.usecase.alert.GetAlerts
 import com.github.amrmsaraya.weather.domain.usecase.alert.InsertAlert
 import com.github.amrmsaraya.weather.domain.usecase.preferences.GetIntPreference
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,32 +22,37 @@ class AlertsViewModel @Inject constructor(
     private val getIntPreference: GetIntPreference,
     private val insertAlert: InsertAlert,
     private val deleteAlert: DeleteAlert,
-    private val getAlerts: GetAlerts
+    private val getAlerts: GetAlerts,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : ViewModel() {
 
     val accent = mutableStateOf(0)
     val alerts = mutableStateListOf<Alerts>()
 
-    fun getPreference(key: String) = viewModelScope.launch {
+    fun getPreference(key: String) = viewModelScope.launch(dispatcher) {
         getIntPreference.execute(key).collect {
             if (key == "accent") {
-                accent.value = it
+                withContext(Dispatchers.Main) {
+                    accent.value = it
+                }
             }
         }
     }
 
-    fun insetAlert(alert: Alerts) = viewModelScope.launch {
+    fun insetAlert(alert: Alerts) = viewModelScope.launch(dispatcher) {
         insertAlert.execute(alert)
     }
 
-    fun deleteAlerts(alerts: List<Alerts>) = viewModelScope.launch {
+    fun deleteAlerts(alerts: List<Alerts>) = viewModelScope.launch(dispatcher) {
         deleteAlert.execute(alerts)
     }
 
-    fun getAlerts() = viewModelScope.launch {
+    fun getAlerts() = viewModelScope.launch(dispatcher) {
         getAlerts.execute().collect {
-            alerts.clear()
-            alerts.addAll(it)
+            withContext(Dispatchers.Main) {
+                alerts.clear()
+                alerts.addAll(it)
+            }
         }
     }
 }

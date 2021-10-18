@@ -10,6 +10,7 @@ import com.github.amrmsaraya.weather.domain.usecase.forecast.InsertForecast
 import com.github.amrmsaraya.weather.domain.usecase.preferences.SavePreference
 import com.github.amrmsaraya.weather.domain.util.Response
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -20,27 +21,28 @@ class MapViewModel @Inject constructor(
     private val insertForecast: InsertForecast,
     private val getForecastFromMap: GetForecastFromMap,
     private val getCurrentForecast: GetCurrentForecast,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
 ) : ViewModel() {
 
     val currentForecast = mutableStateOf(Forecast())
 
-    fun savePreference(key: String, value: Int) = viewModelScope.launch {
+    fun savePreference(key: String, value: Int) = viewModelScope.launch(dispatcher) {
         savePreference.execute(key, value)
     }
 
-    fun insertForecast(forecast: Forecast) = viewModelScope.launch(Dispatchers.Default) {
+    fun insertForecast(forecast: Forecast) = viewModelScope.launch(dispatcher) {
         insertForecast.execute(forecast)
     }
 
-    fun getForecast(lat: Double, lon: Double) = viewModelScope.launch(Dispatchers.Default) {
+    fun getForecast(lat: Double, lon: Double) = viewModelScope.launch(dispatcher) {
         getForecastFromMap.execute(lat, lon)
     }
 
-    fun getCurrentForecast(lat: Double, lon: Double) = viewModelScope.launch(Dispatchers.Default) {
+    fun getCurrentForecast(lat: Double, lon: Double) = viewModelScope.launch(dispatcher) {
         getCurrentForecast.execute(lat, lon)
     }
 
-    fun getCurrentForecast() = viewModelScope.launch(Dispatchers.Default) {
+    fun getCurrentForecast() = viewModelScope.launch(dispatcher) {
         when (val forecastResponse = getCurrentForecast.execute()) {
             is Response.Success -> {
                 currentForecast.value = forecastResponse.result
