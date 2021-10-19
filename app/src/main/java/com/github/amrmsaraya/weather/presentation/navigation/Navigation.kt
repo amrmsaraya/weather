@@ -1,6 +1,5 @@
 package com.github.amrmsaraya.weather.presentation.navigation
 
-import android.widget.Toast
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Column

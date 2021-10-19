@@ -12,7 +12,6 @@ import com.github.amrmsaraya.weather.domain.util.Response
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -25,7 +24,9 @@ class FavoriteDetailsViewModel @Inject constructor(
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : ViewModel() {
 
-    init { restorePreferences() }
+    init {
+        restorePreferences()
+    }
 
     val isLoading = mutableStateOf(false)
     val forecast: MutableState<Forecast> = mutableStateOf(Forecast())

@@ -1,5 +1,6 @@
 package com.github.amrmsaraya.weather.presentation.favorite_details
 
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberScaffoldState
@@ -13,6 +14,7 @@ import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import kotlinx.coroutines.launch
 
+@ExperimentalAnimationApi
 @Composable
 fun FavoriteDetailsScreen(
     modifier: Modifier,

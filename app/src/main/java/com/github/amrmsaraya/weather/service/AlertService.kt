@@ -14,10 +14,7 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
 import com.github.amrmsaraya.weather.R
-import com.github.amrmsaraya.weather.domain.repository.ForecastRepo
 import com.github.amrmsaraya.weather.util.NotificationHelper
-import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 class AlertService : Service() {
 

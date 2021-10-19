@@ -2,7 +2,6 @@ package com.github.amrmsaraya.weather.presentation.activity
 
 import android.content.Context
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatDelegate
