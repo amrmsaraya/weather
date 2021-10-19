@@ -2,31 +2,24 @@ package com.github.amrmsaraya.weather.presentation.activity
 
 import android.content.Context
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatDelegate
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavDestination
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.github.amrmsaraya.weather.R
+import com.github.amrmsaraya.weather.presentation.navigation.BottomNav
 import com.github.amrmsaraya.weather.presentation.navigation.Navigation
-import com.github.amrmsaraya.weather.presentation.navigation.Screens
-import com.github.amrmsaraya.weather.presentation.navigation.Screens.*
 import com.github.amrmsaraya.weather.presentation.theme.WeatherTheme
 import com.github.amrmsaraya.weather.util.LocaleHelper
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -121,7 +114,7 @@ private fun App(
             Scaffold(
                 scaffoldState = scaffoldState,
                 bottomBar = {
-                    BottomNavigation(
+                    BottomNav(
                         navController = navController,
                     )
                 },
@@ -135,56 +128,3 @@ private fun App(
     }
 }
 
-@ExperimentalFoundationApi
-@Composable
-fun BottomNavigation(navController: NavHostController) {
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentDestination = navBackStackEntry?.destination
-
-    val screens = listOf(Home, Favorites, Alerts, Settings)
-
-    if (currentDestination?.route in screens.map { it.route }) {
-        Column {
-            Divider(thickness = (0.5).dp)
-            BottomNav(
-                navController = navController,
-                currentDestination = currentDestination,
-                screens = screens
-            )
-        }
-    }
-}
-
-@ExperimentalFoundationApi
-@Composable
-fun BottomNav(
-    navController: NavHostController,
-    currentDestination: NavDestination?,
-    screens: List<Screens>
-) {
-    BottomNavigation(
-        backgroundColor = MaterialTheme.colors.surface,
-        elevation = 0.dp
-    ) {
-        for (screen in screens) {
-            BottomNavigationItem(
-                selected = currentDestination?.route == screen.route,
-                icon = {
-                    when (currentDestination?.route == screen.route) {
-                        true -> Icon(imageVector = screen.activeIcon, contentDescription = null)
-                        false -> Icon(imageVector = screen.inactiveIcon, contentDescription = null)
-                    }
-                },
-                label = { Text(text = stringResource(id = screen.stringId)) },
-                selectedContentColor = MaterialTheme.colors.secondary,
-                unselectedContentColor = Color.Gray,
-                onClick = {
-                    navController.navigate(screen.route) {
-                        popUpTo(navController.graph.startDestinationId)
-                        launchSingleTop = true
-                    }
-                }
-            )
-        }
-    }
-}

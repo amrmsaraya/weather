@@ -40,8 +40,6 @@ fun Settings(
 
     val settings by remember { viewModel.settings }
 
-    viewModel.restorePreferences()
-
     settings?.let { setting ->
         Column(
             modifier = modifier
@@ -77,7 +75,6 @@ fun Settings(
             var expandedTemperature by remember { mutableStateOf(false) }
             var expandedWindSpeed by remember { mutableStateOf(false) }
             var expandedTheme by remember { mutableStateOf(false) }
-
 
             var showAccentDialog by remember { mutableStateOf(false) }
 
@@ -264,23 +261,24 @@ fun DropdownMenuBox(
     @StringRes selectedItemId: Int,
     onItemClick: (Int) -> Unit
 ) {
-    Card(
-        modifier = modifier
-            .wrapContentSize(Alignment.Center)
-            .clickable { onClick() },
-        elevation = 2.dp,
-        backgroundColor = MaterialTheme.colors.surface,
-        shape = MaterialTheme.shapes.small
-    ) {
-        Row(
-            Modifier.padding(start = 16.dp, top = 8.dp, end = 8.dp, bottom = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
+    Box {
+        Card(
+            modifier = modifier
+                .wrapContentSize(Alignment.Center)
+                .clickable { onClick() },
+            elevation = 2.dp,
+            backgroundColor = MaterialTheme.colors.surface,
+            shape = MaterialTheme.shapes.small
         ) {
-            Text(text = stringResource(id = selectedItemId), fontWeight = FontWeight.Normal)
-            Spacer(modifier = Modifier.size(8.dp))
-            Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = null)
+            Row(
+                Modifier.padding(start = 16.dp, top = 8.dp, end = 8.dp, bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = stringResource(id = selectedItemId), fontWeight = FontWeight.Normal)
+                Spacer(modifier = Modifier.size(8.dp))
+                Icon(imageVector = Icons.Default.ArrowDropDown, contentDescription = null)
+            }
         }
-
         DropdownMenu(
             expanded = expanded,
             onDismissRequest = onDismiss,

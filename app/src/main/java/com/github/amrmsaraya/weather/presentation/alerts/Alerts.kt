@@ -15,7 +15,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -34,6 +34,7 @@ import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.domain.model.Alerts
 import com.github.amrmsaraya.weather.domain.model.forecast.Forecast
 import com.github.amrmsaraya.weather.presentation.components.AddFAB
+import com.github.amrmsaraya.weather.presentation.components.AnimatedVisibilitySlide
 import com.github.amrmsaraya.weather.presentation.components.DeleteFAB
 import com.github.amrmsaraya.weather.presentation.components.EmptyListIndicator
 import com.github.amrmsaraya.weather.service.AlertWorker
@@ -91,20 +92,10 @@ fun Alert(
                 .padding(innerPadding)
                 .padding(start = 16.dp, top = 16.dp, end = 16.dp)
         ) {
-
             if (showDialog) {
-                NewAlertDialog(
+                AddAlertDialog(
                     accent = viewModel.accent.value,
                     onConfirm = { from, to, alarm ->
-                        if (!Settings.canDrawOverlays(context)) {
-                            val permissionIntent = Intent(
-                                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                                Uri.parse("package:" + context.packageName)
-                            )
-                            permissionIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            context.startActivity(permissionIntent)
-                        }
-
                         viewModel.insetAlert(
                             Alerts(
                                 from = from,
@@ -142,6 +133,7 @@ fun Alert(
     }
 }
 
+@ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @Composable
 fun AlertList(
@@ -159,7 +151,7 @@ fun AlertList(
         modifier = Modifier.fillMaxSize(),
         state = state
     ) {
-        items(items) { item ->
+        itemsIndexed(items) { index, item ->
             val isSelected = selectedItems.any { it == item }
 
             val backgroundColor by animateColorAsState(
@@ -169,17 +161,22 @@ fun AlertList(
                 },
                 animationSpec = tween(500)
             )
-
-            AlertItem(
-                item = item,
-                backgroundColor = backgroundColor,
-                isSelected = isSelected,
-                selectMode = selectMode,
-                onClick = onClick,
-                onSelect = onSelect,
-                onUnselect = onUnselect,
-                onSelectMode = onSelectMode,
-            )
+            AnimatedVisibilitySlide(
+                visible = true,
+                durationMillis = 200,
+                delay = index + 1
+            ) {
+                AlertItem(
+                    item = item,
+                    backgroundColor = backgroundColor,
+                    isSelected = isSelected,
+                    selectMode = selectMode,
+                    onClick = onClick,
+                    onSelect = onSelect,
+                    onUnselect = onUnselect,
+                    onSelectMode = onSelectMode,
+                )
+            }
         }
     }
 }
@@ -235,10 +232,10 @@ private fun AlertItem(
 }
 
 @Composable
-fun NewAlertDialog(accent: Int, onConfirm: (Long, Long, Boolean) -> Unit, onDismiss: () -> Unit) {
+fun AddAlertDialog(accent: Int, onConfirm: (Long, Long, Boolean) -> Unit, onDismiss: () -> Unit) {
 
     val context = LocalContext.current
-    var alarmState by remember { mutableStateOf(true) }
+    var alarmState by remember { mutableStateOf(Settings.canDrawOverlays(context)) }
 
     var fromDate by remember { mutableStateOf(Calendar.getInstance()) }
     var fromTime by remember { mutableStateOf(Calendar.getInstance()) }
@@ -308,7 +305,19 @@ fun NewAlertDialog(accent: Int, onConfirm: (Long, Long, Boolean) -> Unit, onDism
                     Text(text = stringResource(id = R.string.alarm))
                     Switch(
                         checked = alarmState,
-                        onCheckedChange = { alarmState = !alarmState },
+                        onCheckedChange = {
+                            if (!Settings.canDrawOverlays(context) && it) {
+                                alarmState = false
+                                val permissionIntent = Intent(
+                                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                                    Uri.parse("package:" + context.packageName)
+                                )
+                                permissionIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                context.startActivity(permissionIntent)
+                            } else {
+                                alarmState = !alarmState
+                            }
+                        },
                         colors = SwitchDefaults.colors()
                     )
                 }

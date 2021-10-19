@@ -13,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -48,10 +49,9 @@ class FavoritesViewModel @Inject constructor(
     }
 
     private fun restorePreferences() = viewModelScope.launch(dispatcher) {
-        restorePreferences.execute().collect {
-            withContext(Dispatchers.Main) {
-                settings.value = it
-            }
+        val preferences = restorePreferences.execute().first()
+        withContext(Dispatchers.Main) {
+            settings.value = preferences
         }
     }
 }

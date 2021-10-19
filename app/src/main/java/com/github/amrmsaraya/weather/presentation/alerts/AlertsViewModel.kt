@@ -13,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -30,12 +31,9 @@ class AlertsViewModel @Inject constructor(
     val alerts = mutableStateListOf<Alerts>()
 
     fun getPreference(key: String) = viewModelScope.launch(dispatcher) {
-        getIntPreference.execute(key).collect {
-            if (key == "accent") {
-                withContext(Dispatchers.Main) {
-                    accent.value = it
-                }
-            }
+        val preferences = getIntPreference.execute(key).first()
+        withContext(Dispatchers.Main) {
+            accent.value = preferences
         }
     }
 

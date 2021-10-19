@@ -25,7 +25,8 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     init {
-       restorePreferences()
+        println("ViewModel Created")
+        restorePreferences()
     }
 
     val isLoading = mutableStateOf(false)

@@ -9,7 +9,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -28,6 +28,7 @@ import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.domain.model.Settings
 import com.github.amrmsaraya.weather.domain.model.forecast.Forecast
 import com.github.amrmsaraya.weather.presentation.components.AddFAB
+import com.github.amrmsaraya.weather.presentation.components.AnimatedVisibilitySlide
 import com.github.amrmsaraya.weather.presentation.components.DeleteFAB
 import com.github.amrmsaraya.weather.presentation.components.EmptyListIndicator
 import com.github.amrmsaraya.weather.presentation.home.getTemp
@@ -108,6 +109,7 @@ fun Favorites(
 
 }
 
+@ExperimentalAnimationApi
 @ExperimentalFoundationApi
 @Composable
 fun FavoritesList(
@@ -126,7 +128,7 @@ fun FavoritesList(
         modifier = Modifier.fillMaxWidth(),
         state = state
     ) {
-        items(items) { item ->
+        itemsIndexed(items) { index, item ->
             val isSelected = selectedItems.any { it == item }
 
             val backgroundColor by animateColorAsState(
@@ -136,17 +138,24 @@ fun FavoritesList(
                 },
                 animationSpec = tween(500)
             )
-            FavoriteItem(
-                item = item,
-                settings = settings,
-                backgroundColor = backgroundColor,
-                isSelected = isSelected,
-                selectMode = selectMode,
-                onSelect = onSelect,
-                onUnselect = onUnselect,
-                onClick = onClick,
-                onSelectMode = onSelectMode,
-            )
+            AnimatedVisibilitySlide(
+                visible = true,
+                durationMillis = 200,
+                delay = index + 1
+            ) {
+                FavoriteItem(
+                    item = item,
+                    settings = settings,
+                    backgroundColor = backgroundColor,
+                    isSelected = isSelected,
+                    selectMode = selectMode,
+                    onSelect = onSelect,
+                    onUnselect = onUnselect,
+                    onClick = onClick,
+                    onSelectMode = onSelectMode,
+                )
+            }
+
         }
     }
 }
@@ -175,7 +184,9 @@ private fun FavoriteItem(
                             true -> onUnselect(item)
                             false -> onSelect(item)
                         }
-                    } else { onClick(item) }
+                    } else {
+                        onClick(item)
+                    }
                 },
                 onLongClick = {
                     if (!selectMode) {

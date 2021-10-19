@@ -24,11 +24,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.domain.model.Settings
 import com.github.amrmsaraya.weather.domain.model.forecast.Current
@@ -59,7 +59,7 @@ import kotlin.math.roundToInt
 @Composable
 fun HomeScreen(
     modifier: Modifier = Modifier,
-    viewModel: HomeViewModel = hiltViewModel(),
+    viewModel: HomeViewModel,
     onNavigateToMap: () -> Unit
 ) {
     val isLoading by viewModel.isLoading
@@ -90,7 +90,6 @@ fun HomeScreen(
                     viewModel.error.value = ""
                 }
             }
-
             SwipeRefresh(
                 state = swipeRefreshState,
                 onRefresh = {
@@ -114,20 +113,26 @@ fun HomeScreen(
                         onLocationChange = { latLng = it },
                         onNavigateToMap = onNavigateToMap,
                     )
-                    else -> {
-                        LaunchedEffect(key1 = true) {
-                            viewModel.getForecast()
-                        }
-                        AnimatedVisibilityFade(forecast.current.weather.isEmpty()) {
-                            LoadingIndicator()
-                        }
-                        AnimatedVisibilityFade(forecast.current.weather.isNotEmpty()) {
-                            HomeContent(forecast, setting)
-                        }
-                    }
+                    else -> MapLocation(viewModel, forecast, setting)
                 }
             }
         }
+    }
+}
+
+@ExperimentalAnimationApi
+@Composable
+private fun MapLocation(
+    viewModel: HomeViewModel,
+    forecast: Forecast,
+    setting: Settings
+) {
+    LaunchedEffect(key1 = true) {
+        viewModel.getForecast()
+    }
+    when (forecast.current.weather.isNotEmpty()) {
+        true -> HomeContent(forecast, setting)
+        else -> LoadingIndicator()
     }
 }
 
@@ -167,15 +172,14 @@ private fun GPSLocation(
                     location.stopLocationUpdates()
                 }
             }
-            AnimatedVisibilityFade(forecast.current.weather.isEmpty()) {
-                LoadingIndicator()
-            }
-            AnimatedVisibilityFade(forecast.current.weather.isNotEmpty()) {
-                HomeContent(forecast, setting)
+            when (forecast.current.weather.isNotEmpty()) {
+                true -> HomeContent(forecast, setting)
+                else -> LoadingIndicator()
             }
         })
 }
 
+@ExperimentalAnimationApi
 @Composable
 fun HomeContent(forecast: Forecast, settings: Settings) {
     Column(
@@ -184,28 +188,39 @@ fun HomeContent(forecast: Forecast, settings: Settings) {
             .padding(start = 16.dp, top = 16.dp, end = 16.dp)
             .verticalScroll(state = ScrollState(0)),
     ) {
-        Text(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp),
-            text = GeocoderHelper.getCity(LocalContext.current, forecast.lat, forecast.lon),
-            maxLines = 1,
-            fontSize = 18.sp,
-            textAlign = TextAlign.Center
-        )
+        AnimatedVisibilitySlide(visible = true, delay = 0, reduceOffsetYBy = 4) {
+            Text(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp),
+                text = GeocoderHelper.getCity(LocalContext.current, forecast.lat, forecast.lon),
+                maxLines = 1,
+                fontSize = 18.sp,
+                textAlign = TextAlign.Center
+            )
+        }
         Spacer(modifier = Modifier.size(16.dp))
 
-        TemperatureBox(forecast.current, settings)
+        AnimatedVisibilitySlide(visible = true, delay = 1, reduceOffsetYBy = 4) {
+            TemperatureBox(forecast.current, settings)
+        }
         Spacer(modifier = Modifier.size(26.dp))
 
-        HourlyForecast(forecast.hourly.subList(0, 25), forecast.daily, settings)
+        AnimatedVisibilitySlide(visible = true, delay = 2, reduceOffsetYBy = 4) {
+            HourlyForecast(forecast.hourly.subList(0, 25), forecast.daily, settings)
+        }
         Spacer(modifier = Modifier.size(26.dp))
 
-        DailyForecast(forecast.daily.subList(1, 7), settings)
+        AnimatedVisibilitySlide(visible = true, delay = 3, reduceOffsetYBy = 4) {
+            DailyForecast(forecast.daily.subList(1, 7), settings)
+        }
         Spacer(modifier = Modifier.size(16.dp))
 
-        ForecastDetails(forecast.current, settings)
+        AnimatedVisibilitySlide(visible = true, delay = 4, reduceOffsetYBy = 4) {
+            ForecastDetails(forecast.current, settings)
+        }
         Spacer(modifier = Modifier.size(8.dp))
+
     }
 }
 
@@ -405,6 +420,7 @@ fun DailyForecast(items: List<Daily>, settings: Settings) {
                         text = items[index].weather[0].description.replaceFirstChar { it.uppercase() },
                         maxLines = 1,
                         textAlign = TextAlign.End,
+                        overflow = TextOverflow.Ellipsis,
                         color = if (index == 0) Color.White else MaterialTheme.colors.onSurface
                     )
                     Text(

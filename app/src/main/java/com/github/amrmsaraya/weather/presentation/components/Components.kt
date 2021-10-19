@@ -25,6 +25,7 @@ import com.github.amrmsaraya.weather.BuildConfig
 import com.github.amrmsaraya.weather.R
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionState
+import kotlinx.coroutines.delay
 
 @Composable
 fun AddFAB(onClick: () -> Unit) {
@@ -39,8 +40,7 @@ fun AddFAB(onClick: () -> Unit) {
 @Composable
 fun DeleteFAB(onClick: () -> Unit) {
     FloatingActionButton(
-        contentColor = MaterialTheme.colors.secondary,
-        backgroundColor = MaterialTheme.colors.surface,
+        contentColor = MaterialTheme.colors.surface,
         onClick = onClick
     ) {
         Icon(imageVector = Icons.Default.Delete, contentDescription = null)
@@ -51,7 +51,7 @@ fun DeleteFAB(onClick: () -> Unit) {
 @Composable
 fun AnimatedVisibilityFade(
     visible: Boolean,
-    durationMillis: Int = 500,
+    durationMillis: Int = 1000,
     content: @Composable AnimatedVisibilityScope.() -> Unit
 ) {
     AnimatedVisibility(
@@ -62,10 +62,36 @@ fun AnimatedVisibilityFade(
     )
 }
 
+@ExperimentalAnimationApi
+@Composable
+fun AnimatedVisibilitySlide(
+    visible: Boolean,
+    durationMillis: Int = 500,
+    delay: Int = 0,
+    reduceOffsetYBy: Int = 1,
+    content: @Composable AnimatedVisibilityScope.() -> Unit
+) {
+    var execute by remember { mutableStateOf(false) }
+    LaunchedEffect(key1 = visible) {
+        delay(delay.toLong() * durationMillis)
+        execute = visible
+    }
+    AnimatedVisibility(
+        visible = execute,
+        enter = slideInVertically(
+            initialOffsetY = { it / reduceOffsetYBy },
+            animationSpec = tween(durationMillis)
+        ),
+        exit = slideOutVertically(animationSpec = tween(durationMillis)),
+        content = content
+    )
+
+}
+
 @Composable
 fun LoadingIndicator() {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        CircularProgressIndicator(color = MaterialTheme.colors.secondary,)
+        CircularProgressIndicator(color = MaterialTheme.colors.secondary)
     }
 }
 

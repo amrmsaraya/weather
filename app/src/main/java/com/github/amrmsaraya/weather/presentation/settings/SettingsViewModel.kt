@@ -21,6 +21,8 @@ class SettingsViewModel @Inject constructor(
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : ViewModel() {
 
+    init { restorePreferences() }
+
     val settings = mutableStateOf<Settings?>(null)
 
     fun restorePreferences() = viewModelScope.launch(dispatcher) {

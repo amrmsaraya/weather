@@ -89,13 +89,6 @@ fun Maps(
                     modifier = Modifier.align(CenterHorizontally),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    if (isLoading) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(24.dp),
-                            color = MaterialTheme.colors.secondary
-                        )
-                        Spacer(modifier = Modifier.size(16.dp))
-                    }
                     Button(
                         onClick = {
                             isLoading = true
@@ -116,10 +109,19 @@ fun Maps(
                             }
                         }
                     ) {
-                        Text(
-                            modifier = Modifier.padding(start = 32.dp, end = 32.dp),
-                            text = stringResource(id = R.string.save)
-                        )
+                        if (isLoading) {
+                            CircularProgressIndicator(
+                                modifier = Modifier
+                                    .padding(start = 32.dp, end = 32.dp)
+                                    .size(20.dp),
+                                color = MaterialTheme.colors.surface
+                            )
+                        } else {
+                            Text(
+                                modifier = Modifier.padding(start = 32.dp, end = 32.dp),
+                                text = stringResource(id = R.string.save)
+                            )
+                        }
                     }
                 }
             }
