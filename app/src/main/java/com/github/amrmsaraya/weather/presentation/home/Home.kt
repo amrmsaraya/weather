@@ -90,6 +90,7 @@ fun HomeScreen(
                     viewModel.error.value = ""
                 }
             }
+
             SwipeRefresh(
                 state = swipeRefreshState,
                 onRefresh = {
@@ -105,9 +106,6 @@ fun HomeScreen(
                     )
                 },
             ) {
-                AnimatedVisibilityFade(forecast.current.weather.isEmpty()) {
-                    LoadingIndicator()
-                }
                 when (setting.location) {
                     R.string.gps -> GPSLocation(
                         viewModel = viewModel,
@@ -119,6 +117,9 @@ fun HomeScreen(
                     else -> {
                         LaunchedEffect(key1 = true) {
                             viewModel.getForecast()
+                        }
+                        AnimatedVisibilityFade(forecast.current.weather.isEmpty()) {
+                            LoadingIndicator()
                         }
                         AnimatedVisibilityFade(forecast.current.weather.isNotEmpty()) {
                             HomeContent(forecast, setting)
@@ -165,6 +166,9 @@ private fun GPSLocation(
                 onDispose {
                     location.stopLocationUpdates()
                 }
+            }
+            AnimatedVisibilityFade(forecast.current.weather.isEmpty()) {
+                LoadingIndicator()
             }
             AnimatedVisibilityFade(forecast.current.weather.isNotEmpty()) {
                 HomeContent(forecast, setting)
