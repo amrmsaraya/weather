@@ -15,14 +15,6 @@ class LocationHelper(activity: Activity, private val onLocationChange: (Location
     private lateinit var locationCallback: LocationCallback
     private lateinit var locationRequest: LocationRequest
 
-    var isStarted = false
-        private set
-
-    init {
-        buildLocationRequest()
-        buildLocationCallback()
-    }
-
     private fun buildLocationCallback() {
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
@@ -41,6 +33,8 @@ class LocationHelper(activity: Activity, private val onLocationChange: (Location
     }
 
     fun startLocationUpdates() {
+        buildLocationRequest()
+        buildLocationCallback()
         try {
             Log.d(TAG, "Location started.")
             fusedLocationProviderClient.requestLocationUpdates(
@@ -48,7 +42,6 @@ class LocationHelper(activity: Activity, private val onLocationChange: (Location
                 locationCallback,
                 Looper.getMainLooper()
             )
-            isStarted = true
         } catch (exception: SecurityException) {
             Log.e(TAG, "Lost location permissions. Couldn't remove updates. $exception")
         }
@@ -64,7 +57,6 @@ class LocationHelper(activity: Activity, private val onLocationChange: (Location
                     Log.d(TAG, "Failed to remove Location Callback.")
                 }
             }
-
         } catch (exception: SecurityException) {
             Log.e(TAG, "Lost location permissions. Couldn't remove updates. $exception")
         }

@@ -5,18 +5,21 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
-import androidx.navigation.compose.navArgument
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.github.amrmsaraya.weather.presentation.alerts.Alert
 import com.github.amrmsaraya.weather.presentation.favorite_details.FavoriteDetailsScreen
 import com.github.amrmsaraya.weather.presentation.favorites.Favorites
 import com.github.amrmsaraya.weather.presentation.home.HomeScreen
+import com.github.amrmsaraya.weather.presentation.home.HomeViewModel
 import com.github.amrmsaraya.weather.presentation.map.Maps
 import com.github.amrmsaraya.weather.presentation.navigation.Screens.*
 import com.github.amrmsaraya.weather.presentation.settings.Settings
-import com.google.accompanist.navigation.animation.AnimatedNavHost
-import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 
 @ExperimentalMaterialApi
@@ -28,7 +31,7 @@ fun Navigation(
     modifier: Modifier = Modifier,
     navController: NavHostController,
 ) {
-    AnimatedNavHost(
+    NavHost(
         navController = navController,
         startDestination = Home.route
     ) {

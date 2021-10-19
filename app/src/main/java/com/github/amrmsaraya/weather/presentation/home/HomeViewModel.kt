@@ -24,6 +24,10 @@ class HomeViewModel @Inject constructor(
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : ViewModel() {
 
+    init {
+       restorePreferences()
+    }
+
     val isLoading = mutableStateOf(false)
     val forecast: MutableState<Forecast> = mutableStateOf(Forecast())
     val error = mutableStateOf("")
@@ -68,7 +72,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun restorePreferences() = viewModelScope.launch(dispatcher) {
+    private fun restorePreferences() = viewModelScope.launch(dispatcher) {
         restorePreferences.execute().collect {
             withContext(Dispatchers.Main) {
                 settings.value = it

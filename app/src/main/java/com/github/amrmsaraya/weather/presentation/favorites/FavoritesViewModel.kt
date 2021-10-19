@@ -25,10 +25,15 @@ class FavoritesViewModel @Inject constructor(
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : ViewModel() {
 
+    init {
+        getFavoriteForecasts()
+        restorePreferences()
+    }
+
     val favorites = mutableStateListOf<Forecast>()
     val settings = mutableStateOf<Settings?>(null)
 
-    fun getFavoriteForecasts() = viewModelScope.launch(dispatcher) {
+    private fun getFavoriteForecasts() = viewModelScope.launch(dispatcher) {
         val response = getFavoriteForecasts.execute()
         response.collect {
             withContext(Dispatchers.Main) {
@@ -42,7 +47,7 @@ class FavoritesViewModel @Inject constructor(
         deleteForecast.execute(list)
     }
 
-    fun restorePreferences() = viewModelScope.launch(dispatcher) {
+    private fun restorePreferences() = viewModelScope.launch(dispatcher) {
         restorePreferences.execute().collect {
             withContext(Dispatchers.Main) {
                 settings.value = it

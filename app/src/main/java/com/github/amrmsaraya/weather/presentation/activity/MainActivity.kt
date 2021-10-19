@@ -22,13 +22,13 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.presentation.navigation.Navigation
 import com.github.amrmsaraya.weather.presentation.navigation.Screens
 import com.github.amrmsaraya.weather.presentation.navigation.Screens.*
 import com.github.amrmsaraya.weather.presentation.theme.WeatherTheme
 import com.github.amrmsaraya.weather.util.LocaleHelper
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
@@ -115,7 +115,7 @@ private fun App(
         Surface(
             color = MaterialTheme.colors.surface,
         ) {
-            val navController = rememberAnimatedNavController()
+            val navController = rememberNavController()
             val scaffoldState = rememberScaffoldState()
 
             Scaffold(

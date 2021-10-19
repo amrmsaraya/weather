@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,10 +35,7 @@ import com.github.amrmsaraya.weather.domain.model.forecast.Current
 import com.github.amrmsaraya.weather.domain.model.forecast.Daily
 import com.github.amrmsaraya.weather.domain.model.forecast.Forecast
 import com.github.amrmsaraya.weather.domain.model.forecast.Hourly
-import com.github.amrmsaraya.weather.presentation.components.LoadingIndicator
-import com.github.amrmsaraya.weather.presentation.components.LocationPermission
-import com.github.amrmsaraya.weather.presentation.components.NoPermission
-import com.github.amrmsaraya.weather.presentation.components.RequestPermission
+import com.github.amrmsaraya.weather.presentation.components.*
 import com.github.amrmsaraya.weather.presentation.theme.Cairo
 import com.github.amrmsaraya.weather.presentation.theme.Spartan
 import com.github.amrmsaraya.weather.util.ForecastIcons
@@ -69,25 +65,19 @@ fun HomeScreen(
     val isLoading by viewModel.isLoading
     val error by viewModel.error
     val forecast by viewModel.forecast
-    val settings by viewModel.settings
-
-    viewModel.restorePreferences()
-
-    var latLng by rememberSaveable { mutableStateOf(LatLng(0.0, 0.0)) }
-    val location = LocationHelper(
-        LocalContext.current as Activity,
-        onLocationChange = {
-            latLng = LatLng(it.latitude, it.longitude)
-            viewModel.getForecast(it.latitude, it.longitude)
-        }
-    )
-    val locationPermissionState = rememberPermissionState(
-        Manifest.permission.ACCESS_FINE_LOCATION
-    )
+    var settings by viewModel.settings
+    var latLng by remember { mutableStateOf(LatLng(0.0, 0.0)) }
 
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isLoading)
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
+
+    // clear settings when leave composition so UI doesn't reload when revisit compose
+    DisposableEffect(key1 = true) {
+        onDispose {
+            settings = null
+        }
+    }
 
     settings?.let { setting ->
         Scaffold(
@@ -104,7 +94,7 @@ fun HomeScreen(
                 state = swipeRefreshState,
                 onRefresh = {
                     viewModel.isLoading.value = true
-                    refresh(setting, latLng, viewModel) { location.startLocationUpdates() }
+                    refresh(setting, latLng, viewModel)
                 },
                 indicator = { state, trigger ->
                     SwipeRefreshIndicator(
@@ -115,39 +105,71 @@ fun HomeScreen(
                     )
                 },
             ) {
+                AnimatedVisibilityFade(forecast.current.weather.isEmpty()) {
+                    LoadingIndicator()
+                }
                 when (setting.location) {
-                    R.string.gps -> LocationPermission(
-                        permissionState = locationPermissionState,
-                        requestPermission = {
-                            RequestPermission(
-                                locationPermissionState,
-                                onNavigateToMap
-                            )
-                        },
-                        noPermission = { NoPermission() },
-                        hasPermission = {
-                            LaunchedEffect(key1 = true) {
-                                location.startLocationUpdates()
-                            }
-                            when (forecast.current.weather.isEmpty()) {
-                                true -> LoadingIndicator()
-                                false -> HomeContent(forecast, setting)
-                            }
-                        })
+                    R.string.gps -> GPSLocation(
+                        viewModel = viewModel,
+                        forecast = forecast,
+                        setting = setting,
+                        onLocationChange = { latLng = it },
+                        onNavigateToMap = onNavigateToMap,
+                    )
                     else -> {
                         LaunchedEffect(key1 = true) {
                             viewModel.getForecast()
                         }
-                        when (forecast.current.weather.isEmpty()) {
-                            true -> LoadingIndicator()
-                            false -> HomeContent(forecast, setting)
+                        AnimatedVisibilityFade(forecast.current.weather.isNotEmpty()) {
+                            HomeContent(forecast, setting)
                         }
                     }
                 }
             }
         }
     }
+}
 
+@ExperimentalAnimationApi
+@ExperimentalPermissionsApi
+@Composable
+private fun GPSLocation(
+    viewModel: HomeViewModel,
+    forecast: Forecast,
+    setting: Settings,
+    onLocationChange: (LatLng) -> Unit,
+    onNavigateToMap: () -> Unit,
+) {
+    val locationPermissionState = rememberPermissionState(
+        Manifest.permission.ACCESS_FINE_LOCATION
+    )
+    LocationPermission(
+        permissionState = locationPermissionState,
+        requestPermission = {
+            RequestPermission(
+                locationPermissionState,
+                onNavigateToMap
+            )
+        },
+        noPermission = { NoPermission() },
+        hasPermission = {
+            val location = LocationHelper(
+                activity = LocalContext.current as Activity,
+                onLocationChange = {
+                    onLocationChange(LatLng(it.latitude, it.longitude))
+                    viewModel.getForecast(it.latitude, it.longitude)
+                }
+            )
+            DisposableEffect(key1 = true) {
+                location.startLocationUpdates()
+                onDispose {
+                    location.stopLocationUpdates()
+                }
+            }
+            AnimatedVisibilityFade(forecast.current.weather.isNotEmpty()) {
+                HomeContent(forecast, setting)
+            }
+        })
 }
 
 @Composable
@@ -480,15 +502,12 @@ fun ForecastDetailsItem(item: ForecastIcons, current: Current, settings: Setting
 private fun refresh(
     settings: Settings,
     latLng: LatLng,
-    viewModel: HomeViewModel,
-    onStartLocation: () -> Unit
+    viewModel: HomeViewModel
 ) {
     when (settings.location) {
         R.string.gps -> {
             if (latLng.latitude != 0.0) {
                 viewModel.getForecast(latLng.latitude, latLng.longitude)
-            } else {
-                onStartLocation()
             }
         }
         R.string.map -> viewModel.getForecast()

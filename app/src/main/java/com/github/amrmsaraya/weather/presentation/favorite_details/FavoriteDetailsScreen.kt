@@ -20,9 +20,6 @@ fun FavoriteDetailsScreen(
     lon: Double,
     viewModel: FavoriteDetailsViewModel = hiltViewModel()
 ) {
-
-    viewModel.restorePreferences()
-
     val isLoading by viewModel.isLoading
     val error by viewModel.error
     val forecast by viewModel.forecast

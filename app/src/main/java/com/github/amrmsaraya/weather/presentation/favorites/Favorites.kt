@@ -45,10 +45,6 @@ fun Favorites(
     onBackPress: () -> Unit,
     viewModel: FavoritesViewModel = hiltViewModel()
 ) {
-
-    viewModel.getFavoriteForecasts()
-    viewModel.restorePreferences()
-
     val scaffoldState = rememberScaffoldState()
     val selectedItems = remember { mutableStateListOf<Forecast>() }
     var selectMode by remember { mutableStateOf(false) }
