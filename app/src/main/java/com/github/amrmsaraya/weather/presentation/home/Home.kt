@@ -48,7 +48,6 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
-import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -69,6 +68,7 @@ fun HomeScreen(
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
 
+    println("HOME: uiState = $uiState")
     LaunchedEffect(key1 = viewModel) {
         viewModel.restorePreferences()
     }
@@ -86,7 +86,8 @@ fun HomeScreen(
             SwipeRefresh(
                 state = swipeRefreshState,
                 onRefresh = {
-                    viewModel.uiState.value = viewModel.uiState.value.copy(isLoading = true)
+                    viewModel.uiState.value =
+                        viewModel.uiState.value.copy(isLoading = true, error = "")
                     viewModel.getForecast()
                 },
                 indicator = { state, trigger ->

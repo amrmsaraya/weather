@@ -28,22 +28,24 @@ class HomeViewModel @Inject constructor(
     val settings = mutableStateOf<Settings?>(null)
 
     fun getForecast(lat: Double, lon: Double) = viewModelScope.launch(dispatcher) {
-        when (val response = getCurrentForecast.execute(lat, lon)) {
-            is Response.Success -> uiState.value = UiState(data = response.result)
+        uiState.value = when (val response = getCurrentForecast.execute(lat, lon)) {
+            is Response.Success -> UiState(data = response.result)
             is Response.Error -> when (response.result) {
-                null -> uiState.value.copy(isLoading = false)
+                null -> UiState(error = response.message)
                 else -> UiState(data = response.result, error = response.message)
             }
+            else -> UiState()
         }
     }
 
     fun getForecast() = viewModelScope.launch(dispatcher) {
-        when (val response = getCurrentForecast.execute()) {
-            is Response.Success -> uiState.value = UiState(data = response.result)
+        uiState.value = when (val response = getCurrentForecast.execute()) {
+            is Response.Success ->UiState(data = response.result)
             is Response.Error -> when (response.result) {
-                null -> uiState.value.copy(isLoading = false)
+                null -> UiState(error = response.message)
                 else -> UiState(data = response.result, error = response.message)
             }
+            else ->  UiState()
         }
     }
 

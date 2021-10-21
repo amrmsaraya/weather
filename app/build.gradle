@@ -13,8 +13,8 @@ android {
         applicationId "com.github.amrmsaraya.weather"
         minSdk 24
         targetSdk 31
-        versionCode 10
-        versionName '2.4'
+        versionCode 11
+        versionName '2.5'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -26,11 +26,6 @@ android {
     }
 
     buildTypes {
-        debug {
-            minifyEnabled true
-            shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
         release {
             minifyEnabled true
             shrinkResources true
