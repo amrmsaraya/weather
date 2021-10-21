@@ -13,8 +13,8 @@ android {
         applicationId "com.github.amrmsaraya.weather"
         minSdk 24
         targetSdk 31
-        versionCode 9
-        versionName '2.3'
+        versionCode 10
+        versionName '2.4'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -26,8 +26,14 @@ android {
     }
 
     buildTypes {
+        debug {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -66,7 +72,7 @@ dependencies {
     def navigation_version = '2.4.0-alpha10'
     def workManager_version = '2.7.0'
     def dataStore_version = '1.0.0'
-    def accompanist_version = '0.18.0'
+    def accompanist_version = '0.20.0'
 
     // Core
     implementation 'androidx.core:core-ktx:1.6.0'

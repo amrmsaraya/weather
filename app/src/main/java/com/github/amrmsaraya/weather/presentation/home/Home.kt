@@ -62,21 +62,15 @@ fun HomeScreen(
     viewModel: HomeViewModel,
     onNavigateToMap: () -> Unit
 ) {
-    val isLoading by viewModel.isLoading
-    val error by viewModel.error
-    val forecast by viewModel.forecast
-    var settings by viewModel.settings
-    var latLng by remember { mutableStateOf(LatLng(0.0, 0.0)) }
+    val uiState by viewModel.uiState
+    val settings by viewModel.settings
 
-    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isLoading)
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isLoading)
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
 
-    // clear settings when leave composition so UI doesn't reload when revisit compose
-    DisposableEffect(key1 = true) {
-        onDispose {
-            settings = null
-        }
+    LaunchedEffect(key1 = viewModel) {
+        viewModel.restorePreferences()
     }
 
     settings?.let { setting ->
@@ -84,17 +78,16 @@ fun HomeScreen(
             modifier = modifier,
             scaffoldState = scaffoldState
         ) {
-            if (error.isNotEmpty()) {
+            if (uiState.error.isNotEmpty()) {
                 scope.launch {
-                    scaffoldState.snackbarHostState.showSnackbar(message = error)
-                    viewModel.error.value = ""
+                    scaffoldState.snackbarHostState.showSnackbar(uiState.error)
                 }
             }
             SwipeRefresh(
                 state = swipeRefreshState,
                 onRefresh = {
-                    viewModel.isLoading.value = true
-                    refresh(setting, latLng, viewModel)
+                    viewModel.uiState.value = viewModel.uiState.value.copy(isLoading = true)
+                    viewModel.getForecast()
                 },
                 indicator = { state, trigger ->
                     SwipeRefreshIndicator(
@@ -107,13 +100,12 @@ fun HomeScreen(
             ) {
                 when (setting.location) {
                     R.string.gps -> GPSLocation(
-                        viewModel = viewModel,
-                        forecast = forecast,
+                        forecast = uiState.data,
                         setting = setting,
-                        onLocationChange = { latLng = it },
+                        onLocationChange = { lat, lon -> viewModel.getForecast(lat, lon) },
                         onNavigateToMap = onNavigateToMap,
                     )
-                    else -> MapLocation(viewModel, forecast, setting)
+                    else -> MapLocation(viewModel, uiState.data, setting)
                 }
             }
         }
@@ -124,31 +116,39 @@ fun HomeScreen(
 @Composable
 private fun MapLocation(
     viewModel: HomeViewModel,
-    forecast: Forecast,
+    forecast: Forecast?,
     setting: Settings
 ) {
     LaunchedEffect(key1 = true) {
         viewModel.getForecast()
     }
-    when (forecast.current.weather.isNotEmpty()) {
-        true -> HomeContent(forecast, setting)
-        else -> LoadingIndicator()
-    }
+
+    forecast?.let {
+        HomeContent(forecast, setting)
+    } ?: LoadingIndicator()
 }
 
 @ExperimentalAnimationApi
 @ExperimentalPermissionsApi
 @Composable
 private fun GPSLocation(
-    viewModel: HomeViewModel,
-    forecast: Forecast,
+    forecast: Forecast?,
     setting: Settings,
-    onLocationChange: (LatLng) -> Unit,
+    onLocationChange: (Double, Double) -> Unit,
     onNavigateToMap: () -> Unit,
 ) {
+    val context = LocalContext.current
     val locationPermissionState = rememberPermissionState(
         Manifest.permission.ACCESS_FINE_LOCATION
     )
+    val location = remember {
+        LocationHelper(
+            activity = context as Activity,
+            onLocationChange = {
+                onLocationChange(it.latitude, it.longitude)
+            }
+        )
+    }
     LocationPermission(
         permissionState = locationPermissionState,
         requestPermission = {
@@ -159,23 +159,15 @@ private fun GPSLocation(
         },
         noPermission = { NoPermission() },
         hasPermission = {
-            val location = LocationHelper(
-                activity = LocalContext.current as Activity,
-                onLocationChange = {
-                    onLocationChange(LatLng(it.latitude, it.longitude))
-                    viewModel.getForecast(it.latitude, it.longitude)
-                }
-            )
-            DisposableEffect(key1 = true) {
+            DisposableEffect(key1 = location) {
                 location.startLocationUpdates()
                 onDispose {
                     location.stopLocationUpdates()
                 }
             }
-            when (forecast.current.weather.isNotEmpty()) {
-                true -> HomeContent(forecast, setting)
-                else -> LoadingIndicator()
-            }
+            forecast?.let {
+                HomeContent(forecast, setting)
+            } ?: LoadingIndicator()
         })
 }
 
@@ -516,21 +508,6 @@ fun ForecastDetailsItem(item: ForecastIcons, current: Current, settings: Setting
             text = stringResource(id = item.nameId),
             color = Color.Gray
         )
-    }
-}
-
-private fun refresh(
-    settings: Settings,
-    latLng: LatLng,
-    viewModel: HomeViewModel
-) {
-    when (settings.location) {
-        R.string.gps -> {
-            if (latLng.latitude != 0.0) {
-                viewModel.getForecast(latLng.latitude, latLng.longitude)
-            }
-        }
-        R.string.map -> viewModel.getForecast()
     }
 }
 

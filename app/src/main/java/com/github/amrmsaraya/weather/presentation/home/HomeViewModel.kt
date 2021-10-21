@@ -1,6 +1,5 @@
 package com.github.amrmsaraya.weather.presentation.home
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -9,6 +8,7 @@ import com.github.amrmsaraya.weather.domain.model.forecast.Forecast
 import com.github.amrmsaraya.weather.domain.usecase.forecast.GetCurrentForecast
 import com.github.amrmsaraya.weather.domain.usecase.preferences.RestorePreferences
 import com.github.amrmsaraya.weather.domain.util.Response
+import com.github.amrmsaraya.weather.util.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -24,56 +24,30 @@ class HomeViewModel @Inject constructor(
     private val dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : ViewModel() {
 
-    init {
-        println("ViewModel Created")
-        restorePreferences()
-    }
-
-    val isLoading = mutableStateOf(false)
-    val forecast: MutableState<Forecast> = mutableStateOf(Forecast())
-    val error = mutableStateOf("")
+    val uiState = mutableStateOf<UiState<Forecast>>(UiState())
     val settings = mutableStateOf<Settings?>(null)
 
     fun getForecast(lat: Double, lon: Double) = viewModelScope.launch(dispatcher) {
-        when (val forecastResponse = getCurrentForecast.execute(lat, lon)) {
-            is Response.Success -> {
-                isLoading.value = false
-                forecast.value = forecastResponse.result
+        when (val response = getCurrentForecast.execute(lat, lon)) {
+            is Response.Success -> uiState.value = UiState(data = response.result)
+            is Response.Error -> when (response.result) {
+                null -> uiState.value.copy(isLoading = false)
+                else -> UiState(data = response.result, error = response.message)
             }
-            is Response.Error -> {
-                isLoading.value = false
-                when (forecastResponse.result) {
-                    null -> Unit
-                    else -> {
-                        forecast.value = forecastResponse.result!!
-                        error.value = forecastResponse.message
-                    }
-                }
-            }
-            else -> isLoading.value = false
         }
     }
 
     fun getForecast() = viewModelScope.launch(dispatcher) {
         when (val response = getCurrentForecast.execute()) {
-            is Response.Success -> {
-                isLoading.value = false
-                forecast.value = response.result
-            }
-            is Response.Error -> {
-                isLoading.value = false
-                when (response.result) {
-                    null -> Unit
-                    else -> {
-                        forecast.value = response.result!!
-                        error.value = response.message
-                    }
-                }
+            is Response.Success -> uiState.value = UiState(data = response.result)
+            is Response.Error -> when (response.result) {
+                null -> uiState.value.copy(isLoading = false)
+                else -> UiState(data = response.result, error = response.message)
             }
         }
     }
 
-    private fun restorePreferences() = viewModelScope.launch(dispatcher) {
+    fun restorePreferences() = viewModelScope.launch(dispatcher) {
         restorePreferences.execute().collect {
             withContext(Dispatchers.Main) {
                 settings.value = it

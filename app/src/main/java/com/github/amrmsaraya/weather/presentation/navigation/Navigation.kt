@@ -178,8 +178,11 @@ fun BottomNavigationImpl(
                 onClick = {
                     if (currentDestination?.route != screen.route) {
                         navController.navigate(screen.route) {
-                            popUpTo(navController.graph.startDestinationId)
+                            popUpTo(navController.graph.startDestinationId) {
+                                saveState = true
+                            }
                             launchSingleTop = true
+                            restoreState = true
                         }
                     }
                 }
