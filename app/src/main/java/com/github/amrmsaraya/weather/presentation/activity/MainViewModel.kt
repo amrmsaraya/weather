@@ -7,14 +7,13 @@ import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.domain.model.Settings
 import com.github.amrmsaraya.weather.domain.model.forecast.Forecast
 import com.github.amrmsaraya.weather.domain.usecase.forecast.InsertForecast
+import com.github.amrmsaraya.weather.domain.usecase.forecast.UpdateFavoritesForecast
 import com.github.amrmsaraya.weather.domain.usecase.preferences.GetBooleanPreference
 import com.github.amrmsaraya.weather.domain.usecase.preferences.RestorePreferences
 import com.github.amrmsaraya.weather.domain.usecase.preferences.SavePreference
 import com.github.amrmsaraya.weather.domain.usecase.preferences.SetDefaultPreferences
 import com.github.amrmsaraya.weather.util.dispatchers.IDispatchers
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -28,12 +27,21 @@ class MainViewModel @Inject constructor(
     private val getBooleanPreference: GetBooleanPreference,
     private val setDefaultPreferences: SetDefaultPreferences,
     private val insertForecast: InsertForecast,
+    private val updateFavoritesForecast: UpdateFavoritesForecast,
     private val dispatcher: IDispatchers
 ) : ViewModel() {
+
+    init {
+        updateFavoritesForecast()
+    }
 
     val settings = mutableStateOf<Settings?>(null)
     val keepSplash = mutableStateOf(true)
     val firstRun = mutableStateOf(false)
+
+    private fun updateFavoritesForecast() = viewModelScope.launch(dispatcher.default) {
+        updateFavoritesForecast.execute()
+    }
 
     fun restorePreferences() = viewModelScope.launch(dispatcher.default) {
         restorePreferences.execute().collect {

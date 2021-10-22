@@ -13,8 +13,8 @@ android {
         applicationId "com.github.amrmsaraya.weather"
         minSdk 24
         targetSdk 31
-        versionCode 12
-        versionName '2.6'
+        versionCode 13
+        versionName '2.7'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

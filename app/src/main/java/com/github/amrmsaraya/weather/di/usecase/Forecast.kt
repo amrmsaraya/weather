@@ -47,4 +47,10 @@ class Forecast {
     fun provideGetForecastFromMap(forecastRepo: ForecastRepo): GetForecastFromMap {
         return GetForecastFromMap(forecastRepo)
     }
+
+    @Singleton
+    @Provides
+    fun provideUpdateFavoritesForecast(forecastRepo: ForecastRepo): UpdateFavoritesForecast {
+        return UpdateFavoritesForecast(forecastRepo)
+    }
 }

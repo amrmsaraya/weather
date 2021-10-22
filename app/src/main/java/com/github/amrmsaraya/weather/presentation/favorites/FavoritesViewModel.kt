@@ -31,7 +31,6 @@ class FavoritesViewModel @Inject constructor(
     init {
         getFavoriteForecasts()
         restorePreferences()
-        updateFavoritesForecasts()
     }
 
     val favorites = mutableStateListOf<Forecast>()
@@ -43,15 +42,6 @@ class FavoritesViewModel @Inject constructor(
             withContext(dispatcher.main) {
                 favorites.clear()
                 favorites.addAll(it)
-            }
-        }
-    }
-
-    private fun updateFavoritesForecasts() = viewModelScope.launch(dispatcher.default) {
-        delay(500)
-        if (favorites.isNotEmpty()) {
-            favorites.forEach {
-                getForecast.execute(it.lat, it.lon)
             }
         }
     }
