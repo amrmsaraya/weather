@@ -8,9 +8,11 @@ import com.github.amrmsaraya.weather.domain.model.Settings
 import com.github.amrmsaraya.weather.domain.model.forecast.Forecast
 import com.github.amrmsaraya.weather.domain.usecase.forecast.DeleteForecast
 import com.github.amrmsaraya.weather.domain.usecase.forecast.GetFavoriteForecasts
+import com.github.amrmsaraya.weather.domain.usecase.forecast.GetForecast
 import com.github.amrmsaraya.weather.domain.usecase.preferences.RestorePreferences
 import com.github.amrmsaraya.weather.util.dispatchers.IDispatchers
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -21,6 +23,7 @@ import javax.inject.Inject
 class FavoritesViewModel @Inject constructor(
     private val getFavoriteForecasts: GetFavoriteForecasts,
     private val deleteForecast: DeleteForecast,
+    private val getForecast: GetForecast,
     private val restorePreferences: RestorePreferences,
     private val dispatcher: IDispatchers
 ) : ViewModel() {
@@ -28,6 +31,7 @@ class FavoritesViewModel @Inject constructor(
     init {
         getFavoriteForecasts()
         restorePreferences()
+        updateFavoritesForecasts()
     }
 
     val favorites = mutableStateListOf<Forecast>()
@@ -39,6 +43,15 @@ class FavoritesViewModel @Inject constructor(
             withContext(dispatcher.main) {
                 favorites.clear()
                 favorites.addAll(it)
+            }
+        }
+    }
+
+    private fun updateFavoritesForecasts() = viewModelScope.launch(dispatcher.default) {
+        delay(500)
+        if (favorites.isNotEmpty()) {
+            favorites.forEach {
+                getForecast.execute(it.lat, it.lon)
             }
         }
     }
