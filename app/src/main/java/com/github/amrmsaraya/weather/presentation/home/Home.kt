@@ -4,15 +4,14 @@ import android.Manifest
 import android.app.Activity
 import androidx.annotation.StringRes
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.background
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.WifiOff
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +19,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -29,13 +29,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import com.airbnb.lottie.compose.LottieAnimation
+import com.airbnb.lottie.compose.LottieCompositionSpec
+import com.airbnb.lottie.compose.LottieConstants
+import com.airbnb.lottie.compose.rememberLottieComposition
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.domain.model.Settings
 import com.github.amrmsaraya.weather.domain.model.forecast.Current
 import com.github.amrmsaraya.weather.domain.model.forecast.Daily
 import com.github.amrmsaraya.weather.domain.model.forecast.Forecast
 import com.github.amrmsaraya.weather.domain.model.forecast.Hourly
-import com.github.amrmsaraya.weather.presentation.components.*
+import com.github.amrmsaraya.weather.presentation.components.AnimatedVisibilitySlide
+import com.github.amrmsaraya.weather.presentation.components.LoadingIndicator
+import com.github.amrmsaraya.weather.presentation.components.LocationPermission
+import com.github.amrmsaraya.weather.presentation.components.RequestPermission
 import com.github.amrmsaraya.weather.presentation.theme.Cairo
 import com.github.amrmsaraya.weather.presentation.theme.Spartan
 import com.github.amrmsaraya.weather.util.ForecastIcons
@@ -48,6 +55,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
+import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
@@ -63,8 +71,9 @@ fun HomeScreen(
 ) {
     val uiState by viewModel.uiState
     val settings by viewModel.settings
-
-    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isLoading)
+    var swipeRefresh by remember { mutableStateOf(false) }
+    val swipeRefreshState =
+        rememberSwipeRefreshState(if (!uiState.isLoading) uiState.isLoading else swipeRefresh)
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
 
@@ -77,7 +86,10 @@ fun HomeScreen(
             modifier = modifier,
             scaffoldState = scaffoldState
         ) {
-            if (uiState.error.isNotEmpty()) {
+            if (uiState.error.isNotEmpty() &&
+                uiState.data != null &&
+                uiState.data!!.current.weather.isNotEmpty()
+            ) {
                 scope.launch {
                     scaffoldState.snackbarHostState.showSnackbar(uiState.error)
                 }
@@ -85,8 +97,7 @@ fun HomeScreen(
             SwipeRefresh(
                 state = swipeRefreshState,
                 onRefresh = {
-                    viewModel.uiState.value =
-                        viewModel.uiState.value.copy(isLoading = true, error = "")
+                    swipeRefresh = true
                     viewModel.getForecast()
                 },
                 indicator = { state, trigger ->
@@ -103,9 +114,13 @@ fun HomeScreen(
                         forecast = uiState.data,
                         setting = setting,
                         onLocationChange = { lat, lon -> viewModel.getForecast(lat, lon) },
+                        onNoInternetRefresh = { lat, lon -> viewModel.getForecast(lat, lon) },
                         onNavigateToMap = onNavigateToMap,
                     )
-                    else -> MapLocation(viewModel, uiState.data, setting)
+                    else -> MapLocation(
+                        forecast = uiState.data,
+                        setting = setting,
+                        onGetForecast = { viewModel.getForecast() })
                 }
             }
         }
@@ -115,15 +130,20 @@ fun HomeScreen(
 @ExperimentalAnimationApi
 @Composable
 private fun MapLocation(
-    viewModel: HomeViewModel,
     forecast: Forecast?,
-    setting: Settings
+    setting: Settings,
+    onGetForecast: () -> Unit
 ) {
     LaunchedEffect(key1 = true) {
-        viewModel.getForecast()
+        onGetForecast()
     }
     forecast?.let {
-        HomeContent(forecast, setting)
+        if (forecast.current.weather.isNotEmpty()) {
+            when (it.current.weather.isNotEmpty()) {
+                true -> HomeContent(forecast, setting)
+                false -> NoInternetConnection { onGetForecast() }
+            }
+        }
     } ?: LoadingIndicator()
 }
 
@@ -134,17 +154,20 @@ private fun GPSLocation(
     forecast: Forecast?,
     setting: Settings,
     onLocationChange: (Double, Double) -> Unit,
+    onNoInternetRefresh: (Double, Double) -> Unit,
     onNavigateToMap: () -> Unit,
 ) {
     val context = LocalContext.current
     val locationPermissionState = rememberPermissionState(
         Manifest.permission.ACCESS_FINE_LOCATION
     )
+    var latLng by remember { mutableStateOf(LatLng(0.0, 0.0)) }
     val location = remember {
         LocationHelper(
             activity = context as Activity,
             onLocationChange = {
                 onLocationChange(it.latitude, it.longitude)
+                latLng = LatLng(it.latitude, it.longitude)
             }
         )
     }
@@ -152,11 +175,18 @@ private fun GPSLocation(
         permissionState = locationPermissionState,
         requestPermission = {
             RequestPermission(
-                locationPermissionState,
-                onNavigateToMap
+                permissionState = locationPermissionState,
+                noPermission = false,
+                onNavigateToMap = onNavigateToMap
             )
         },
-        noPermission = { NoPermission() },
+        noPermission = {
+            RequestPermission(
+                permissionState = locationPermissionState,
+                noPermission = true,
+                onNavigateToMap = onNavigateToMap
+            )
+        },
         hasPermission = {
             DisposableEffect(key1 = location) {
                 location.startLocationUpdates()
@@ -165,7 +195,12 @@ private fun GPSLocation(
                 }
             }
             forecast?.let {
-                HomeContent(forecast, setting)
+                when (it.current.weather.isNotEmpty()) {
+                    true -> HomeContent(forecast, setting)
+                    false -> NoInternetConnection {
+                        onNoInternetRefresh(latLng.latitude, latLng.longitude)
+                    }
+                }
             } ?: LoadingIndicator()
         })
 }
@@ -211,7 +246,6 @@ fun HomeContent(forecast: Forecast, settings: Settings) {
             ForecastDetails(forecast.current, settings)
         }
         Spacer(modifier = Modifier.size(8.dp))
-
     }
 }
 
@@ -221,8 +255,7 @@ fun TemperatureBox(current: Current, settings: Settings) {
         Modifier.wrapContentSize()
     ) {
         TempAndDescription(
-            current.temp,
-            current.weather[0].description.replaceFirstChar { it.uppercase() },
+            current,
             settings
         )
         Image(
@@ -237,13 +270,13 @@ fun TemperatureBox(current: Current, settings: Settings) {
                     sunset = current.sunset
                 )
             ),
-            contentDescription = "Clear day"
+            contentDescription = current.weather[0].description
         )
     }
 }
 
 @Composable
-fun TempAndDescription(temp: Double, description: String, settings: Settings) {
+fun TempAndDescription(forecast: Current, settings: Settings) {
     ConstraintLayout(
         modifier = Modifier
             .fillMaxWidth()
@@ -258,13 +291,24 @@ fun TempAndDescription(temp: Double, description: String, settings: Settings) {
                 )
             ),
     ) {
-        val (tmp, desc) = createRefs()
+        val (tmp, desc, lottie) = createRefs()
+        val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.rain))
+        if (forecast.weather[0].main == "Rain") {
+            LottieAnimation(
+                modifier = Modifier
+                    .constrainAs(lottie) { centerTo(parent) }
+                    .fillMaxSize(),
+                composition = composition,
+                iterations = LottieConstants.IterateForever,
+                contentScale = ContentScale.FillBounds
+            )
+        }
         Text(
             modifier = Modifier.constrainAs(desc) {
                 centerHorizontallyTo(parent)
                 top.linkTo(parent.top, margin = 16.dp)
             },
-            text = description,
+            text = forecast.weather[0].description.replaceFirstChar { it.uppercase() },
             color = Color.White,
             fontSize = 20.sp
         )
@@ -272,7 +316,7 @@ fun TempAndDescription(temp: Double, description: String, settings: Settings) {
             .constrainAs(tmp) {
                 centerTo(parent)
             }
-            .padding(bottom = 16.dp), temp, settings
+            .padding(bottom = 16.dp), forecast.temp, settings
         )
     }
 }
@@ -507,6 +551,43 @@ fun ForecastDetailsItem(item: ForecastIcons, current: Current, settings: Setting
             text = stringResource(id = item.nameId),
             color = Color.Gray
         )
+    }
+}
+
+@Composable
+fun NoInternetConnection(onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(
+                modifier = Modifier.size(100.dp),
+                imageVector = Icons.Default.WifiOff,
+                contentDescription = stringResource(R.string.no_internet_connection),
+                tint = MaterialTheme.colors.primary
+            )
+            Spacer(modifier = Modifier.size(16.dp))
+            Text(
+                text = stringResource(R.string.no_internet_connection),
+                style = MaterialTheme.typography.h6
+            )
+            Spacer(modifier = Modifier.size(8.dp))
+            Text(
+                text = stringResource(R.string.check_your_connection),
+                style = MaterialTheme.typography.body1,
+                color = if (isSystemInDarkTheme()) Color.LightGray else Color.DarkGray
+            )
+            Spacer(modifier = Modifier.size(24.dp))
+            OutlinedButton(
+                onClick = onClick,
+                border = BorderStroke(1.dp, MaterialTheme.colors.primary)
+            ) {
+                Text(text = stringResource(R.string.refresh))
+            }
+        }
     }
 }
 

@@ -19,8 +19,8 @@ interface WeatherDao {
     @Delete
     suspend fun deleteForecast(list: List<ForecastDTO>)
 
-    @Query("SELECT * FROM forecast WHERE lat = :lat AND lon = :lon")
-    fun getForecast(lat: Double, lon: Double): ForecastDTO
+    @Query("SELECT * FROM forecast WHERE id = :id")
+    fun getForecast(id: Long): ForecastDTO
 
     @Query("SELECT * FROM forecast WHERE id = 1")
     fun getCurrentForecast(): ForecastDTO

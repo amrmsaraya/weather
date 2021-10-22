@@ -7,23 +7,33 @@ import androidx.annotation.StringRes
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.GpsFixed
+import androidx.compose.material.icons.filled.Map
+import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.github.amrmsaraya.weather.BuildConfig
 import com.github.amrmsaraya.weather.R
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionRequired
 import com.google.accompanist.permissions.PermissionState
 import kotlinx.coroutines.delay
 
@@ -113,6 +123,7 @@ fun EmptyListIndicator(image: ImageVector, @StringRes stringId: Int) {
     }
 }
 
+@ExperimentalAnimationApi
 @ExperimentalPermissionsApi
 @Composable
 fun LocationPermission(
@@ -121,69 +132,22 @@ fun LocationPermission(
     noPermission: @Composable () -> Unit,
     requestPermission: @Composable () -> Unit
 ) {
-    // Track if the user doesn't want to see the rationale any more.
-//    var doNotShowRationale by rememberSaveable { mutableStateOf(false) }
-
-    when {
-        permissionState.hasPermission -> hasPermission()
-        permissionState.shouldShowRationale || !permissionState.permissionRequested -> {
-            requestPermission()
-        }
-        else -> noPermission()
+    PermissionRequired(
+        permissionState = permissionState,
+        permissionNotGrantedContent = { requestPermission() },
+        permissionNotAvailableContent = { noPermission() }
+    ) {
+        hasPermission()
     }
 }
 
 @ExperimentalPermissionsApi
 @Composable
-fun RequestPermission(permissionState: PermissionState, onNavigateToMap: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Card {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = stringResource(id = R.string.we_can_t_fetch_your_location),
-                    style = MaterialTheme.typography.body1
-                )
-                Text(
-                    text = stringResource(id = R.string.please_allow_weather_to_access_your_location),
-                    style = MaterialTheme.typography.body2,
-                    color = Color.Gray
-                )
-                Spacer(modifier = Modifier.size(8.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Button(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth(),
-                        onClick = { permissionState.launchPermissionRequest() }
-                    ) {
-                        Text(text = stringResource(id = R.string.allow))
-                    }
-
-                    Spacer(modifier = Modifier.size(8.dp))
-
-                    OutlinedButton(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth(),
-                        onClick = { onNavigateToMap() }
-                    ) {
-                        Text(text = stringResource(R.string.from_map))
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun NoPermission() {
+fun RequestPermission(
+    permissionState: PermissionState,
+    noPermission: Boolean,
+    onNavigateToMap: () -> Unit
+) {
     var showSettings by remember { mutableStateOf(false) }
     if (showSettings) {
         LaunchAppSettingsScreen()
@@ -193,27 +157,79 @@ fun NoPermission() {
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
+        contentAlignment = Alignment.Center
     ) {
-        Card {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(
-                    text = stringResource(id = R.string.we_can_t_fetch_your_location),
-                    style = MaterialTheme.typography.body1
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Icon(
+                modifier = Modifier.size(100.dp),
+                imageVector = Icons.Outlined.LocationOn,
+                contentDescription = null,
+                tint = MaterialTheme.colors.primary
+            )
+            Spacer(modifier = Modifier.size(8.dp))
+            Text(
+                text = stringResource(id = R.string.we_can_t_fetch_your_location),
+                style = MaterialTheme.typography.h6
+            )
+            Spacer(modifier = Modifier.size(8.dp))
+            Text(
+                text = when (noPermission) {
+                    true -> stringResource(R.string.denied_pemission_many_times)
+                    false -> stringResource(id = R.string.allow_weather_to_access_location)
+                },
+                style = MaterialTheme.typography.body1,
+                color = if (isSystemInDarkTheme()) Color.LightGray else Color.DarkGray,
+                textAlign = TextAlign.Center
+            )
+            Spacer(modifier = Modifier.size(24.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                LocationSelection(
+                    text = stringResource(R.string.gps),
+                    icon = Icons.Default.GpsFixed,
+                    onClick = {
+                        when (noPermission) {
+                            true -> showSettings = true
+                            false -> permissionState.launchPermissionRequest()
+                        }
+                    }
                 )
-                Text(
-                    text = stringResource(id = R.string.please_allow_weather_to_access_your_location),
-                    style = MaterialTheme.typography.body2,
-                    color = Color.Gray
+                LocationSelection(
+                    text = stringResource(R.string.map),
+                    icon = Icons.Default.Map,
+                    onClick = { onNavigateToMap() }
                 )
-                Spacer(modifier = Modifier.size(8.dp))
-                Button(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = { showSettings = true }
-                ) {
-                    Text(text = stringResource(id = R.string.settings))
-                }
             }
         }
+    }
+}
+
+@Composable
+private fun LocationSelection(text: String, icon: ImageVector, onClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .clip(MaterialTheme.shapes.medium)
+            .clickable { onClick() }
+            .padding(8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            modifier = Modifier
+                .border(1.dp, MaterialTheme.colors.primary, CircleShape)
+                .padding(16.dp)
+                .size(42.dp),
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colors.primary
+        )
+        Spacer(modifier = Modifier.size(8.dp))
+        Text(
+            text = text,
+            color = MaterialTheme.colors.primary
+        )
     }
 }
 

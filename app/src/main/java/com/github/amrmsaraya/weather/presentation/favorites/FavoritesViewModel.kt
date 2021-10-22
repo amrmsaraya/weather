@@ -23,7 +23,6 @@ import javax.inject.Inject
 class FavoritesViewModel @Inject constructor(
     private val getFavoriteForecasts: GetFavoriteForecasts,
     private val deleteForecast: DeleteForecast,
-    private val getForecast: GetForecast,
     private val restorePreferences: RestorePreferences,
     private val dispatcher: IDispatchers
 ) : ViewModel() {

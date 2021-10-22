@@ -65,8 +65,8 @@ fun Navigation(
             Favorites(
                 modifier = modifier,
                 viewModel = viewModel,
-                onItemClick = { lat, lon ->
-                    navController.navigate("${FavoriteDetails.route}/${lat}/${lon}") {
+                onItemClick = { id ->
+                    navController.navigate("${FavoriteDetails.route}/$id") {
                         popUpTo(Favorites.route)
                         launchSingleTop = true
                     }
@@ -102,18 +102,14 @@ fun Navigation(
             )
         }
         composable(
-            route = "${FavoriteDetails.route}/{lat}/{lon}",
-            arguments = listOf(
-                navArgument("lat") { type = NavType.StringType },
-                navArgument("lon") { type = NavType.StringType }
-            )
+            route = "${FavoriteDetails.route}/{id}",
+            arguments = listOf(navArgument("id") { type = NavType.LongType })
         ) { backStackEntry ->
             val viewModel = hiltViewModel<FavoriteDetailsViewModel>()
             FavoriteDetailsScreen(
                 modifier = modifier,
                 viewModel = viewModel,
-                lat = backStackEntry.arguments?.getString("lat")?.toDouble() ?: 0.0,
-                lon = backStackEntry.arguments?.getString("lon")?.toDouble() ?: 0.0,
+                id = backStackEntry.arguments?.getLong("id") ?: 1,
             )
         }
         composable(

@@ -33,13 +33,14 @@ class FavoriteDetailsViewModel @Inject constructor(
     val uiState = mutableStateOf<UiState<Forecast>>(UiState())
     val settings = mutableStateOf<Settings?>(null)
 
-    fun getForecast(lat: Double, lon: Double) = viewModelScope.launch(dispatcher.default) {
-        val response = getForecast.execute(lat, lon)
+    fun getForecast(id:Long) = viewModelScope.launch(dispatcher.default) {
+        uiState.value = uiState.value.copy(error = "", isLoading = true)
+        val response = getForecast.execute(id)
         withContext(dispatcher.main) {
             uiState.value = when (response) {
                 is Response.Success -> UiState(data = response.result)
                 is Response.Error -> when (response.result) {
-                    null -> UiState(error = response.message)
+                    null -> UiState()
                     else -> UiState(data = response.result, error = response.message)
                 }
             }

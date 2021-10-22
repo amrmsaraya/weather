@@ -9,9 +9,7 @@ class UpdateFavoritesForecast constructor(private val forecastRepo: ForecastRepo
         val favorites = forecastRepo.getFavoriteForecasts().first()
         favorites.forEach {
             runCatching {
-                val updatedForecast = forecastRepo.getForecast(it.lat, it.lon, true)
-                println("FAVORITES: BEFORE UPDATE = $it")
-                println("FAVORITES: AFTER UPDATE = $updatedForecast")
+                val updatedForecast = forecastRepo.getRemoteForecast(it.lat, it.lon)
                 forecastRepo.insertForecast(updatedForecast.copy(id = it.id))
             }
         }

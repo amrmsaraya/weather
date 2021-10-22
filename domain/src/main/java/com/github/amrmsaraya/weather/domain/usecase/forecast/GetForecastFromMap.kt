@@ -5,7 +5,7 @@ import com.github.amrmsaraya.weather.domain.repository.ForecastRepo
 
 class GetForecastFromMap(private val forecastRepo: ForecastRepo) {
     suspend fun execute(lat: Double, lon: Double) {
-        runCatching { forecastRepo.getForecast(lat, lon, true) }
+        runCatching { forecastRepo.getRemoteForecast(lat, lon) }
             .onSuccess { forecastRepo.insertForecast(it) }
             .onFailure { forecastRepo.insertForecast(Forecast(lat = lat, lon = lon)) }
     }

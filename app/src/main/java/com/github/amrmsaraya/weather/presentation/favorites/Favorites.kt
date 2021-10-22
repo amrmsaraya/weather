@@ -7,6 +7,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -41,7 +42,7 @@ import com.github.amrmsaraya.weather.util.WeatherIcons
 @Composable
 fun Favorites(
     modifier: Modifier = Modifier,
-    onItemClick: (Double, Double) -> Unit,
+    onItemClick: (Long) -> Unit,
     onNavigateToMap: () -> Unit,
     onBackPress: () -> Unit,
     viewModel: FavoritesViewModel = hiltViewModel()
@@ -93,7 +94,7 @@ fun Favorites(
                         selectMode = selectMode,
                         settings = setting,
                         onSelectMode = { selectMode = it },
-                        onClick = { onItemClick(it.lat, it.lon) },
+                        onClick = { onItemClick(it.id) },
                         onSelect = { selectedItems.add(it) },
                         onUnselect = {
                             selectedItems.remove(it)
@@ -236,7 +237,11 @@ private fun FavoriteItem(
                             true -> unknown
                             false -> item.current.weather[0].description.replaceFirstChar { it.uppercase() }
                         },
-                        color = if (isSelected) MaterialTheme.colors.onSurface else Color.Gray,
+                        color = if (isSelected) {
+                            MaterialTheme.colors.onSurface
+                        } else {
+                            if (isSystemInDarkTheme()) Color.LightGray else Color.DarkGray
+                        },
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )

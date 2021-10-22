@@ -8,7 +8,6 @@ class GetCurrentForecast(private val forecastRepo: ForecastRepo) {
     suspend fun execute(forceUpdate: Boolean = true): Response<Forecast> {
         return runCatching {
             if (forceUpdate) {
-                println("INSIDE")
                 val cached = forecastRepo.getCurrentForecast()
                 val response = forecastRepo.getCurrentForecast(cached.lat, cached.lon, true)
                 forecastRepo.insertForecast(response.copy(id = 1))

@@ -4,14 +4,12 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberScaffoldState
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.amrmsaraya.weather.presentation.components.LoadingIndicator
 import com.github.amrmsaraya.weather.presentation.home.HomeContent
+import com.github.amrmsaraya.weather.presentation.home.NoInternetConnection
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -21,19 +19,19 @@ import kotlinx.coroutines.launch
 @Composable
 fun FavoriteDetailsScreen(
     modifier: Modifier,
-    lat: Double,
-    lon: Double,
+    id: Long,
     viewModel: FavoriteDetailsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState
     val settings by viewModel.settings
-
-    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isLoading)
+    var swipeRefresh by remember { mutableStateOf(false) }
+    val swipeRefreshState =
+        rememberSwipeRefreshState(if (!uiState.isLoading) uiState.isLoading else swipeRefresh)
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = true) {
-        viewModel.getForecast(lat, lon)
+        viewModel.getForecast(id)
     }
 
     settings?.let { setting ->
@@ -41,7 +39,10 @@ fun FavoriteDetailsScreen(
             modifier = modifier,
             scaffoldState = scaffoldState
         ) {
-            if (uiState.error.isNotEmpty()) {
+            if (uiState.error.isNotEmpty() &&
+                uiState.data != null &&
+                uiState.data!!.current.weather.isNotEmpty()
+            ) {
                 scope.launch {
                     scaffoldState.snackbarHostState.showSnackbar(uiState.error)
                 }
@@ -49,9 +50,8 @@ fun FavoriteDetailsScreen(
             SwipeRefresh(
                 state = swipeRefreshState,
                 onRefresh = {
-                    viewModel.uiState.value =
-                        viewModel.uiState.value.copy(isLoading = true, error = "")
-                    viewModel.getForecast(lat, lon)
+                    swipeRefresh = true
+                    viewModel.getForecast(id)
                 },
                 indicator = { state, trigger ->
                     SwipeRefreshIndicator(
@@ -63,7 +63,10 @@ fun FavoriteDetailsScreen(
                 },
             ) {
                 uiState.data?.let {
-                    HomeContent(it, setting)
+                    when (it.current.weather.isNotEmpty()) {
+                        true -> HomeContent(it, setting)
+                        false -> NoInternetConnection { viewModel.getForecast(id) }
+                    }
                 } ?: LoadingIndicator()
             }
         }

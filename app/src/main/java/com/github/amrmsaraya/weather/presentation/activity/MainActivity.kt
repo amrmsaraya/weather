@@ -79,14 +79,12 @@ private fun App(
     when (settings?.language) {
         R.string.arabic -> {
             if (Locale.getDefault().language != "ar") {
-                println("Language = Changed to Arabic")
                 LocaleHelper.setLocale(LocalContext.current, Locale("ar"))
                 onLocaleChange()
             }
         }
         R.string.english -> {
             if (Locale.getDefault().language != "en") {
-                println("Language = Changed to English")
                 LocaleHelper.setLocale(LocalContext.current, Locale("en"))
                 onLocaleChange()
             }

@@ -21,8 +21,8 @@ class LocalDataSourceImp(private val weatherDao: WeatherDao) : LocalDataSource {
         weatherDao.deleteForecast(list.map { it.toDTO() })
     }
 
-    override suspend fun getForecast(lat: Double, lon: Double): Forecast {
-        return weatherDao.getForecast(lat, lon).toForecast()
+    override suspend fun getForecast(id:Long): Forecast {
+        return weatherDao.getForecast(id).toForecast()
     }
 
     override suspend fun getCurrentForecast(): Forecast {

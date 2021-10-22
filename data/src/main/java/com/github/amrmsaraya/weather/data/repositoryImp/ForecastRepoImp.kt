@@ -23,11 +23,12 @@ class ForecastRepoImp(
         localDataSource.deleteForecast(list)
     }
 
-    override suspend fun getForecast(lat: Double, lon: Double, forceUpdate: Boolean): Forecast {
-        return when (forceUpdate) {
-            true -> remoteDataSource.getForecast(lat, lon)
-            false -> localDataSource.getForecast(lat, lon)
-        }
+    override suspend fun getLocalForecast(id: Long): Forecast {
+        return localDataSource.getForecast(id)
+    }
+
+    override suspend fun getRemoteForecast(lat: Double, lon: Double): Forecast {
+        return remoteDataSource.getForecast(lat, lon)
     }
 
     override suspend fun getCurrentForecast(
