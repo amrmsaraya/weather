@@ -9,9 +9,8 @@ import com.github.amrmsaraya.weather.domain.model.forecast.Forecast
 import com.github.amrmsaraya.weather.domain.usecase.forecast.DeleteForecast
 import com.github.amrmsaraya.weather.domain.usecase.forecast.GetFavoriteForecasts
 import com.github.amrmsaraya.weather.domain.usecase.preferences.RestorePreferences
+import com.github.amrmsaraya.weather.util.dispatchers.IDispatchers
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -23,7 +22,7 @@ class FavoritesViewModel @Inject constructor(
     private val getFavoriteForecasts: GetFavoriteForecasts,
     private val deleteForecast: DeleteForecast,
     private val restorePreferences: RestorePreferences,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Default
+    private val dispatcher: IDispatchers
 ) : ViewModel() {
 
     init {
@@ -34,23 +33,23 @@ class FavoritesViewModel @Inject constructor(
     val favorites = mutableStateListOf<Forecast>()
     val settings = mutableStateOf<Settings?>(null)
 
-    private fun getFavoriteForecasts() = viewModelScope.launch(dispatcher) {
+    private fun getFavoriteForecasts() = viewModelScope.launch(dispatcher.default) {
         val response = getFavoriteForecasts.execute()
         response.collect {
-            withContext(Dispatchers.Main) {
+            withContext(dispatcher.main) {
                 favorites.clear()
                 favorites.addAll(it)
             }
         }
     }
 
-    fun deleteForecast(list: List<Forecast>) = viewModelScope.launch(dispatcher) {
+    fun deleteForecast(list: List<Forecast>) = viewModelScope.launch(dispatcher.default) {
         deleteForecast.execute(list)
     }
 
-    private fun restorePreferences() = viewModelScope.launch(dispatcher) {
+    private fun restorePreferences() = viewModelScope.launch(dispatcher.default) {
         val preferences = restorePreferences.execute().first()
-        withContext(Dispatchers.Main) {
+        withContext(dispatcher.main) {
             settings.value = preferences
         }
     }

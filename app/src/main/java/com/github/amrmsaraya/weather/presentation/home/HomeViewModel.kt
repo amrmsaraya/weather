@@ -9,8 +9,8 @@ import com.github.amrmsaraya.weather.domain.usecase.forecast.GetCurrentForecast
 import com.github.amrmsaraya.weather.domain.usecase.preferences.RestorePreferences
 import com.github.amrmsaraya.weather.domain.util.Response
 import com.github.amrmsaraya.weather.util.UiState
+import com.github.amrmsaraya.weather.util.dispatchers.IDispatchers
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -21,35 +21,40 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val getCurrentForecast: GetCurrentForecast,
     private val restorePreferences: RestorePreferences,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Default
+    private val dispatcher: IDispatchers
 ) : ViewModel() {
 
     val uiState = mutableStateOf<UiState<Forecast>>(UiState())
     val settings = mutableStateOf<Settings?>(null)
 
-    fun getForecast(lat: Double, lon: Double) = viewModelScope.launch(dispatcher) {
-        uiState.value = when (val response = getCurrentForecast.execute(lat, lon)) {
-            is Response.Success -> UiState(data = response.result)
-            is Response.Error -> when (response.result) {
-                null -> UiState(error = response.message)
-                else -> UiState(data = response.result, error = response.message)
+    fun getForecast(lat: Double, lon: Double) = viewModelScope.launch(dispatcher.default) {
+        val response = getCurrentForecast.execute(lat, lon)
+        withContext(dispatcher.main) {
+            uiState.value = when (response) {
+                is Response.Success -> UiState(data = response.result)
+                is Response.Error -> when (response.result) {
+                    null -> UiState(error = response.message)
+                    else -> UiState(data = response.result, error = response.message)
+                }
             }
-            else -> UiState()
         }
     }
 
-    fun getForecast() = viewModelScope.launch(dispatcher) {
-        uiState.value = when (val response = getCurrentForecast.execute()) {
-            is Response.Success ->UiState(data = response.result)
-            is Response.Error -> when (response.result) {
-                null -> UiState(error = response.message)
-                else -> UiState(data = response.result, error = response.message)
+    fun getForecast() = viewModelScope.launch(dispatcher.default) {
+        val response = getCurrentForecast.execute()
+        withContext(dispatcher.main) {
+            uiState.value = when (response) {
+                is Response.Success -> UiState(data = response.result)
+                is Response.Error -> when (response.result) {
+                    null -> UiState(error = response.message)
+                    else -> UiState(data = response.result, error = response.message)
+                }
             }
-            else ->  UiState()
         }
+
     }
 
-    fun restorePreferences() = viewModelScope.launch(dispatcher) {
+    fun restorePreferences() = viewModelScope.launch(dispatcher.default) {
         restorePreferences.execute().collect {
             withContext(Dispatchers.Main) {
                 settings.value = it

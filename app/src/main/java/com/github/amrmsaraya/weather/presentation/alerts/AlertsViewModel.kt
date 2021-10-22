@@ -9,6 +9,7 @@ import com.github.amrmsaraya.weather.domain.usecase.alert.DeleteAlert
 import com.github.amrmsaraya.weather.domain.usecase.alert.GetAlerts
 import com.github.amrmsaraya.weather.domain.usecase.alert.InsertAlert
 import com.github.amrmsaraya.weather.domain.usecase.preferences.GetIntPreference
+import com.github.amrmsaraya.weather.util.dispatchers.IDispatchers
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -24,30 +25,30 @@ class AlertsViewModel @Inject constructor(
     private val insertAlert: InsertAlert,
     private val deleteAlert: DeleteAlert,
     private val getAlerts: GetAlerts,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Default
+    private val dispatcher: IDispatchers
 ) : ViewModel() {
 
     val accent = mutableStateOf(0)
     val alerts = mutableStateListOf<Alerts>()
 
-    fun getPreference(key: String) = viewModelScope.launch(dispatcher) {
+    fun getPreference(key: String) = viewModelScope.launch(dispatcher.default) {
         val preferences = getIntPreference.execute(key).first()
-        withContext(Dispatchers.Main) {
+        withContext(dispatcher.main) {
             accent.value = preferences
         }
     }
 
-    fun insetAlert(alert: Alerts) = viewModelScope.launch(dispatcher) {
+    fun insetAlert(alert: Alerts) = viewModelScope.launch(dispatcher.default) {
         insertAlert.execute(alert)
     }
 
-    fun deleteAlerts(alerts: List<Alerts>) = viewModelScope.launch(dispatcher) {
+    fun deleteAlerts(alerts: List<Alerts>) = viewModelScope.launch(dispatcher.default) {
         deleteAlert.execute(alerts)
     }
 
-    fun getAlerts() = viewModelScope.launch(dispatcher) {
+    fun getAlerts() = viewModelScope.launch(dispatcher.default) {
         getAlerts.execute().collect {
-            withContext(Dispatchers.Main) {
+            withContext(dispatcher.main) {
                 alerts.clear()
                 alerts.addAll(it)
             }

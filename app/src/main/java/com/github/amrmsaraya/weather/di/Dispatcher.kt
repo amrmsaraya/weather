@@ -1,11 +1,11 @@
 package com.github.amrmsaraya.weather.di
 
+import com.github.amrmsaraya.weather.util.dispatchers.IDispatchers
+import com.github.amrmsaraya.weather.util.dispatchers.IDispatchersImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import javax.inject.Singleton
 
 @Module
@@ -14,8 +14,8 @@ class Dispatcher {
 
     @Singleton
     @Provides
-    fun provideCoroutineDispatcher(): CoroutineDispatcher {
-        return Dispatchers.Default
+    fun provideCoroutineDispatcher(): IDispatchers {
+        return IDispatchersImpl()
     }
 
 }

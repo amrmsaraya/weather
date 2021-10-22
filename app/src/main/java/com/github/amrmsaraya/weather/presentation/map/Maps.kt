@@ -26,6 +26,7 @@ import com.google.android.gms.maps.MapView
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.maps.android.ktx.awaitMap
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
@@ -47,10 +48,6 @@ fun Maps(
     var city by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
-
-    viewModel.getCurrentForecast()
-
-    println("current forecast: $currentForecast")
 
     BackHandler {
         if (bottomSheetState.isVisible) {
@@ -114,7 +111,8 @@ fun Maps(
                                 modifier = Modifier
                                     .padding(start = 32.dp, end = 32.dp)
                                     .size(20.dp),
-                                color = MaterialTheme.colors.surface
+                                color = MaterialTheme.colors.surface,
+                                strokeWidth = 2.dp
                             )
                         } else {
                             Text(
@@ -134,9 +132,14 @@ fun Maps(
             }
         }
         Box(modifier = modifier.fillMaxSize()) {
-            LaunchedEffect(map) {
+            LaunchedEffect(map, currentForecast) {
                 val googleMap = map.awaitMap()
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 4f))
+                googleMap.animateCamera(
+                    CameraUpdateFactory.newLatLngZoom(
+                        LatLng(currentForecast.lat, currentForecast.lon),
+                        4f
+                    )
+                )
             }
             AndroidView({ map }) { mapView ->
                 scope.launch {

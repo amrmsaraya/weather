@@ -68,7 +68,6 @@ fun HomeScreen(
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
 
-    println("HOME: uiState = $uiState")
     LaunchedEffect(key1 = viewModel) {
         viewModel.restorePreferences()
     }
@@ -123,7 +122,6 @@ private fun MapLocation(
     LaunchedEffect(key1 = true) {
         viewModel.getForecast()
     }
-
     forecast?.let {
         HomeContent(forecast, setting)
     } ?: LoadingIndicator()

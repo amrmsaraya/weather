@@ -4,7 +4,10 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberScaffoldState
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.amrmsaraya.weather.presentation.components.LoadingIndicator
@@ -22,49 +25,46 @@ fun FavoriteDetailsScreen(
     lon: Double,
     viewModel: FavoriteDetailsViewModel = hiltViewModel()
 ) {
-    val isLoading by viewModel.isLoading
-    val error by viewModel.error
-    val forecast by viewModel.forecast
+    val uiState by viewModel.uiState
     val settings by viewModel.settings
-    var forecastRequested by remember { mutableStateOf(false) }
 
-    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isLoading)
+    val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = uiState.isLoading)
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
 
-    Scaffold(
-        modifier = modifier,
-        scaffoldState = scaffoldState
-    ) {
-        if (error.isNotEmpty()) {
-            scope.launch {
-                scaffoldState.snackbarHostState.showSnackbar(message = error)
-                viewModel.error.value = ""
-            }
-        }
-        SwipeRefresh(
-            state = swipeRefreshState,
-            onRefresh = {
-                viewModel.isLoading.value = true
-                viewModel.getForecast(lat, lon)
-            },
-            indicator = { state, trigger ->
-                SwipeRefreshIndicator(
-                    state = state,
-                    refreshTriggerDistance = trigger,
-                    scale = true,
-                    contentColor = MaterialTheme.colors.secondary
-                )
-            },
+    LaunchedEffect(key1 = true) {
+        viewModel.getForecast(lat, lon)
+    }
+
+    settings?.let { setting ->
+        Scaffold(
+            modifier = modifier,
+            scaffoldState = scaffoldState
         ) {
-            if (!forecastRequested) {
-                viewModel.getForecast(lat, lon)
-                forecastRequested = true
+            if (uiState.error.isNotEmpty()) {
+                scope.launch {
+                    scaffoldState.snackbarHostState.showSnackbar(uiState.error)
+                }
             }
-            if (settings == null) LoadingIndicator()
-            when (forecast.current.weather.isEmpty()) {
-                true -> LoadingIndicator()
-                false -> HomeContent(forecast, settings!!)
+            SwipeRefresh(
+                state = swipeRefreshState,
+                onRefresh = {
+                    viewModel.uiState.value =
+                        viewModel.uiState.value.copy(isLoading = true, error = "")
+                    viewModel.getForecast(lat, lon)
+                },
+                indicator = { state, trigger ->
+                    SwipeRefreshIndicator(
+                        state = state,
+                        refreshTriggerDistance = trigger,
+                        scale = true,
+                        contentColor = MaterialTheme.colors.secondary
+                    )
+                },
+            ) {
+                uiState.data?.let {
+                    HomeContent(it, setting)
+                } ?: LoadingIndicator()
             }
         }
     }

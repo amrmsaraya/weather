@@ -9,10 +9,10 @@ import com.github.amrmsaraya.weather.domain.usecase.forecast.GetForecastFromMap
 import com.github.amrmsaraya.weather.domain.usecase.forecast.InsertForecast
 import com.github.amrmsaraya.weather.domain.usecase.preferences.SavePreference
 import com.github.amrmsaraya.weather.domain.util.Response
+import com.github.amrmsaraya.weather.util.dispatchers.IDispatchers
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -21,36 +21,34 @@ class MapViewModel @Inject constructor(
     private val insertForecast: InsertForecast,
     private val getForecastFromMap: GetForecastFromMap,
     private val getCurrentForecast: GetCurrentForecast,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
+    private val dispatcher: IDispatchers,
 ) : ViewModel() {
+
+    init {
+        getCurrentForecast()
+    }
 
     val currentForecast = mutableStateOf(Forecast())
 
-    fun savePreference(key: String, value: Int) = viewModelScope.launch(dispatcher) {
+    fun savePreference(key: String, value: Int) = viewModelScope.launch(dispatcher.default) {
         savePreference.execute(key, value)
     }
 
-    fun insertForecast(forecast: Forecast) = viewModelScope.launch(dispatcher) {
+    fun insertForecast(forecast: Forecast) = viewModelScope.launch(dispatcher.default) {
         insertForecast.execute(forecast)
     }
 
-    fun getForecast(lat: Double, lon: Double) = viewModelScope.launch(dispatcher) {
+    fun getForecast(lat: Double, lon: Double) = viewModelScope.launch(dispatcher.default) {
         getForecastFromMap.execute(lat, lon)
     }
 
-    fun getCurrentForecast(lat: Double, lon: Double) = viewModelScope.launch(dispatcher) {
-        getCurrentForecast.execute(lat, lon)
-    }
-
-    fun getCurrentForecast() = viewModelScope.launch(dispatcher) {
-        when (val forecastResponse = getCurrentForecast.execute()) {
-            is Response.Success -> {
-                currentForecast.value = forecastResponse.result
-            }
-            is Response.Error -> {
-                forecastResponse.result?.let {
-                    currentForecast.value = it
-                }
+    private fun getCurrentForecast() = viewModelScope.launch(dispatcher.default) {
+        val forecastResponse = getCurrentForecast.execute(false)
+        withContext(dispatcher.main) {
+            currentForecast.value = when (forecastResponse) {
+                is Response.Success -> forecastResponse.result
+                is Response.Error -> forecastResponse.result ?: Forecast()
+                else -> Forecast()
             }
         }
     }

@@ -11,6 +11,7 @@ import com.github.amrmsaraya.weather.domain.usecase.preferences.GetBooleanPrefer
 import com.github.amrmsaraya.weather.domain.usecase.preferences.RestorePreferences
 import com.github.amrmsaraya.weather.domain.usecase.preferences.SavePreference
 import com.github.amrmsaraya.weather.domain.usecase.preferences.SetDefaultPreferences
+import com.github.amrmsaraya.weather.util.dispatchers.IDispatchers
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -27,39 +28,39 @@ class MainViewModel @Inject constructor(
     private val getBooleanPreference: GetBooleanPreference,
     private val setDefaultPreferences: SetDefaultPreferences,
     private val insertForecast: InsertForecast,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.Default
+    private val dispatcher: IDispatchers
 ) : ViewModel() {
 
     val settings = mutableStateOf<Settings?>(null)
     val keepSplash = mutableStateOf(true)
     val firstRun = mutableStateOf(false)
 
-    fun restorePreferences() = viewModelScope.launch(dispatcher) {
+    fun restorePreferences() = viewModelScope.launch(dispatcher.default) {
         restorePreferences.execute().collect {
-            withContext(Dispatchers.Main) {
+            withContext(dispatcher.main) {
                 settings.value = it
                 keepSplash.value = false
             }
         }
     }
 
-    fun getBooleanPreference(key: String) = viewModelScope.launch(dispatcher) {
+    fun getBooleanPreference(key: String) = viewModelScope.launch(dispatcher.default) {
         getBooleanPreference.execute(key).collect {
-            withContext(Dispatchers.Main) {
+            withContext(dispatcher.main) {
                 firstRun.value = it
             }
         }
     }
 
-    fun savePreference(key: String, value: String) = viewModelScope.launch(dispatcher) {
+    fun savePreference(key: String, value: String) = viewModelScope.launch(dispatcher.default) {
         savePreference.execute(key, value)
     }
 
-    fun savePreference(key: String, value: Boolean) = viewModelScope.launch(dispatcher) {
+    fun savePreference(key: String, value: Boolean) = viewModelScope.launch(dispatcher.default) {
         savePreference.execute(key, value)
     }
 
-    fun setDefaultPreferences() = viewModelScope.launch(dispatcher) {
+    fun setDefaultPreferences() = viewModelScope.launch(dispatcher.default) {
         setDefaultPreferences.execute(
             Settings(
                 location = R.string.gps,

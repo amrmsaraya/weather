@@ -6,14 +6,14 @@ import android.os.Looper
 import android.util.Log
 import com.google.android.gms.location.*
 
-private const val TAG = "Location"
-
 class LocationHelper(activity: Activity, private val onLocationChange: (Location) -> Unit) {
     private val fusedLocationProviderClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(activity)
 
     private lateinit var locationCallback: LocationCallback
     private lateinit var locationRequest: LocationRequest
+
+    private val tag = "Location"
 
     private fun buildLocationCallback() {
         locationCallback = object : LocationCallback() {
@@ -36,14 +36,14 @@ class LocationHelper(activity: Activity, private val onLocationChange: (Location
         buildLocationRequest()
         buildLocationCallback()
         try {
-            Log.d(TAG, "Location started.")
+            Log.d(tag, "Location started.")
             fusedLocationProviderClient.requestLocationUpdates(
                 locationRequest,
                 locationCallback,
                 Looper.getMainLooper()
             )
         } catch (exception: SecurityException) {
-            Log.e(TAG, "Lost location permissions. Couldn't remove updates. $exception")
+            Log.e(tag, "Lost location permissions. Couldn't remove updates. $exception")
         }
     }
 
@@ -52,13 +52,13 @@ class LocationHelper(activity: Activity, private val onLocationChange: (Location
             val removeTask = fusedLocationProviderClient.removeLocationUpdates(locationCallback)
             removeTask.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
-                    Log.d(TAG, "Location Callback removed.")
+                    Log.d(tag, "Location Callback removed.")
                 } else {
-                    Log.d(TAG, "Failed to remove Location Callback.")
+                    Log.d(tag, "Failed to remove Location Callback.")
                 }
             }
         } catch (exception: SecurityException) {
-            Log.e(TAG, "Lost location permissions. Couldn't remove updates. $exception")
+            Log.e(tag, "Lost location permissions. Couldn't remove updates. $exception")
         }
     }
 }
