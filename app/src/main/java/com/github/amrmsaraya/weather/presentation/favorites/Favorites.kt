@@ -237,11 +237,6 @@ private fun FavoriteItem(
                             true -> unknown
                             false -> item.current.weather[0].description.replaceFirstChar { it.uppercase() }
                         },
-                        color = if (isSelected) {
-                            MaterialTheme.colors.onSurface
-                        } else {
-                            if (isSystemInDarkTheme()) Color.LightGray else Color.DarkGray
-                        },
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
