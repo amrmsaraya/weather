@@ -67,10 +67,8 @@ fun FavoritesScreen(
             floatingActionButton = {
                 when (selectMode) {
                     true -> DeleteFAB {
-                        viewModel.intent.value = FavoritesIntent.DeleteForecasts(
-                            uiState = uiState,
-                            favorites = selectedItems.toList()
-                        )
+                        viewModel.intent.value =
+                            FavoritesIntent.DeleteForecasts(selectedItems.toList())
                         selectedItems.clear()
                         selectMode = false
                     }
@@ -137,8 +135,7 @@ fun FavoritesList(
                 targetValue = when (isSelected) {
                     true -> MaterialTheme.colors.secondary
                     false -> MaterialTheme.colors.surface
-                },
-                animationSpec = tween(500)
+                }
             )
             AnimatedVisibilitySlide(
                 visible = true,

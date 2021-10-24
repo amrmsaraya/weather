@@ -7,7 +7,6 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.amrmsaraya.weather.presentation.components.LoadingIndicator
 import com.github.amrmsaraya.weather.presentation.home.HomeContent
 import com.github.amrmsaraya.weather.presentation.home.NoInternetConnection
@@ -32,7 +31,7 @@ fun FavoriteDetailsScreen(
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = true) {
-        viewModel.intent.value = FavoriteDetailsIntent.GetForecast(uiState, id)
+        viewModel.intent.value = FavoriteDetailsIntent.GetForecast(id)
     }
 
     uiState.settings?.let { setting ->
@@ -43,7 +42,7 @@ fun FavoriteDetailsScreen(
             uiState.throwable?.toStringResource()?.let {
                 val error = stringResource(it)
                 scope.launch {
-                    viewModel.uiState.value = viewModel.uiState.value.copy(throwable = null)
+                    viewModel.intent.value = FavoriteDetailsIntent.ClearThrowable
                     scaffoldState.snackbarHostState.showSnackbar(error)
                 }
             }
@@ -52,7 +51,7 @@ fun FavoriteDetailsScreen(
                 state = swipeRefreshState,
                 onRefresh = {
                     swipeRefresh = true
-                    viewModel.intent.value = FavoriteDetailsIntent.GetForecast(uiState, id)
+                    viewModel.intent.value = FavoriteDetailsIntent.GetForecast(id)
                 },
                 indicator = { state, trigger ->
                     SwipeRefreshIndicator(
@@ -67,7 +66,7 @@ fun FavoriteDetailsScreen(
                     when (it.current.weather.isNotEmpty()) {
                         true -> HomeContent(it, setting)
                         false -> NoInternetConnection {
-                            viewModel.intent.value = FavoriteDetailsIntent.GetForecast(uiState, id)
+                            viewModel.intent.value = FavoriteDetailsIntent.GetForecast(id)
                         }
                     }
                 } ?: LoadingIndicator()

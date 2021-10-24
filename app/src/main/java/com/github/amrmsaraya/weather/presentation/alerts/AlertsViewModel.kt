@@ -1,5 +1,6 @@
 package com.github.amrmsaraya.weather.presentation.alerts
 
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -25,50 +26,50 @@ class AlertsViewModel @Inject constructor(
     private val dispatcher: IDispatchers
 ) : ViewModel() {
 
-    val uiState = mutableStateOf(AlertsUiState())
-    val intent = MutableStateFlow<AlertsIntent>(AlertsIntent.Init)
+    private val _uiState = mutableStateOf(AlertsUiState())
+    val uiState: State<AlertsUiState> = _uiState
+    val intent = MutableStateFlow<AlertsIntent>(AlertsIntent.Idle)
 
     init {
         mapIntent()
-        intent.value = AlertsIntent.GetAccent(uiState.value)
+        intent.value = AlertsIntent.GetAccent
+        intent.value = AlertsIntent.GetAlerts
     }
 
     private fun mapIntent() = viewModelScope.launch {
         intent.collect {
             when (it) {
-                is AlertsIntent.GetAccent -> getAccent(it)
-                is AlertsIntent.GetAlerts -> getAlerts(it)
-                is AlertsIntent.InsertAlert -> insertAlert(it, it.alert)
-                is AlertsIntent.DeleteAlerts -> deleteAlerts(it, it.alerts)
-                AlertsIntent.Init -> Unit
+                is AlertsIntent.GetAccent -> getAccent()
+                is AlertsIntent.GetAlerts -> getAlerts()
+                is AlertsIntent.InsertAlert -> insertAlert(it.alert)
+                is AlertsIntent.DeleteAlerts -> deleteAlerts(it.alerts)
+                is AlertsIntent.Idle -> Unit
             }
         }
     }
 
-    private fun getAccent(alertsIntent: AlertsIntent) = viewModelScope.launch(dispatcher.default) {
+    private fun getAccent() = viewModelScope.launch(dispatcher.default) {
         getIntPreference.execute("accent").collect {
             withContext(dispatcher.main) {
-                uiState.value = alertsIntent.uiState.copy(accent = it)
-                intent.value = AlertsIntent.GetAlerts(uiState.value)
+                _uiState.value = _uiState.value.copy(accent = it)
             }
         }
-
     }
 
-    private fun insertAlert(intent: AlertsIntent, alert: Alerts) =
+    private fun insertAlert(alert: Alerts) =
         viewModelScope.launch(dispatcher.default) {
             insertAlert.execute(alert)
         }
 
-    private fun deleteAlerts(intent: AlertsIntent, alerts: List<Alerts>) =
+    private fun deleteAlerts(alerts: List<Alerts>) =
         viewModelScope.launch(dispatcher.default) {
             deleteAlert.execute(alerts)
         }
 
-    private fun getAlerts(intent: AlertsIntent) = viewModelScope.launch(dispatcher.default) {
+    private fun getAlerts() = viewModelScope.launch(dispatcher.default) {
         getAlerts.execute().collect {
             withContext(dispatcher.main) {
-                uiState.value = intent.uiState.copy(alerts = it)
+                _uiState.value = _uiState.value.copy(alerts = it)
             }
         }
     }

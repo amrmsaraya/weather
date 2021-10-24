@@ -81,7 +81,7 @@ fun HomeScreen(
             uiState.throwable?.toStringResource()?.let {
                 val error = stringResource(it)
                 scope.launch {
-                    viewModel.uiState.value = viewModel.uiState.value.copy(throwable = null)
+                    viewModel.intent.value = HomeIntent.ClearThrowable
                     scaffoldState.snackbarHostState.showSnackbar(error)
                 }
             }
@@ -90,7 +90,7 @@ fun HomeScreen(
                 state = swipeRefreshState,
                 onRefresh = {
                     swipeRefresh = true
-                    viewModel.intent.value = HomeIntent.GetMapForecast(uiState)
+                    viewModel.intent.value = HomeIntent.GetMapForecast
                 },
                 indicator = { state, trigger ->
                     SwipeRefreshIndicator(
@@ -107,21 +107,14 @@ fun HomeScreen(
                         setting = setting,
                         onLocationChange = { lat, lon ->
                             viewModel.intent.value =
-                                HomeIntent.GetLocationForecast(
-                                    uiState = uiState,
-                                    lat = lat,
-                                    lon = lon
-                                )
+                                HomeIntent.GetLocationForecast(lat = lat, lon = lon)
                         },
                         onNavigateToMap = onNavigateToMap,
                     )
                     else -> MapLocation(
                         forecast = uiState.forecast,
                         setting = setting,
-                        onGetForecast = {
-                            viewModel.intent.value =
-                                HomeIntent.GetMapForecast(uiState = uiState)
-                        }
+                        onGetForecast = { viewModel.intent.value = HomeIntent.GetMapForecast }
                     )
                 }
             }
@@ -356,15 +349,22 @@ fun HourlyForecast(items: List<Hourly>, daily: List<Daily>, settings: Settings) 
                 elevation = 2.dp,
                 shape = MaterialTheme.shapes.medium,
             ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(
+                    modifier = Modifier.padding(
+                        top = 8.dp,
+                        bottom = 8.dp,
+                        start = 4.dp,
+                        end = 4.dp
+                    ),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
                     Text(
-                        modifier = Modifier.padding(top = 8.dp, bottom = 8.dp),
                         text = hourFormat(item.dt),
                         color = Color.Gray
                     )
                     Image(
                         modifier = Modifier
-                            .padding(4.dp)
+                            .padding(10.dp)
                             .size(24.dp),
                         painter = painterResource(
                             id = WeatherIcons.getHourlyIcon(
@@ -377,7 +377,6 @@ fun HourlyForecast(items: List<Hourly>, daily: List<Daily>, settings: Settings) 
                         contentDescription = "Weather Icon"
                     )
                     Text(
-                        modifier = Modifier.padding(8.dp),
                         text = "${
                             getTemp(
                                 item.temp,

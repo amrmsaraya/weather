@@ -1,8 +1,10 @@
 package com.github.amrmsaraya.weather.presentation.map
 
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.domain.model.forecast.Forecast
 import com.github.amrmsaraya.weather.domain.usecase.forecast.GetCurrentForecast
 import com.github.amrmsaraya.weather.domain.usecase.forecast.GetForecastFromMap
@@ -11,6 +13,8 @@ import com.github.amrmsaraya.weather.domain.usecase.preferences.SavePreference
 import com.github.amrmsaraya.weather.domain.util.Response
 import com.github.amrmsaraya.weather.util.dispatchers.IDispatchers
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -23,32 +27,53 @@ class MapViewModel @Inject constructor(
     private val getCurrentForecast: GetCurrentForecast,
     private val dispatcher: IDispatchers,
 ) : ViewModel() {
+    private val _uiState = mutableStateOf(MapUiState())
+    val uiState: State<MapUiState> = _uiState
+    val intent = MutableStateFlow<MapIntent>(MapIntent.Idle)
 
     init {
-        getCurrentForecast()
+        mapIntent()
+        intent.value = MapIntent.GetCurrentForecast
     }
 
-    val currentForecast = mutableStateOf(Forecast())
-
-    fun savePreference(key: String, value: Int) = viewModelScope.launch(dispatcher.default) {
-        savePreference.execute(key, value)
+    private fun mapIntent() = viewModelScope.launch {
+        intent.collect {
+            when (it) {
+                is MapIntent.GetCurrentForecast -> getCurrentForecast()
+                is MapIntent.GetForecastFromMap -> {
+                    _uiState.value =
+                        _uiState.value.copy(isLoading = getForecastFromMap(it.lat, it.lon))
+                }
+                is MapIntent.InsertForecast -> {
+                    _uiState.value = _uiState.value.copy(isLoading = insertForecast(it.forecast))
+                }
+                is MapIntent.Idle -> Unit
+            }
+            intent.value = MapIntent.Idle
+        }
     }
 
-    fun insertForecast(forecast: Forecast) = viewModelScope.launch(dispatcher.default) {
+    private fun insertForecast(forecast: Forecast) = viewModelScope.launch(dispatcher.default) {
         insertForecast.execute(forecast)
+        savePreference.execute("location", R.string.map)
+        _uiState.value = _uiState.value.copy(isLoading = null)
     }
 
-    fun getForecast(lat: Double, lon: Double) = viewModelScope.launch(dispatcher.default) {
-        getForecastFromMap.execute(lat, lon)
-    }
+    private fun getForecastFromMap(lat: Double, lon: Double) =
+        viewModelScope.launch(dispatcher.default) {
+            getForecastFromMap.execute(lat, lon)
+            _uiState.value = _uiState.value.copy(isLoading = null)
+        }
 
     private fun getCurrentForecast() = viewModelScope.launch(dispatcher.default) {
-        val forecastResponse = getCurrentForecast.execute(false)
+        val response = getCurrentForecast.execute(false)
         withContext(dispatcher.main) {
-            currentForecast.value = when (forecastResponse) {
-                is Response.Success -> forecastResponse.result
-                is Response.Error -> forecastResponse.result ?: Forecast()
-                else -> Forecast()
+            _uiState.value = when (response) {
+                is Response.Success -> _uiState.value.copy(forecast = response.result)
+                is Response.Error -> _uiState.value.copy(
+                    forecast = response.result ?: Forecast(),
+                    throwable = response.throwable
+                )
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.github.amrmsaraya.weather.presentation.home
 
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -22,59 +23,75 @@ class HomeViewModel @Inject constructor(
     private val dispatcher: IDispatchers
 ) : ViewModel() {
 
-    val uiState = mutableStateOf(HomeUiState())
-    val intent = MutableStateFlow<HomeIntent>(HomeIntent.Init)
+    private val _uiState = mutableStateOf(HomeUiState())
+    val uiState: State<HomeUiState> = _uiState
+    val intent = MutableStateFlow<HomeIntent>(HomeIntent.Idle)
 
     init {
         mapIntent()
-        intent.value = HomeIntent.RestorePreferences(uiState.value)
+        intent.value = HomeIntent.RestorePreferences
     }
 
     private fun mapIntent() = viewModelScope.launch {
         intent.collect {
             when (it) {
-                is HomeIntent.GetLocationForecast -> getLocationForecast(it, it.lat, it.lon)
-                is HomeIntent.GetMapForecast -> getMapForecast(it)
-                is HomeIntent.RestorePreferences -> restorePreferences(it)
-                else -> Unit
+                is HomeIntent.GetLocationForecast -> getLocationForecast(it.lat, it.lon)
+                is HomeIntent.GetMapForecast -> getMapForecast()
+                is HomeIntent.RestorePreferences -> restorePreferences()
+                is HomeIntent.ClearThrowable -> clearThrowable()
+                is HomeIntent.Idle -> Unit
             }
-            intent.value = HomeIntent.Init
+            intent.value = HomeIntent.Idle
         }
     }
 
-    private fun getLocationForecast(intent: HomeIntent, lat: Double, lon: Double) =
+    private fun getLocationForecast(lat: Double, lon: Double) =
         viewModelScope.launch(dispatcher.default) {
-            uiState.value = intent.uiState.copy(isLoading = true)
+            _uiState.value = _uiState.value.copy(isLoading = true)
             val response = getCurrentForecast.execute(lat, lon)
             withContext(dispatcher.main) {
-                uiState.value = when (response) {
-                    is Response.Success -> intent.uiState.copy(forecast = response.result)
-                    is Response.Error -> intent.uiState.copy(
+                _uiState.value = when (response) {
+                    is Response.Success -> _uiState.value.copy(
                         forecast = response.result,
-                        throwable = response.throwable
+                        isLoading = false
+                    )
+                    is Response.Error -> _uiState.value.copy(
+                        forecast = response.result,
+                        throwable = response.throwable,
+                        isLoading = false
                     )
                 }
             }
         }
 
-    private fun getMapForecast(intent: HomeIntent) = viewModelScope.launch(dispatcher.default) {
-        uiState.value = intent.uiState.copy(isLoading = true)
+    private fun getMapForecast() = viewModelScope.launch(dispatcher.default) {
+        _uiState.value = _uiState.value.copy(isLoading = true)
         val response = getCurrentForecast.execute()
         withContext(dispatcher.main) {
-            uiState.value = when (response) {
-                is Response.Success -> intent.uiState.copy(forecast = response.result)
-                is Response.Error -> intent.uiState.copy(
+            _uiState.value = when (response) {
+                is Response.Success -> _uiState.value.copy(
                     forecast = response.result,
-                    throwable = response.throwable
+                    isLoading = false
+                )
+                is Response.Error -> _uiState.value.copy(
+                    forecast = response.result,
+                    throwable = response.throwable,
+                    isLoading = false
                 )
             }
         }
     }
 
-    fun restorePreferences(intent: HomeIntent) = viewModelScope.launch(dispatcher.default) {
+    private fun clearThrowable() {
+        _uiState.value = _uiState.value.copy(throwable = null)
+    }
+
+    private fun restorePreferences() = viewModelScope.launch(dispatcher.default) {
         restorePreferences.execute().collect {
             withContext(Dispatchers.Main) {
-                uiState.value = intent.uiState.copy(settings = it)
+                if (it.location != 0) {
+                    _uiState.value = _uiState.value.copy(settings = it)
+                }
             }
         }
     }

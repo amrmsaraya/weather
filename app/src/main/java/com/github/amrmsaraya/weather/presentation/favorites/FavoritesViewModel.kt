@@ -1,5 +1,6 @@
 package com.github.amrmsaraya.weather.presentation.favorites
 
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -24,33 +25,34 @@ class FavoritesViewModel @Inject constructor(
     private val dispatcher: IDispatchers
 ) : ViewModel() {
 
-    val uiState = mutableStateOf(FavoritesUiState())
-    val intent = MutableStateFlow<FavoritesIntent>(FavoritesIntent.Init)
+    private val _uiState = mutableStateOf(FavoritesUiState())
+    val uiState: State<FavoritesUiState> = _uiState
+    val intent = MutableStateFlow<FavoritesIntent>(FavoritesIntent.Idle)
 
     init {
         mapIntents()
-        intent.value = FavoritesIntent.RestorePreferences(uiState.value)
+        intent.value = FavoritesIntent.RestorePreferences
+        intent.value = FavoritesIntent.GetFavoritesForecast
     }
 
     private fun mapIntents() = viewModelScope.launch {
         intent.collect {
             when (it) {
                 is FavoritesIntent.DeleteForecasts -> deleteForecast(it.favorites)
-                is FavoritesIntent.GetFavoritesForecast -> getFavoriteForecasts(it)
-                is FavoritesIntent.RestorePreferences -> restorePreferences(it)
-                FavoritesIntent.Init -> Unit
+                is FavoritesIntent.GetFavoritesForecast -> getFavoriteForecasts()
+                is FavoritesIntent.RestorePreferences -> restorePreferences()
+                is FavoritesIntent.Idle -> Unit
             }
-            intent.value = FavoritesIntent.Init
+            intent.value = FavoritesIntent.Idle
         }
     }
 
 
-    private fun getFavoriteForecasts(intent: FavoritesIntent) =
-        viewModelScope.launch(dispatcher.default) {
+    private fun getFavoriteForecasts() = viewModelScope.launch(dispatcher.default) {
             val response = getFavoriteForecasts.execute()
             response.collect {
                 withContext(dispatcher.main) {
-                    uiState.value = intent.uiState.copy(favorites = it)
+                    _uiState.value = _uiState.value.copy(favorites = it)
                 }
             }
         }
@@ -59,12 +61,10 @@ class FavoritesViewModel @Inject constructor(
         deleteForecast.execute(list)
     }
 
-    private fun restorePreferences(favoritesIntent: FavoritesIntent) =
-        viewModelScope.launch(dispatcher.default) {
+    private fun restorePreferences() = viewModelScope.launch(dispatcher.default) {
             restorePreferences.execute().collect {
                 withContext(Dispatchers.Main) {
-                    uiState.value = favoritesIntent.uiState.copy(settings = it)
-                    intent.value = FavoritesIntent.GetFavoritesForecast(uiState.value)
+                    _uiState.value = _uiState.value.copy(settings = it)
                 }
             }
         }

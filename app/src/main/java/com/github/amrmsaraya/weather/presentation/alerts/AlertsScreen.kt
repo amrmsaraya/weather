@@ -72,11 +72,7 @@ fun AlertsScreen(
         floatingActionButton = {
             when (selectMode) {
                 true -> DeleteFAB {
-                    viewModel.intent.value =
-                        AlertsIntent.DeleteAlerts(
-                            uiState = uiState,
-                            alerts = selectedItems.toList()
-                        )
+                    viewModel.intent.value = AlertsIntent.DeleteAlerts(selectedItems.toList())
                     selectedItems.forEach {
                         WorkManager.getInstance(context).cancelWorkById(UUID.fromString(it.workId))
                     }
@@ -99,8 +95,7 @@ fun AlertsScreen(
                     onConfirm = { from, to, alarm ->
                         viewModel.intent.value =
                             AlertsIntent.InsertAlert(
-                                uiState = uiState,
-                                alert = Alerts(
+                                Alerts(
                                     from = from,
                                     to = to,
                                     isAlarm = alarm,
@@ -161,8 +156,7 @@ fun AlertList(
                 targetValue = when (isSelected) {
                     true -> MaterialTheme.colors.secondary
                     false -> MaterialTheme.colors.surface
-                },
-                animationSpec = tween(500)
+                }
             )
             AnimatedVisibilitySlide(
                 visible = true,

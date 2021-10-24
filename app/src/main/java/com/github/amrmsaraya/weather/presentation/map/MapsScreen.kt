@@ -16,7 +16,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.github.amrmsaraya.weather.R
@@ -37,14 +36,14 @@ fun MapsScreen(
     onBackPress: () -> Unit,
     viewModel: MapViewModel,
 ) {
+    val uiState by viewModel.uiState
     val context = LocalContext.current
     val map = rememberMapViewWithLifecycle()
     val scope = rememberCoroutineScope()
     val bottomSheetState =
         rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     var showBottomSheet by remember { mutableStateOf(false) }
-    val currentForecast by viewModel.currentForecast
-    var location by remember { mutableStateOf(LatLng(currentForecast.lat, currentForecast.lon)) }
+    var location by remember { mutableStateOf(LatLng(uiState.forecast.lat, uiState.forecast.lon)) }
     var city by remember { mutableStateOf("") }
     var address by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(false) }
@@ -91,16 +90,20 @@ fun MapsScreen(
                             isLoading = true
                             scope.launch {
                                 if (isCurrent) {
-                                    viewModel.insertForecast(
-                                        currentForecast.copy(
+                                    viewModel.intent.value = MapIntent.InsertForecast(
+                                        uiState.forecast.copy(
                                             lat = location.latitude,
                                             lon = location.longitude
                                         )
-                                    ).join()
-                                    viewModel.savePreference("location", R.string.map)
+                                    )
                                 } else {
-                                    viewModel.getForecast(location.latitude, location.longitude)
-                                        .join()
+                                    viewModel.intent.value = MapIntent.GetForecastFromMap(
+                                        location.latitude,
+                                        location.longitude
+                                    )
+                                }
+                                while (uiState.isLoading != null) {
+                                    delay(500)
                                 }
                                 onBackPress()
                             }
@@ -132,11 +135,11 @@ fun MapsScreen(
             }
         }
         Box(modifier = modifier.fillMaxSize()) {
-            LaunchedEffect(map, currentForecast) {
+            LaunchedEffect(map, uiState.forecast) {
                 val googleMap = map.awaitMap()
                 googleMap.animateCamera(
                     CameraUpdateFactory.newLatLngZoom(
-                        LatLng(currentForecast.lat, currentForecast.lon),
+                        LatLng(uiState.forecast.lat, uiState.forecast.lon),
                         4f
                     )
                 )
