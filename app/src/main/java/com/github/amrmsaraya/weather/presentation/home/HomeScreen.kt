@@ -67,18 +67,13 @@ fun HomeScreen(
     onNavigateToMap: () -> Unit
 ) {
     val uiState by viewModel.uiState
-    val settings by viewModel.settings
     var swipeRefresh by remember { mutableStateOf(false) }
     val swipeRefreshState =
         rememberSwipeRefreshState(if (!uiState.isLoading) uiState.isLoading else swipeRefresh)
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
 
-    LaunchedEffect(key1 = viewModel) {
-        viewModel.restorePreferences()
-    }
-
-    settings?.let { setting ->
+    uiState.settings?.let { setting ->
         Scaffold(
             modifier = modifier,
             scaffoldState = scaffoldState
@@ -95,7 +90,7 @@ fun HomeScreen(
                 state = swipeRefreshState,
                 onRefresh = {
                     swipeRefresh = true
-                    viewModel.getForecast()
+                    viewModel.intent.value = HomeIntent.GetMapForecast(uiState)
                 },
                 indicator = { state, trigger ->
                     SwipeRefreshIndicator(
@@ -108,16 +103,26 @@ fun HomeScreen(
             ) {
                 when (setting.location) {
                     R.string.gps -> GPSLocation(
-                        forecast = uiState.data,
+                        forecast = uiState.forecast,
                         setting = setting,
-                        onLocationChange = { lat, lon -> viewModel.getForecast(lat, lon) },
-                        onNoInternetRefresh = { lat, lon -> viewModel.getForecast(lat, lon) },
+                        onLocationChange = { lat, lon ->
+                            viewModel.intent.value =
+                                HomeIntent.GetLocationForecast(
+                                    uiState = uiState,
+                                    lat = lat,
+                                    lon = lon
+                                )
+                        },
                         onNavigateToMap = onNavigateToMap,
                     )
                     else -> MapLocation(
-                        forecast = uiState.data,
+                        forecast = uiState.forecast,
                         setting = setting,
-                        onGetForecast = { viewModel.getForecast() })
+                        onGetForecast = {
+                            viewModel.intent.value =
+                                HomeIntent.GetMapForecast(uiState = uiState)
+                        }
+                    )
                 }
             }
         }
@@ -151,7 +156,6 @@ private fun GPSLocation(
     forecast: Forecast?,
     setting: Settings,
     onLocationChange: (Double, Double) -> Unit,
-    onNoInternetRefresh: (Double, Double) -> Unit,
     onNavigateToMap: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -195,7 +199,7 @@ private fun GPSLocation(
                 when (it.current.weather.isNotEmpty()) {
                     true -> HomeContent(forecast, setting)
                     false -> NoInternetConnection {
-                        onNoInternetRefresh(latLng.latitude, latLng.longitude)
+                        onLocationChange(latLng.latitude, latLng.longitude)
                     }
                 }
             } ?: LoadingIndicator()

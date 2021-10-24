@@ -31,10 +31,10 @@ import com.github.amrmsaraya.weather.presentation.theme.colorsList
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable
-fun Settings(
+fun SettingsScreen(
     modifier: Modifier = Modifier,
     onMapClick: () -> Unit,
-    viewModel: SettingsViewModel = hiltViewModel()
+    viewModel: SettingsViewModel
 ) {
     val scrollState = rememberScrollState()
 

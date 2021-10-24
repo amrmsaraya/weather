@@ -27,7 +27,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.github.amrmsaraya.weather.R
@@ -45,20 +44,18 @@ import java.util.concurrent.TimeUnit
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable
-fun Alert(
+fun AlertsScreen(
     modifier: Modifier = Modifier,
-    viewModel: AlertsViewModel = hiltViewModel(),
+    viewModel: AlertsViewModel,
     onBackPress: () -> Unit
 ) {
+    val uiState by viewModel.uiState
+
     val context = LocalContext.current
     val scaffoldState = rememberScaffoldState()
-    val alerts = viewModel.alerts
     val selectedItems = remember { mutableStateListOf<Alerts>() }
     var selectMode by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
-
-    viewModel.getPreference("accent")
-    viewModel.getAlerts()
 
     BackHandler {
         if (selectMode) {
@@ -75,7 +72,11 @@ fun Alert(
         floatingActionButton = {
             when (selectMode) {
                 true -> DeleteFAB {
-                    viewModel.deleteAlerts(selectedItems.toList())
+                    viewModel.intent.value =
+                        AlertsIntent.DeleteAlerts(
+                            uiState = uiState,
+                            alerts = selectedItems.toList()
+                        )
                     selectedItems.forEach {
                         WorkManager.getInstance(context).cancelWorkById(UUID.fromString(it.workId))
                     }
@@ -94,28 +95,30 @@ fun Alert(
         ) {
             if (showDialog) {
                 AddAlertDialog(
-                    accent = viewModel.accent.value,
+                    accent = uiState.accent,
                     onConfirm = { from, to, alarm ->
-                        viewModel.insetAlert(
-                            Alerts(
-                                from = from,
-                                to = to,
-                                isAlarm = alarm,
-                                workId = scheduleAlert(
-                                    context = context,
-                                    triggerAt = from
-                                ).toString()
+                        viewModel.intent.value =
+                            AlertsIntent.InsertAlert(
+                                uiState = uiState,
+                                alert = Alerts(
+                                    from = from,
+                                    to = to,
+                                    isAlarm = alarm,
+                                    workId = scheduleAlert(
+                                        context = context,
+                                        triggerAt = from
+                                    ).toString()
+                                )
                             )
-                        )
                     },
                     onDismiss = { showDialog = false })
             }
 
-            if (alerts.isEmpty()) {
+            if (uiState.alerts.isEmpty()) {
                 EmptyListIndicator(Icons.Outlined.NotificationsOff, R.string.no_alerts)
             } else {
                 AlertList(
-                    items = alerts,
+                    items = uiState.alerts,
                     selectedItems = selectedItems,
                     selectMode = selectMode,
                     onSelectMode = { selectMode = it },

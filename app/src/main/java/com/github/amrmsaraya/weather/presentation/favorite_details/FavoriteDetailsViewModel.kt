@@ -3,15 +3,14 @@ package com.github.amrmsaraya.weather.presentation.favorite_details
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.amrmsaraya.weather.domain.model.Settings
-import com.github.amrmsaraya.weather.domain.model.forecast.Forecast
 import com.github.amrmsaraya.weather.domain.usecase.forecast.GetForecast
 import com.github.amrmsaraya.weather.domain.usecase.preferences.RestorePreferences
 import com.github.amrmsaraya.weather.domain.util.Response
-import com.github.amrmsaraya.weather.util.UiState
 import com.github.amrmsaraya.weather.util.dispatchers.IDispatchers
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -24,34 +23,46 @@ class FavoriteDetailsViewModel @Inject constructor(
     private val dispatcher: IDispatchers
 ) : ViewModel() {
 
+    val uiState = mutableStateOf(FavoriteDetailsUiState())
+    val intent = MutableStateFlow<FavoriteDetailsIntent>(FavoriteDetailsIntent.Init)
+
     init {
-        restorePreferences()
+        mapIntent()
+        intent.value = FavoriteDetailsIntent.RestorePreferences(uiState.value)
     }
 
-    val uiState = mutableStateOf<UiState<Forecast>>(UiState())
-    val settings = mutableStateOf<Settings?>(null)
+    private fun mapIntent() = viewModelScope.launch {
+        intent.collect {
+            when (it) {
+                is FavoriteDetailsIntent.GetForecast -> getForecast(it, it.id)
+                is FavoriteDetailsIntent.RestorePreferences -> restorePreferences(it)
+                else -> Unit
+            }
+            intent.value = FavoriteDetailsIntent.Init
+        }
+    }
 
-    fun getForecast(id: Long) = viewModelScope.launch(dispatcher.default) {
-        uiState.value = uiState.value.copy(throwable = null, isLoading = true)
-        val response = getForecast.execute(id)
-        withContext(dispatcher.main) {
-            uiState.value = when (response) {
-                is Response.Success -> UiState(data = response.result)
-                is Response.Error -> when (response.result) {
-                    null -> UiState()
-                    else -> UiState(
-                        data = response.result,
+    fun getForecast(intent: FavoriteDetailsIntent, id: Long) =
+        viewModelScope.launch(dispatcher.default) {
+            uiState.value = intent.uiState.copy(isLoading = true)
+            val response = getForecast.execute(id)
+            withContext(dispatcher.main) {
+                uiState.value = when (response) {
+                    is Response.Success -> intent.uiState.copy(forecast = response.result)
+                    is Response.Error -> intent.uiState.copy(
+                        forecast = response.result,
                         throwable = response.throwable
                     )
                 }
             }
         }
-    }
 
-    private fun restorePreferences() = viewModelScope.launch(dispatcher.default) {
-        val preferences = restorePreferences.execute().first()
-        withContext(Dispatchers.Main) {
-            settings.value = preferences
+    private fun restorePreferences(intent: FavoriteDetailsIntent) =
+        viewModelScope.launch(dispatcher.default) {
+            val settings = restorePreferences.execute().first()
+            withContext(Dispatchers.Main) {
+                uiState.value = intent.uiState.copy(settings = settings)
+            }
         }
-    }
+
 }

@@ -7,7 +7,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -24,7 +23,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.domain.model.Settings
 import com.github.amrmsaraya.weather.domain.model.forecast.Forecast
@@ -40,18 +38,18 @@ import com.github.amrmsaraya.weather.util.WeatherIcons
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
 @Composable
-fun Favorites(
+fun FavoritesScreen(
     modifier: Modifier = Modifier,
     onItemClick: (Long) -> Unit,
     onNavigateToMap: () -> Unit,
     onBackPress: () -> Unit,
-    viewModel: FavoritesViewModel = hiltViewModel()
+    viewModel: FavoritesViewModel
 ) {
+    val uiState by viewModel.uiState
+
     val scaffoldState = rememberScaffoldState()
     val selectedItems = remember { mutableStateListOf<Forecast>() }
     var selectMode by remember { mutableStateOf(false) }
-    val favorites = viewModel.favorites
-    val settings by viewModel.settings
 
     BackHandler {
         if (selectMode) {
@@ -62,14 +60,17 @@ fun Favorites(
         }
     }
 
-    settings?.let { setting ->
+    uiState.settings?.let { setting ->
         Scaffold(
             scaffoldState = scaffoldState,
             modifier = modifier,
             floatingActionButton = {
                 when (selectMode) {
                     true -> DeleteFAB {
-                        viewModel.deleteForecast(selectedItems.toList())
+                        viewModel.intent.value = FavoritesIntent.DeleteForecasts(
+                            uiState = uiState,
+                            favorites = selectedItems.toList()
+                        )
                         selectedItems.clear()
                         selectMode = false
                     }
@@ -85,11 +86,11 @@ fun Favorites(
                     .padding(start = 16.dp, top = 16.dp, end = 16.dp)
             ) {
 
-                if (favorites.isEmpty()) {
+                if (uiState.favorites.isEmpty()) {
                     EmptyListIndicator(Icons.Filled.FavoriteBorder, R.string.no_favorites)
                 } else {
                     FavoritesList(
-                        items = favorites,
+                        items = uiState.favorites,
                         selectedItems = selectedItems,
                         selectMode = selectMode,
                         settings = setting,

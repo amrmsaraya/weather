@@ -19,18 +19,18 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
-import com.github.amrmsaraya.weather.presentation.alerts.Alert
+import com.github.amrmsaraya.weather.presentation.alerts.AlertsScreen
 import com.github.amrmsaraya.weather.presentation.alerts.AlertsViewModel
 import com.github.amrmsaraya.weather.presentation.favorite_details.FavoriteDetailsScreen
 import com.github.amrmsaraya.weather.presentation.favorite_details.FavoriteDetailsViewModel
-import com.github.amrmsaraya.weather.presentation.favorites.Favorites
+import com.github.amrmsaraya.weather.presentation.favorites.FavoritesScreen
 import com.github.amrmsaraya.weather.presentation.favorites.FavoritesViewModel
 import com.github.amrmsaraya.weather.presentation.home.HomeScreen
 import com.github.amrmsaraya.weather.presentation.home.HomeViewModel
 import com.github.amrmsaraya.weather.presentation.map.MapViewModel
-import com.github.amrmsaraya.weather.presentation.map.Maps
+import com.github.amrmsaraya.weather.presentation.map.MapsScreen
 import com.github.amrmsaraya.weather.presentation.navigation.Screens.*
-import com.github.amrmsaraya.weather.presentation.settings.Settings
+import com.github.amrmsaraya.weather.presentation.settings.SettingsScreen
 import com.github.amrmsaraya.weather.presentation.settings.SettingsViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 
@@ -62,7 +62,7 @@ fun Navigation(
         }
         composable(Favorites.route) {
             val viewModel = hiltViewModel<FavoritesViewModel>()
-            Favorites(
+            FavoritesScreen(
                 modifier = modifier,
                 viewModel = viewModel,
                 onItemClick = { id ->
@@ -82,7 +82,7 @@ fun Navigation(
         }
         composable(Alerts.route) {
             val viewModel = hiltViewModel<AlertsViewModel>()
-            Alert(
+            AlertsScreen(
                 modifier = modifier,
                 viewModel = viewModel,
                 onBackPress = { navController.popBackStack() }
@@ -90,7 +90,7 @@ fun Navigation(
         }
         composable(Settings.route) {
             val viewModel = hiltViewModel<SettingsViewModel>()
-            Settings(
+            SettingsScreen(
                 modifier = modifier,
                 viewModel = viewModel,
                 onMapClick = {
@@ -117,7 +117,7 @@ fun Navigation(
             arguments = listOf(navArgument("isCurrent") { type = NavType.BoolType })
         ) { backStackEntry ->
             val viewModel = hiltViewModel<MapViewModel>()
-            Maps(
+            MapsScreen(
                 modifier = modifier,
                 viewModel = viewModel,
                 isCurrent = backStackEntry.arguments?.getBoolean("isCurrent") ?: true,

@@ -22,10 +22,9 @@ import kotlinx.coroutines.launch
 fun FavoriteDetailsScreen(
     modifier: Modifier,
     id: Long,
-    viewModel: FavoriteDetailsViewModel = hiltViewModel()
+    viewModel: FavoriteDetailsViewModel
 ) {
     val uiState by viewModel.uiState
-    val settings by viewModel.settings
     var swipeRefresh by remember { mutableStateOf(false) }
     val swipeRefreshState =
         rememberSwipeRefreshState(if (!uiState.isLoading) uiState.isLoading else swipeRefresh)
@@ -33,10 +32,10 @@ fun FavoriteDetailsScreen(
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(key1 = true) {
-        viewModel.getForecast(id)
+        viewModel.intent.value = FavoriteDetailsIntent.GetForecast(uiState, id)
     }
 
-    settings?.let { setting ->
+    uiState.settings?.let { setting ->
         Scaffold(
             modifier = modifier,
             scaffoldState = scaffoldState
@@ -53,7 +52,7 @@ fun FavoriteDetailsScreen(
                 state = swipeRefreshState,
                 onRefresh = {
                     swipeRefresh = true
-                    viewModel.getForecast(id)
+                    viewModel.intent.value = FavoriteDetailsIntent.GetForecast(uiState, id)
                 },
                 indicator = { state, trigger ->
                     SwipeRefreshIndicator(
@@ -64,10 +63,12 @@ fun FavoriteDetailsScreen(
                     )
                 },
             ) {
-                uiState.data?.let {
+                uiState.forecast?.let {
                     when (it.current.weather.isNotEmpty()) {
                         true -> HomeContent(it, setting)
-                        false -> NoInternetConnection { viewModel.getForecast(id) }
+                        false -> NoInternetConnection {
+                            viewModel.intent.value = FavoriteDetailsIntent.GetForecast(uiState, id)
+                        }
                     }
                 } ?: LoadingIndicator()
             }

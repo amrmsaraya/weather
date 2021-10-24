@@ -31,11 +31,11 @@ import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
 @Composable
-fun Maps(
+fun MapsScreen(
     modifier: Modifier,
     isCurrent: Boolean,
     onBackPress: () -> Unit,
-    viewModel: MapViewModel = hiltViewModel(),
+    viewModel: MapViewModel,
 ) {
     val context = LocalContext.current
     val map = rememberMapViewWithLifecycle()
