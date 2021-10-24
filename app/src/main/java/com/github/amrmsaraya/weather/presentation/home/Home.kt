@@ -45,11 +45,8 @@ import com.github.amrmsaraya.weather.presentation.components.LocationPermission
 import com.github.amrmsaraya.weather.presentation.components.RequestPermission
 import com.github.amrmsaraya.weather.presentation.theme.Cairo
 import com.github.amrmsaraya.weather.presentation.theme.Spartan
-import com.github.amrmsaraya.weather.util.ForecastIcons
+import com.github.amrmsaraya.weather.util.*
 import com.github.amrmsaraya.weather.util.ForecastIcons.*
-import com.github.amrmsaraya.weather.util.GeocoderHelper
-import com.github.amrmsaraya.weather.util.LocationHelper
-import com.github.amrmsaraya.weather.util.WeatherIcons
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -86,13 +83,14 @@ fun HomeScreen(
             modifier = modifier,
             scaffoldState = scaffoldState
         ) {
-            uiState.error?.let {
-                val error = stringResource(id = it)
+            uiState.throwable?.toStringResource()?.let {
+                val error = stringResource(it)
                 scope.launch {
-                    viewModel.uiState.value = viewModel.uiState.value.copy(error = null)
+                    viewModel.uiState.value = viewModel.uiState.value.copy(throwable = null)
                     scaffoldState.snackbarHostState.showSnackbar(error)
                 }
             }
+
             SwipeRefresh(
                 state = swipeRefreshState,
                 onRefresh = {

@@ -11,6 +11,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.amrmsaraya.weather.presentation.components.LoadingIndicator
 import com.github.amrmsaraya.weather.presentation.home.HomeContent
 import com.github.amrmsaraya.weather.presentation.home.NoInternetConnection
+import com.github.amrmsaraya.weather.util.toStringResource
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -40,10 +41,10 @@ fun FavoriteDetailsScreen(
             modifier = modifier,
             scaffoldState = scaffoldState
         ) {
-            uiState.error?.let {
-                val error = stringResource(id = it)
+            uiState.throwable?.toStringResource()?.let {
+                val error = stringResource(it)
                 scope.launch {
-                    viewModel.uiState.value = viewModel.uiState.value.copy(error = null)
+                    viewModel.uiState.value = viewModel.uiState.value.copy(throwable = null)
                     scaffoldState.snackbarHostState.showSnackbar(error)
                 }
             }

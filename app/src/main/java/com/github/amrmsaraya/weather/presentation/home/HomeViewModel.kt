@@ -10,7 +10,6 @@ import com.github.amrmsaraya.weather.domain.usecase.preferences.RestorePreferenc
 import com.github.amrmsaraya.weather.domain.util.Response
 import com.github.amrmsaraya.weather.util.UiState
 import com.github.amrmsaraya.weather.util.dispatchers.IDispatchers
-import com.github.amrmsaraya.weather.util.toStringResource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
@@ -29,7 +28,7 @@ class HomeViewModel @Inject constructor(
     val settings = mutableStateOf<Settings?>(null)
 
     fun getForecast(lat: Double, lon: Double) = viewModelScope.launch(dispatcher.default) {
-        uiState.value = uiState.value.copy(error = null, isLoading = true)
+        uiState.value = uiState.value.copy(throwable = null, isLoading = true)
         val response = getCurrentForecast.execute(lat, lon)
         withContext(dispatcher.main) {
             uiState.value = when (response) {
@@ -38,7 +37,7 @@ class HomeViewModel @Inject constructor(
                     null -> UiState()
                     else -> UiState(
                         data = response.result,
-                        error = response.throwable.toStringResource()
+                        throwable = response.throwable
                     )
                 }
             }
@@ -46,7 +45,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun getForecast() = viewModelScope.launch(dispatcher.default) {
-        uiState.value = uiState.value.copy(error = null, isLoading = true)
+        uiState.value = uiState.value.copy(throwable = null, isLoading = true)
         val response = getCurrentForecast.execute()
         withContext(dispatcher.main) {
             uiState.value = when (response) {
@@ -55,7 +54,7 @@ class HomeViewModel @Inject constructor(
                     null -> UiState()
                     else -> UiState(
                         data = response.result,
-                        error = response.throwable.toStringResource()
+                        throwable = response.throwable
                     )
                 }
             }
