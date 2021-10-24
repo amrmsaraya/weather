@@ -174,7 +174,7 @@ fun RequestPermission(
             Spacer(modifier = Modifier.size(8.dp))
             Text(
                 text = when (noPermission) {
-                    true -> stringResource(R.string.denied_pemission_many_times)
+                    true -> stringResource(R.string.denied_permission_many_times)
                     false -> stringResource(id = R.string.allow_weather_to_access_location)
                 },
                 style = MaterialTheme.typography.body1,

@@ -6,6 +6,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.amrmsaraya.weather.presentation.components.LoadingIndicator
 import com.github.amrmsaraya.weather.presentation.home.HomeContent
@@ -39,14 +40,14 @@ fun FavoriteDetailsScreen(
             modifier = modifier,
             scaffoldState = scaffoldState
         ) {
-            if (uiState.error.isNotEmpty() &&
-                uiState.data != null &&
-                uiState.data!!.current.weather.isNotEmpty()
-            ) {
+            uiState.error?.let {
+                val error = stringResource(id = it)
                 scope.launch {
-                    scaffoldState.snackbarHostState.showSnackbar(uiState.error)
+                    viewModel.uiState.value = viewModel.uiState.value.copy(error = null)
+                    scaffoldState.snackbarHostState.showSnackbar(error)
                 }
             }
+
             SwipeRefresh(
                 state = swipeRefreshState,
                 onRefresh = {

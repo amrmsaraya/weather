@@ -16,12 +16,9 @@ class GetCurrentForecast(private val forecastRepo: ForecastRepo) {
         }.getOrElse {
             runCatching {
                 val response = forecastRepo.getCurrentForecast()
-                Response.Error("Please check your connection", response)
+                Response.Error(it, response)
             }.getOrElse {
-                Response.Error(
-                    "No cached data, please check your connection",
-                    null
-                )
+                Response.Error(it, null)
             }
         }
     }
@@ -35,12 +32,9 @@ class GetCurrentForecast(private val forecastRepo: ForecastRepo) {
         }.getOrElse {
             runCatching {
                 val response = forecastRepo.getCurrentForecast()
-                Response.Error("Please check your connection", response)
+                Response.Error(it, response)
             }.getOrElse {
-                Response.Error(
-                    "No cached data, please check your connection",
-                    null
-                )
+                Response.Error(it, null)
             }
         }
     }

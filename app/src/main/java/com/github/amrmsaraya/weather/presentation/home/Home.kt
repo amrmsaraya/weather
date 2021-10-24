@@ -86,12 +86,11 @@ fun HomeScreen(
             modifier = modifier,
             scaffoldState = scaffoldState
         ) {
-            if (uiState.error.isNotEmpty() &&
-                uiState.data != null &&
-                uiState.data!!.current.weather.isNotEmpty()
-            ) {
+            uiState.error?.let {
+                val error = stringResource(id = it)
                 scope.launch {
-                    scaffoldState.snackbarHostState.showSnackbar(uiState.error)
+                    viewModel.uiState.value = viewModel.uiState.value.copy(error = null)
+                    scaffoldState.snackbarHostState.showSnackbar(error)
                 }
             }
             SwipeRefresh(

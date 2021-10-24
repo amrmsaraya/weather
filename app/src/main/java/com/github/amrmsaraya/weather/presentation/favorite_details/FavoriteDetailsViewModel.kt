@@ -1,6 +1,5 @@
 package com.github.amrmsaraya.weather.presentation.favorite_details
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,8 +10,8 @@ import com.github.amrmsaraya.weather.domain.usecase.preferences.RestorePreferenc
 import com.github.amrmsaraya.weather.domain.util.Response
 import com.github.amrmsaraya.weather.util.UiState
 import com.github.amrmsaraya.weather.util.dispatchers.IDispatchers
+import com.github.amrmsaraya.weather.util.toStringResource
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -33,15 +32,18 @@ class FavoriteDetailsViewModel @Inject constructor(
     val uiState = mutableStateOf<UiState<Forecast>>(UiState())
     val settings = mutableStateOf<Settings?>(null)
 
-    fun getForecast(id:Long) = viewModelScope.launch(dispatcher.default) {
-        uiState.value = uiState.value.copy(error = "", isLoading = true)
+    fun getForecast(id: Long) = viewModelScope.launch(dispatcher.default) {
+        uiState.value = uiState.value.copy(error = null, isLoading = true)
         val response = getForecast.execute(id)
         withContext(dispatcher.main) {
             uiState.value = when (response) {
                 is Response.Success -> UiState(data = response.result)
                 is Response.Error -> when (response.result) {
                     null -> UiState()
-                    else -> UiState(data = response.result, error = response.message)
+                    else -> UiState(
+                        data = response.result,
+                        error = response.throwable.toStringResource()
+                    )
                 }
             }
         }

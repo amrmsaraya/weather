@@ -69,6 +69,9 @@
     <string name="fahrenheit_unit">°F</string>
     <string name="kelvin_unit">°K</string>
     <string name="check_your_connection">Check your connection, then refresh the page</string>
+    <string name="check_your_connection_and_try_again">Check your connection, and try again</string>
+    <string name="you_have_exceeded_limit">You have exceeded requests daily limit</string>
+    <string name="empty"></string>
     <string name="refresh">Refresh</string>
-    <string name="denied_pemission_many_times">You have denied permission many times, select \"GPS\" to allow permission from application details settings or choose your location from map</string>
+    <string name="denied_permission_many_times">You have denied permission many times, select \"GPS\" to allow permission from application details settings or choose your location from map</string>
 </resources>

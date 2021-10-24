@@ -70,6 +70,9 @@
     <string name="fahrenheit_unit">°ف</string>
     <string name="kelvin_unit">°ك</string>
     <string name="check_your_connection">تحقق من الاتصال بالشبكة، ثم قم بتحديث الصفحة</string>
-    <string name="denied_pemission_many_times">لقد قمت برفض السماح للحصول علي الموقع عدة مرات، اختر موقعي الحالي ثم قم بالسماح للحصول علي الموقع عن طريق اعدادات الهاتف أو اختر موقعك من الخريطة</string>
+    <string name="denied_permission_many_times">لقد قمت برفض السماح للحصول علي الموقع عدة مرات، اختر موقعي الحالي ثم قم بالسماح للحصول علي الموقع عن طريق اعدادات الهاتف أو اختر موقعك من الخريطة</string>
     <string name="refresh">تحديث</string>
+    <string name="check_your_connection_and_try_again">تحقق من الاتصال بالشبكة، ثم أعد المحاولة</string>
+    <string name="you_have_exceeded_limit">لقد تجاوزت الحد اليومي من الطلبات</string>
+    <string name="empty"></string>
 </resources>

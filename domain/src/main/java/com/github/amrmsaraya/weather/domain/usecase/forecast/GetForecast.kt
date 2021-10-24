@@ -14,13 +14,10 @@ class GetForecast(private val forecastRepo: ForecastRepo) {
         }.getOrElse {
             runCatching {
                 val response = forecastRepo.getLocalForecast(id)
-                Response.Error("Please check your connection", response)
+                Response.Error(it, response)
             }.getOrElse {
                 it.printStackTrace()
-                Response.Error(
-                    "No cached data, please check your connection",
-                    null
-                )
+                Response.Error(it, null)
             }
         }
     }
