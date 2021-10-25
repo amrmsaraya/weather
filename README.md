@@ -20,12 +20,18 @@ Android mobile application that inform user about the current weather condition 
 ## Libraries and Frameworks
 
 - [Jetpack Compose](https://developer.android.com/jetpack/compose?) - Declarative UI Framework
-- [Material Design](https://material.io/design)  - Design System
+- [Material Design](https://material.io/design) - Design System
+- [Splash Screen](https://developer.android.com/reference/android/window/SplashScreen) - Newly introduced splash screen API
 - [Coroutines Flows](https://kotlinlang.org/docs/reference/coroutines/flow.html) - Reactive Programming
 - [Ktor](https://ktor.io/) - HTTP Client
+- [Kotlin Serlization](https://github.com/Kotlin/kotlinx.serialization) - Kotlin Multiplatform Serialization
 - [Room](https://developer.android.com/jetpack/androidx/releases/room) - Local Database
 - [Hilt](http://google.github.io/hilt/) - Dependency Injection
+- [Work Manager](https://developer.android.com/reference/androidx/work/WorkManager) - Schedule background taks
 - [Coil](https://coil-kt.github.io/coil/compose) - Image Loading
+- [DataStore](https://developer.android.com/topic/libraries/architecture/datastore) - Asynchronous data storage
+- [Lottie](https://github.com/airbnb/lottie-android) - Animation
+- [Google Maps](https://developers.google.com/maps/documentation/android-sdk/start) - Embedded Google Maps
 - [JUnit](https://junit.org/junit4/) - Unit Testing
 - [Truth](https://truth.dev/) - Fluent Assertions
 
