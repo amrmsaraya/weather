@@ -10,11 +10,11 @@ data class AlertsDTO(
     @ColumnInfo(name = "id")
     val id: Long = 0,
     @ColumnInfo(name = "start")
-    val from: Long,
+    val from: Long = 0,
     @ColumnInfo(name = "end")
-    val to: Long,
+    val to: Long = 0,
     @ColumnInfo(name = "type")
-    val isAlarm: Boolean,
+    val isAlarm: Boolean = true,
     @ColumnInfo(name = "work_id")
-    var workId: String,
+    var workId: String = "",
 )

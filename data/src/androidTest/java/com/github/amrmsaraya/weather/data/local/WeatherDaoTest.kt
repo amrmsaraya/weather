@@ -4,7 +4,8 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.github.amrmsaraya.weather.data.model.forecast.Forecast
+import com.github.amrmsaraya.weather.data.model.forecast.ForecastDTO
+import com.github.amrmsaraya.weather.domain.model.forecast.Forecast
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
@@ -42,11 +43,11 @@ class WeatherDaoTest {
     @Test
     fun insertForecast() = runBlocking {
         // Given
-        val forecast = Forecast(id = 35, lat = 5.5)
+        val forecast = ForecastDTO(id = 35, lat = 5.5)
 
         // When
         weatherDao.insertForecast(forecast)
-        val result = weatherDao.getForecast(35).first()
+        val result = weatherDao.getForecast(35)
 
         // Then
         assertThat(result).isEqualTo(forecast)
@@ -55,15 +56,15 @@ class WeatherDaoTest {
     @Test
     fun deleteForecast() = runBlocking {
         // Given
-        val forecast1 = Forecast(id = 35, lat = 5.5)
-        val forecast2 = Forecast(id = 20, lat = 6.6)
+        val forecast1 = ForecastDTO(id = 35, lat = 5.5)
+        val forecast2 = ForecastDTO(id = 20, lat = 6.6)
 
         weatherDao.insertForecast(forecast1)
         weatherDao.insertForecast(forecast2)
 
         // When
         weatherDao.deleteForecast(forecast1)
-        val result = weatherDao.getForecast(35).first()
+        val result = weatherDao.getForecast(35)
 
         // Then
         assertThat(result).isNotEqualTo(forecast1)
@@ -72,16 +73,16 @@ class WeatherDaoTest {
     @Test
     fun testDeleteForecast() = runBlocking {
         // Given
-        val forecast1 = Forecast(id = 35, lat = 5.5)
-        val forecast2 = Forecast(id = 20, lat = 6.6)
+        val forecast1 = ForecastDTO(id = 35, lat = 5.5)
+        val forecast2 = ForecastDTO(id = 20, lat = 6.6)
 
         weatherDao.insertForecast(forecast1)
         weatherDao.insertForecast(forecast2)
 
         // When
         weatherDao.deleteForecast(listOf(forecast1, forecast2))
-        val result1 = weatherDao.getForecast(35).first()
-        val result2 = weatherDao.getForecast(20).first()
+        val result1 = weatherDao.getForecast(35)
+        val result2 = weatherDao.getForecast(20)
 
         // Then
         assertThat(result1).isNotEqualTo(forecast1)
@@ -91,11 +92,11 @@ class WeatherDaoTest {
     @Test
     fun getForecast() = runBlocking {
         // Given
-        val forecast = Forecast(id = 35, lat = 5.5)
+        val forecast = ForecastDTO(id = 35, lat = 5.5)
         weatherDao.insertForecast(forecast)
 
         // When
-        val result = weatherDao.getForecast(35).first()
+        val result = weatherDao.getForecast(35)
 
         // Then
         assertThat(result).isEqualTo(forecast)
@@ -104,11 +105,11 @@ class WeatherDaoTest {
     @Test
     fun getCurrentForecast() = runBlocking {
         // Given
-        val forecast = Forecast(id = 1, lat = 5.5)
+        val forecast = ForecastDTO(id = 1, lat = 5.5)
         weatherDao.insertForecast(forecast)
 
         // When
-        val result = weatherDao.getCurrentForecast().first()
+        val result = weatherDao.getCurrentForecast()
 
         // Then
         assertThat(result).isEqualTo(forecast)
@@ -117,8 +118,8 @@ class WeatherDaoTest {
     @Test
     fun getFavoriteForecasts() = runBlocking {
         // Given
-        val forecast = Forecast(id = 1, lat = 5.5)
-        val forecast1 = Forecast(id = 2, lat = 5.5)
+        val forecast = ForecastDTO(id = 1, lat = 5.5)
+        val forecast1 = ForecastDTO(id = 2, lat = 5.5)
 
         weatherDao.insertForecast(forecast)
         weatherDao.insertForecast(forecast1)

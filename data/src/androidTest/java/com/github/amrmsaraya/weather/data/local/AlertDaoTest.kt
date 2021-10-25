@@ -4,6 +4,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.github.amrmsaraya.weather.data.model.AlertsDTO
 import com.github.amrmsaraya.weather.domain.model.Alerts
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
@@ -43,7 +44,7 @@ class AlertDaoTest {
     fun insertAlert() = runBlocking {
 
         // Given
-        val alert = Alerts(5, 1, 1, true, "1234")
+        val alert = AlertsDTO(5, 1, 1, true, "1234")
 
         // When
         alertDao.insert(alert)
@@ -57,7 +58,7 @@ class AlertDaoTest {
     fun deleteAlert() = runBlocking {
 
         // Given
-        val alert = Alerts(5, 1, 1, true, "1234")
+        val alert = AlertsDTO(5, 1, 1, true, "1234")
         alertDao.insert(alert)
 
         // When
@@ -72,7 +73,7 @@ class AlertDaoTest {
     fun getAlert() = runBlocking {
 
         // Given
-        val alert = Alerts(5, 1, 1, true, "1234")
+        val alert = AlertsDTO(5, 1, 1, true, "1234")
         alertDao.insert(alert)
 
         // When
@@ -87,8 +88,8 @@ class AlertDaoTest {
         database.clearAllTables()
 
         // Given
-        val alert1 = Alerts(3, 1, 1, true, "1234")
-        val alert2 = Alerts(4, 3, 3, true, "1234")
+        val alert1 = AlertsDTO(3, 1, 1, true, "1234")
+        val alert2 = AlertsDTO(4, 3, 3, true, "1234")
         alertDao.insert(alert1)
         alertDao.insert(alert2)
 

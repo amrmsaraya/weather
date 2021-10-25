@@ -16,7 +16,6 @@ class GetForecast(private val forecastRepo: ForecastRepo) {
                 val response = forecastRepo.getLocalForecast(id)
                 Response.Error(it, response)
             }.getOrElse {
-                it.printStackTrace()
                 Response.Error(it, null)
             }
         }
