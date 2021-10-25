@@ -27,7 +27,7 @@ Android mobile application that inform user about the current weather condition 
 - [Kotlin Serlization](https://github.com/Kotlin/kotlinx.serialization) - Kotlin Multiplatform Serialization
 - [Room](https://developer.android.com/jetpack/androidx/releases/room) - Local Database
 - [Hilt](http://google.github.io/hilt/) - Dependency Injection
-- [Work Manager](https://developer.android.com/reference/androidx/work/WorkManager) - Schedule background taks
+- [Work Manager](https://developer.android.com/reference/androidx/work/WorkManager) - Schedule background tasks
 - [Coil](https://coil-kt.github.io/coil/compose) - Image Loading
 - [DataStore](https://developer.android.com/topic/libraries/architecture/datastore) - Asynchronous data storage
 - [Lottie](https://github.com/airbnb/lottie-android) - Animation
