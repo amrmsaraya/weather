@@ -154,7 +154,6 @@ fun BottomNavigationImpl(
     currentDestination: NavDestination?,
     screens: List<Screens>
 ) {
-    val context = LocalContext.current
     BottomNavigation(
         backgroundColor = MaterialTheme.colors.surface,
         elevation = 0.dp

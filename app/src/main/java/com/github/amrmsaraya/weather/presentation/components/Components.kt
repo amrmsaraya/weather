@@ -95,7 +95,6 @@ fun AnimatedVisibilitySlide(
         exit = slideOutVertically(animationSpec = tween(durationMillis)),
         content = content
     )
-
 }
 
 @Composable
