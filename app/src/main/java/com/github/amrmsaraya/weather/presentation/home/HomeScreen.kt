@@ -76,7 +76,9 @@ fun HomeScreen(
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
 
+
     uiState.settings?.let { setting ->
+
         Scaffold(
             modifier = modifier,
             scaffoldState = scaffoldState
@@ -121,8 +123,8 @@ fun HomeScreen(
                     )
                 }
             }
+            }
         }
-    }
 }
 
 @ExperimentalAnimationApi
@@ -168,6 +170,7 @@ private fun GPSLocation(
             }
         )
     }
+
     LocationPermission(
         permissionState = locationPermissionState,
         requestPermission = {
@@ -199,7 +202,8 @@ private fun GPSLocation(
                     }
                 }
             } ?: LoadingIndicator()
-        })
+        }
+    )
 }
 
 @ExperimentalAnimationApi
@@ -614,7 +618,7 @@ fun getTemp(temp: Double, unit: Int): String {
 fun getTempUnit(unit: Int): Int {
     return when (unit) {
         Temperature.Celsius.ordinal -> R.string.celsius_unit
-        Temperature.Celsius.ordinal -> R.string.kelvin_unit
+        Temperature.Kelvin.ordinal -> R.string.kelvin_unit
         else -> R.string.fahrenheit_unit
     }
 }

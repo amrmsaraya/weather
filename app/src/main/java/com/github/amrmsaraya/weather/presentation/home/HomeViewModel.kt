@@ -89,9 +89,7 @@ class HomeViewModel @Inject constructor(
     private fun restorePreferences() = viewModelScope.launch(dispatcher.default) {
         restorePreferences.execute().collect {
             withContext(Dispatchers.Main) {
-                if (it.location != 0) {
                     _uiState.value = _uiState.value.copy(settings = it)
-                }
             }
         }
     }

@@ -63,47 +63,44 @@ private fun App(
     onLocaleChange: () -> Unit,
     onLoadSettings: (Boolean) -> Unit
 ) {
-    viewModel.getBooleanPreference("firstRun")
-    viewModel.restorePreferences()
+    val firstRun = viewModel.firstRun
+    val settings = viewModel.settings
+    val keepSplash = viewModel.keepSplash
+    val isSystemInDarkTheme = isSystemInDarkTheme()
+    val context = LocalContext.current
 
-    val firstRun by viewModel.firstRun
-    val settings by viewModel.settings
-
-    SideEffect {
-        onLoadSettings(viewModel.keepSplash.value)
+    LaunchedEffect(key1 = keepSplash) {
+        onLoadSettings(viewModel.keepSplash)
         if (firstRun) {
             viewModel.setDefaultPreferences()
             viewModel.savePreference("firstRun", false)
         }
     }
 
-    if (settings != null) {
-        settings?.let {
-            if (it.versionCode < 17) {
-                viewModel.setDefaultPreferences()
+    LaunchedEffect(key1 = settings) {
+        when (settings?.language) {
+            Language.ARABIC.ordinal -> {
+                if (Locale.getDefault().language != "ar") {
+                    LocaleHelper.setLocale(context, Locale("ar"))
+                    onLocaleChange()
+                }
+            }
+            Language.ENGLISH.ordinal -> {
+                if (Locale.getDefault().language != "en") {
+                    LocaleHelper.setLocale(context, Locale("en"))
+                    onLocaleChange()
+                }
             }
         }
+
     }
 
-    when (settings?.language) {
-        Language.ARABIC.ordinal -> {
-            if (Locale.getDefault().language != "ar") {
-                LocaleHelper.setLocale(LocalContext.current, Locale("ar"))
-                onLocaleChange()
-            }
+    val darkTheme by derivedStateOf {
+        when (settings?.theme) {
+            Theme.LIGHT.ordinal -> false
+            Theme.DARK.ordinal -> true
+            else -> isSystemInDarkTheme
         }
-        Language.ENGLISH.ordinal -> {
-            if (Locale.getDefault().language != "en") {
-                LocaleHelper.setLocale(LocalContext.current, Locale("en"))
-                onLocaleChange()
-            }
-        }
-    }
-
-    val darkTheme = when (settings?.theme) {
-        Theme.LIGHT.ordinal -> false
-        Theme.DARK.ordinal -> true
-        else -> isSystemInDarkTheme()
     }
 
     WeatherTheme(

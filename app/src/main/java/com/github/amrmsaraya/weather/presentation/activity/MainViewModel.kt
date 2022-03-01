@@ -1,6 +1,8 @@
 package com.github.amrmsaraya.weather.presentation.activity
 
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.github.amrmsaraya.weather.BuildConfig
@@ -8,10 +10,7 @@ import com.github.amrmsaraya.weather.domain.model.Settings
 import com.github.amrmsaraya.weather.domain.model.forecast.Forecast
 import com.github.amrmsaraya.weather.domain.usecase.forecast.InsertForecast
 import com.github.amrmsaraya.weather.domain.usecase.forecast.UpdateFavoritesForecast
-import com.github.amrmsaraya.weather.domain.usecase.preferences.GetBooleanPreference
-import com.github.amrmsaraya.weather.domain.usecase.preferences.RestorePreferences
-import com.github.amrmsaraya.weather.domain.usecase.preferences.SavePreference
-import com.github.amrmsaraya.weather.domain.usecase.preferences.SetDefaultPreferences
+import com.github.amrmsaraya.weather.domain.usecase.preferences.*
 import com.github.amrmsaraya.weather.util.dispatchers.IDispatchers
 import com.github.amrmsaraya.weather.util.enums.*
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,6 +25,7 @@ class MainViewModel @Inject constructor(
     private val savePreference: SavePreference,
     private val restorePreferences: RestorePreferences,
     private val getBooleanPreference: GetBooleanPreference,
+    private val getIntPreference: GetIntPreference,
     private val setDefaultPreferences: SetDefaultPreferences,
     private val insertForecast: InsertForecast,
     private val updateFavoritesForecast: UpdateFavoritesForecast,
@@ -34,11 +34,17 @@ class MainViewModel @Inject constructor(
 
     init {
         updateFavoritesForecast()
+        getBooleanPreference("firstRun")
+        restorePreferences()
+        resetPreferencesOnVersionCode(17)
     }
 
-    val settings = mutableStateOf<Settings?>(null)
-    val keepSplash = mutableStateOf(true)
-    val firstRun = mutableStateOf(false)
+    var settings by mutableStateOf<Settings?>(null)
+        private set
+    var keepSplash by mutableStateOf(true)
+        private set
+    var firstRun by mutableStateOf(false)
+        private set
 
     private fun updateFavoritesForecast() = viewModelScope.launch(dispatcher.default) {
         updateFavoritesForecast.execute()
@@ -47,16 +53,16 @@ class MainViewModel @Inject constructor(
     fun restorePreferences() = viewModelScope.launch(dispatcher.default) {
         restorePreferences.execute().collect {
             withContext(dispatcher.main) {
-                settings.value = it
-                keepSplash.value = false
+                settings = it
+                keepSplash = false
             }
         }
     }
 
-    fun getBooleanPreference(key: String) = viewModelScope.launch(dispatcher.default) {
+    private fun getBooleanPreference(key: String) = viewModelScope.launch(dispatcher.default) {
         getBooleanPreference.execute(key).collect {
             withContext(dispatcher.main) {
-                firstRun.value = it
+                firstRun = it
             }
         }
     }
@@ -84,4 +90,14 @@ class MainViewModel @Inject constructor(
         )
         insertForecast.execute(Forecast(id = 1))
     }
+
+    private fun resetPreferencesOnVersionCode(versionCode: Int) =
+        viewModelScope.launch(dispatcher.default) {
+            getIntPreference.execute("versionCode").collect {
+                if (it < versionCode) {
+                    savePreference.execute("versionCode", BuildConfig.VERSION_CODE)
+                    setDefaultPreferences()
+                }
+            }
+        }
 }
