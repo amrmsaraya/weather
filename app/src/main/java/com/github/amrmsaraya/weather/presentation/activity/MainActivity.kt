@@ -16,11 +16,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
-import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.presentation.navigation.BottomNav
 import com.github.amrmsaraya.weather.presentation.navigation.Navigation
 import com.github.amrmsaraya.weather.presentation.theme.WeatherTheme
 import com.github.amrmsaraya.weather.util.LocaleHelper
+import com.github.amrmsaraya.weather.util.enums.Language
+import com.github.amrmsaraya.weather.util.enums.Theme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
@@ -76,14 +77,22 @@ private fun App(
         }
     }
 
+    if (settings != null) {
+        settings?.let {
+            if (it.versionCode < 17) {
+                viewModel.setDefaultPreferences()
+            }
+        }
+    }
+
     when (settings?.language) {
-        R.string.arabic -> {
+        Language.ARABIC.ordinal -> {
             if (Locale.getDefault().language != "ar") {
                 LocaleHelper.setLocale(LocalContext.current, Locale("ar"))
                 onLocaleChange()
             }
         }
-        R.string.english -> {
+        Language.ENGLISH.ordinal -> {
             if (Locale.getDefault().language != "en") {
                 LocaleHelper.setLocale(LocalContext.current, Locale("en"))
                 onLocaleChange()
@@ -92,15 +101,15 @@ private fun App(
     }
 
     val darkTheme = when (settings?.theme) {
-        R.string.light -> false
-        R.string.dark -> true
+        Theme.LIGHT.ordinal -> false
+        Theme.DARK.ordinal -> true
         else -> isSystemInDarkTheme()
     }
 
     WeatherTheme(
         darkTheme = darkTheme,
         colorIndex = settings?.accent ?: 0,
-        language = settings?.language ?: R.string.english
+        language = settings?.language ?: Language.ENGLISH.ordinal
     ) {
         Surface(
             color = MaterialTheme.colors.surface,

@@ -4,8 +4,8 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.domain.model.forecast.Forecast
+import com.github.amrmsaraya.weather.util.enums.Location
 import com.github.amrmsaraya.weather.domain.usecase.forecast.GetCurrentForecast
 import com.github.amrmsaraya.weather.domain.usecase.forecast.GetForecastFromMap
 import com.github.amrmsaraya.weather.domain.usecase.forecast.InsertForecast
@@ -55,7 +55,7 @@ class MapViewModel @Inject constructor(
 
     private fun insertForecast(forecast: Forecast) = viewModelScope.launch(dispatcher.default) {
         insertForecast.execute(forecast)
-        savePreference.execute("location", R.string.map)
+        savePreference.execute("location", Location.MAP.ordinal)
         _uiState.value = _uiState.value.copy(isLoading = null)
     }
 

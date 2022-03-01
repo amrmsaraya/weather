@@ -8,4 +8,5 @@ data class Settings(
     val notifications: Boolean,
     val temperature: Int,
     val windSpeed: Int,
+    val versionCode: Int
 )

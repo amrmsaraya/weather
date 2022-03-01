@@ -3,7 +3,7 @@ package com.github.amrmsaraya.weather.presentation.activity
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.github.amrmsaraya.weather.R
+import com.github.amrmsaraya.weather.BuildConfig
 import com.github.amrmsaraya.weather.domain.model.Settings
 import com.github.amrmsaraya.weather.domain.model.forecast.Forecast
 import com.github.amrmsaraya.weather.domain.usecase.forecast.InsertForecast
@@ -13,6 +13,7 @@ import com.github.amrmsaraya.weather.domain.usecase.preferences.RestorePreferenc
 import com.github.amrmsaraya.weather.domain.usecase.preferences.SavePreference
 import com.github.amrmsaraya.weather.domain.usecase.preferences.SetDefaultPreferences
 import com.github.amrmsaraya.weather.util.dispatchers.IDispatchers
+import com.github.amrmsaraya.weather.util.enums.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -71,13 +72,14 @@ class MainViewModel @Inject constructor(
     fun setDefaultPreferences() = viewModelScope.launch(dispatcher.default) {
         setDefaultPreferences.execute(
             Settings(
-                location = R.string.gps,
-                language = if (Locale.getDefault().language == "ar") R.string.arabic else R.string.english,
-                theme = R.string.default_,
+                location = Location.GPS.ordinal,
+                language = if (Locale.getDefault().language == "ar") Language.ARABIC.ordinal else Language.ENGLISH.ordinal,
+                theme = Theme.DEFAULT.ordinal,
                 accent = 0,
                 notifications = true,
-                temperature = R.string.celsius,
-                windSpeed = R.string.meter_sec,
+                temperature = Temperature.Celsius.ordinal,
+                windSpeed = WindSpeed.METER_SECOND.ordinal,
+                versionCode = BuildConfig.VERSION_CODE
             )
         )
         insertForecast.execute(Forecast(id = 1))

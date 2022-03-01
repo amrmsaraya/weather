@@ -1,6 +1,5 @@
 package com.github.amrmsaraya.weather.presentation.theme
 
-import androidx.annotation.StringRes
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
@@ -8,7 +7,7 @@ import androidx.compose.material.darkColors
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
-import com.github.amrmsaraya.weather.R
+import com.github.amrmsaraya.weather.util.enums.Language
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 
 private val DarkColorPalette = darkColors(
@@ -108,7 +107,7 @@ val colorsList = listOf(
 fun WeatherTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     colorIndex: Int = 0,
-    @StringRes language: Int,
+    language: Int,
     content: @Composable () -> Unit
 ) {
     val colors =
@@ -119,7 +118,7 @@ fun WeatherTheme(
         systemUiController.setSystemBarsColor(color = colors.surface)
     }
 
-    val typography = if (language == R.string.arabic) ArabicTypography else Typography
+    val typography = if (language == Language.ARABIC.ordinal) ArabicTypography else Typography
 
     MaterialTheme(
         colors = colors,

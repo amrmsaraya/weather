@@ -59,6 +59,7 @@ class PreferencesRepoImp(private val dataStore: DataStore<Preferences>) : Prefer
         savePreference("notifications", settings.notifications)
         savePreference("temperature", settings.temperature)
         savePreference("windSpeed", settings.windSpeed)
+        savePreference("versionCode", settings.versionCode)
     }
 
     override suspend fun restorePreferences(): Flow<Settings> {
@@ -71,6 +72,7 @@ class PreferencesRepoImp(private val dataStore: DataStore<Preferences>) : Prefer
                 notifications = preferences[booleanPreferencesKey("notifications")] ?: true,
                 temperature = preferences[intPreferencesKey("temperature")] ?: 0,
                 windSpeed = preferences[intPreferencesKey("windSpeed")] ?: 0,
+                versionCode = preferences[intPreferencesKey("versionCode")] ?: 0,
             )
         }
     }

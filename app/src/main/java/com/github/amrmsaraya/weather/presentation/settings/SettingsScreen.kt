@@ -23,10 +23,10 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.github.amrmsaraya.weather.R
 import com.github.amrmsaraya.weather.presentation.components.AnimatedVisibilityFade
 import com.github.amrmsaraya.weather.presentation.theme.colorsList
+import com.github.amrmsaraya.weather.util.enums.*
 
 @ExperimentalFoundationApi
 @ExperimentalAnimationApi
@@ -48,26 +48,26 @@ fun SettingsScreen(
                 .padding(16.dp)
         ) {
             val locationItems = listOf(
-                R.string.gps,
-                R.string.map
+                Location.GPS.stringRes,
+                Location.MAP.stringRes
             )
             val languageItems = listOf(
-                R.string.english,
-                R.string.arabic
+                Language.ENGLISH.stringRes,
+                Language.ARABIC.stringRes
             )
             val temperatureItems = listOf(
-                R.string.celsius,
-                R.string.kelvin,
-                R.string.fahrenheit
+                Temperature.Celsius.stringRes,
+                Temperature.Kelvin.stringRes,
+                Temperature.Fahrenheit.stringRes,
             )
             val windSpeedItems = listOf(
-                R.string.meter_sec,
-                R.string.mile_hour
+                WindSpeed.METER_SECOND.stringRes,
+                WindSpeed.MILE_HOUR.stringRes
             )
             val themeItems = listOf(
-                R.string.default_,
-                R.string.light,
-                R.string.dark
+                Theme.DEFAULT.stringRes,
+                Theme.LIGHT.stringRes,
+                Theme.DARK.stringRes
             )
 
             var expandedLocation by remember { mutableStateOf(false) }
@@ -99,10 +99,16 @@ fun SettingsScreen(
                 onClick = { expandedLocation = true },
                 onDismiss = { expandedLocation = false },
                 onMapClick = onMapClick,
-                selectedItemId = setting.location,
+                selectedItemId = when (setting.location) {
+                    Location.GPS.ordinal -> Location.GPS.stringRes
+                    else -> Location.MAP.stringRes
+                },
                 onItemClick = {
                     when (it) {
-                        R.string.gps -> viewModel.savePreference("location", it)
+                        Location.GPS.stringRes -> viewModel.savePreference(
+                            "location",
+                            Location.GPS.ordinal
+                        )
                         else -> onMapClick()
                     }
                 }
@@ -116,8 +122,19 @@ fun SettingsScreen(
                 onClick = { expandedLanguage = true },
                 onDismiss = { expandedLanguage = false },
                 onMapClick = { },
-                selectedItemId = setting.language,
-                onItemClick = { viewModel.savePreference("language", it) }
+                selectedItemId = when (setting.language) {
+                    Language.ARABIC.ordinal -> Language.ARABIC.stringRes
+                    else -> Language.ENGLISH.stringRes
+                },
+                onItemClick = {
+                    viewModel.savePreference(
+                        key = "language",
+                        value = when (it) {
+                            Language.ARABIC.stringRes -> Language.ARABIC.ordinal
+                            else -> Language.ENGLISH.ordinal
+                        }
+                    )
+                }
             )
 
             Spacer(modifier = Modifier.size(8.dp))
@@ -128,8 +145,21 @@ fun SettingsScreen(
                 onClick = { expandedTheme = true },
                 onDismiss = { expandedTheme = false },
                 onMapClick = { },
-                selectedItemId = setting.theme,
-                onItemClick = { viewModel.savePreference("theme", it) }
+                selectedItemId = when (setting.theme) {
+                    Theme.DEFAULT.ordinal -> Theme.DEFAULT.stringRes
+                    Theme.LIGHT.ordinal ->  Theme.LIGHT.stringRes
+                    else -> Theme.DARK.stringRes
+                },
+                onItemClick = {
+                    viewModel.savePreference(
+                        key = "theme",
+                        value = when (it) {
+                            Theme.DEFAULT.stringRes -> Theme.DEFAULT.ordinal
+                            Theme.LIGHT.stringRes -> Theme.LIGHT.ordinal
+                            else -> Theme.DARK.ordinal
+                        }
+                    )
+                }
             )
 
             Spacer(modifier = Modifier.size(8.dp))
@@ -186,8 +216,21 @@ fun SettingsScreen(
                 onClick = { expandedTemperature = true },
                 onDismiss = { expandedTemperature = false },
                 onMapClick = { },
-                selectedItemId = setting.temperature,
-                onItemClick = { viewModel.savePreference("temperature", it) }
+                selectedItemId = when (setting.temperature) {
+                    Temperature.Celsius.ordinal -> R.string.celsius
+                    Temperature.Kelvin.ordinal -> R.string.kelvin
+                    else -> R.string.fahrenheit
+                },
+                onItemClick = {
+                    viewModel.savePreference(
+                        key = "temperature",
+                        value = when (it) {
+                            R.string.celsius -> Temperature.Celsius.ordinal
+                            R.string.kelvin -> Temperature.Kelvin.ordinal
+                            else -> Temperature.Fahrenheit.ordinal
+                        }
+                    )
+                }
             )
 
             Spacer(modifier = Modifier.size(8.dp))
@@ -198,8 +241,19 @@ fun SettingsScreen(
                 onClick = { expandedWindSpeed = true },
                 onMapClick = { },
                 onDismiss = { expandedWindSpeed = false },
-                selectedItemId = setting.windSpeed,
-                onItemClick = { viewModel.savePreference("windSpeed", it) }
+                selectedItemId = when (setting.windSpeed) {
+                    WindSpeed.METER_SECOND.ordinal -> R.string.meter_sec
+                    else -> R.string.mile_hour
+                },
+                onItemClick = {
+                    viewModel.savePreference(
+                        key = "windSpeed",
+                        value = when (it) {
+                            R.string.meter_sec -> WindSpeed.METER_SECOND.ordinal
+                            else -> WindSpeed.MILE_HOUR.ordinal
+                        }
+                    )
+                }
             )
         }
     }

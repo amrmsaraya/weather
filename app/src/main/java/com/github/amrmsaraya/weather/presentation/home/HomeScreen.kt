@@ -2,7 +2,6 @@ package com.github.amrmsaraya.weather.presentation.home
 
 import android.Manifest
 import android.app.Activity
-import androidx.annotation.StringRes
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -47,6 +46,10 @@ import com.github.amrmsaraya.weather.presentation.theme.Cairo
 import com.github.amrmsaraya.weather.presentation.theme.Spartan
 import com.github.amrmsaraya.weather.util.*
 import com.github.amrmsaraya.weather.util.ForecastIcons.*
+import com.github.amrmsaraya.weather.util.enums.Language
+import com.github.amrmsaraya.weather.util.enums.Location
+import com.github.amrmsaraya.weather.util.enums.Temperature
+import com.github.amrmsaraya.weather.util.enums.WindSpeed
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.swiperefresh.SwipeRefresh
@@ -102,7 +105,7 @@ fun HomeScreen(
                 },
             ) {
                 when (setting.location) {
-                    R.string.gps -> GPSLocation(
+                    Location.GPS.ordinal -> GPSLocation(
                         forecast = uiState.forecast,
                         setting = setting,
                         onLocationChange = { lat, lon ->
@@ -324,7 +327,7 @@ fun Temp(modifier: Modifier = Modifier, temp: Double, settings: Settings) {
             text = getTemp(temp, settings.temperature),
             color = Color.White,
             style = MaterialTheme.typography.h1,
-            fontFamily = if (settings.language == R.string.arabic) Cairo else Spartan
+            fontFamily = if (settings.language == Language.ARABIC.ordinal) Cairo else Spartan
         )
         Text(
             modifier = Modifier
@@ -538,7 +541,7 @@ fun ForecastDetailsItem(item: ForecastIcons, current: Current, settings: Setting
                 Pressure -> "${current.pressure.localize()} ${stringResource(id = R.string.hpa)}"
                 Humidity -> "${current.humidity.localize()} %"
                 Wind -> when (settings.windSpeed) {
-                    R.string.meter_sec -> "${current.windSpeed.localize()} ${stringResource(id = R.string.m_s)}"
+                    WindSpeed.METER_SECOND.ordinal -> "${current.windSpeed.localize()} ${stringResource(id = R.string.m_s)}"
                     else -> "${(current.windSpeed * 2.236936).localize()} ${stringResource(id = R.string.mph)}"
                 }
                 Cloud -> "${current.clouds.localize()} %"
@@ -599,19 +602,19 @@ private fun weekdayFormat(time: Int): String {
     return SimpleDateFormat("E", Locale.getDefault()).format(time.toLong() * 1000)
 }
 
-fun getTemp(temp: Double, @StringRes unit: Int): String {
+fun getTemp(temp: Double, unit: Int): String {
     return when (unit) {
-        R.string.celsius -> temp.roundToInt()
-        R.string.kelvin -> (temp + 273.15).roundToInt()
+        Temperature.Celsius.ordinal -> temp.roundToInt()
+        Temperature.Kelvin.ordinal -> (temp + 273.15).roundToInt()
         else -> ((temp * 1.8) + 32).roundToInt()
     }.localize()
 
 }
 
-fun getTempUnit(@StringRes unit: Int): Int {
+fun getTempUnit(unit: Int): Int {
     return when (unit) {
-        R.string.celsius -> R.string.celsius_unit
-        R.string.kelvin -> R.string.kelvin_unit
+        Temperature.Celsius.ordinal -> R.string.celsius_unit
+        Temperature.Celsius.ordinal -> R.string.kelvin_unit
         else -> R.string.fahrenheit_unit
     }
 }
