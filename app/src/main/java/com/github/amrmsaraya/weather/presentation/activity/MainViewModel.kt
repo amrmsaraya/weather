@@ -33,10 +33,10 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
 
     init {
+        resetPreferencesOnVersionCode(17)
         updateFavoritesForecast()
         getBooleanPreference("firstRun")
         restorePreferences()
-        resetPreferencesOnVersionCode(17)
     }
 
     var settings by mutableStateOf<Settings?>(null)

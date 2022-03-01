@@ -76,9 +76,7 @@ fun HomeScreen(
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
 
-
     uiState.settings?.let { setting ->
-
         Scaffold(
             modifier = modifier,
             scaffoldState = scaffoldState
